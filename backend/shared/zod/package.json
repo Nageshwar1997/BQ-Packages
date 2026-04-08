@@ -1,7 +1,7 @@
 {
-  "name": "bq-shared-constants",
+  "name": "bq-shared-zod-schemas",
   "version": "1.0.0",
-  "description": "BQ Shared Constants",
+  "description": "BQ Shared Zod Schemas",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
