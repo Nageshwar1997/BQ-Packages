@@ -1,5 +1,5 @@
 {
-  "name": "@bq/constants",
+  "name": "bq-shared-constants",
   "version": "1.0.0",
   "description": "BQ Shared Constants",
   "main": "dist/index.js",
