@@ -60,6 +60,7 @@
     "paths": {
       "@/*": ["src/*"]
     } /* Specify a set of entries that re-map imports to additional lookup locations. */,
+    "ignoreDeprecations": "6.0" /* Disable emitting files from a compilation. */,
     "outDir": "./dist" /* Specify an output folder for all emitted files. */,
     "removeComments": true /* Disable emitting comments. */,
     // "importHelpers": true,                            /* Allow importing helper functions from tslib once per project, instead of including them per-file. */
