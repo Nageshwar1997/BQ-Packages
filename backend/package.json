@@ -1,0 +1,8 @@
+{
+  "name": "bq-backend-tools",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "publish:package": "node scripts/publish-package.js"
+  }
+}

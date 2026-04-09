@@ -1,6 +1,6 @@
 {
   "name": "bq-shared-constants",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "BQ Shared Constants",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
