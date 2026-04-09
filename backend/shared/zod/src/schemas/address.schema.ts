@@ -50,16 +50,14 @@ const addressBaseSchema = object({
     .enum({
       field: "country",
       label: "Country",
-      enumValues: ["India"],
-      // TODO:   enums: constants.common.ALLOWED_COUNTRIES,
+      enumValues: constants.address.ALLOWED_COUNTRIES,
     })
     .default("India"),
   type: zodValidator
     .enum({
       field: "type",
       label: "Address Type",
-      enumValues: ["both", "shipping", "billing"],
-      // TODO: enums: constants.common.ADDRESS_TYPES,
+      enumValues: constants.address.ADDRESS_TYPES,
     })
     .default("both"),
   firstName: registerSchema.shape.firstName,
