@@ -36,7 +36,8 @@
 
     /* Misc */
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "ignoreDeprecations": "6.0" /* TODO: Remove it once tsup supports it. Temporary workaround for tsup + TypeScript 6 compatibility */
   },
 
   "include": ["src"]

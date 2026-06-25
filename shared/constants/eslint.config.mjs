@@ -10,17 +10,18 @@ export default tseslint.config(
   /* JavaScript recommended rules */
   js.configs.recommended,
 
-  /* TypeScript recommended rules */
-  ...tseslint.configs.recommendedTypeChecked,
-
-  /* Additional strict TypeScript rules */
-  ...tseslint.configs.strictTypeChecked,
-
-  /* TypeScript stylistic rules */
-  ...tseslint.configs.stylisticTypeChecked,
-
   {
     files: ['**/*.{ts,mts,cts}'],
+    extends: [
+      /* TypeScript recommended rules */
+      ...tseslint.configs.recommendedTypeChecked,
+
+      /* Additional strict TypeScript rules */
+      ...tseslint.configs.strictTypeChecked,
+
+      /* TypeScript stylistic rules */
+      ...tseslint.configs.stylisticTypeChecked,
+    ],
 
     plugins: { 'simple-import-sort': simpleImportSort },
 
