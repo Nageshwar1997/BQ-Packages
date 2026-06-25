@@ -15,7 +15,6 @@
 
     /* Type Checking */
     "strict": true,
-
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
@@ -24,6 +23,9 @@
 
     /* Build Compatibility */
     "isolatedModules": true,
+
+    /* Module Resolution */
+    "resolveJsonModule": true,
 
     /* Interop */
     "esModuleInterop": true,

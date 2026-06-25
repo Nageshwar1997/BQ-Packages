@@ -5,7 +5,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   /* Global configuration */
-  { ignores: ['dist', 'coverage', 'node_modules', '*.d.ts'] },
+  { ignores: ['dist', 'coverage', 'node_modules', '*.d.ts', '*.min.js'] },
 
   /* JavaScript recommended rules */
   js.configs.recommended,
@@ -16,11 +16,11 @@ export default tseslint.config(
   /* Additional strict TypeScript rules */
   ...tseslint.configs.strictTypeChecked,
 
-  /* TypeScript code style rules */
+  /* TypeScript stylistic rules */
   ...tseslint.configs.stylisticTypeChecked,
 
   {
-    files: ['**/*.ts'],
+    files: ['**/*.{ts,mts,cts}'],
 
     plugins: { 'simple-import-sort': simpleImportSort },
 
@@ -29,13 +29,13 @@ export default tseslint.config(
     },
 
     rules: {
-      /* Import & Export sorting */
+      /* Import & Export Rules */
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
 
       'sort-imports': ['warn', { ignoreDeclarationSort: true, allowSeparatedGroups: true }],
 
-      /* TypeScript */
+      /* TypeScript Rules */
       '@typescript-eslint/consistent-type-imports': 'error',
 
       '@typescript-eslint/no-unused-vars': [
@@ -53,8 +53,8 @@ export default tseslint.config(
 
       '@typescript-eslint/require-await': 'error',
 
-      /* JavaScript */
-      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      /* JavaScript Rules */
+      'no-console': ['error', { allow: ['warn', 'error'] }],
 
       'no-debugger': 'error',
 
@@ -64,8 +64,6 @@ export default tseslint.config(
     },
   },
 
-  /**
-   * Disable formatting rules handled by Prettier
-   */
+  /* Disable formatting rules handled by Prettier */
   prettier,
 );
