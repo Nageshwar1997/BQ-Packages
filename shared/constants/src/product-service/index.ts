@@ -47,3 +47,13 @@ export type TDraftProductStep = keyof typeof DRAFT_PRODUCT_STEP_MAP;
 export type TDraftProductFormKeys = {
   [K in TDraftProductStep]: (typeof DRAFT_PRODUCT_STEP_MAP)[K];
 }[TDraftProductStep];
+
+export const CATEGORY_LEVELS = [1, 2, 3] as const;
+export type TCategoryLevel = (typeof CATEGORY_LEVELS)[number];
+
+export const CATEGORY_LEVEL_MAP = Object.fromEntries(
+  CATEGORY_LEVELS.map((level) => [`L${String(level)}`, level] as const),
+) as {
+  readonly [K in `L${TCategoryLevel}`]: K extends `L${infer L extends TCategoryLevel}` ? L : never;
+};
+export type TCategoryLevelMap = typeof CATEGORY_LEVEL_MAP;
