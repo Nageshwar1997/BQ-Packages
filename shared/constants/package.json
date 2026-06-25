@@ -1,7 +1,7 @@
 {
-  "name": "@beautinique/common-constants",
+  "name": "@beautinique/shared-constants",
   "version": "1.0.0",
-  "description": "Common constants for Beautinique.",
+  "description": "Shared constants for Beautinique.",
   "keywords": [
     "beautinique",
     "constants",
@@ -13,6 +13,15 @@
   ],
   "author": "Nageshwar Pawar",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nageshwar1997/BQ-Packages.git",
+    "directory": "shared/constants"
+  },
+  "bugs": {
+    "url": "https://github.com/Nageshwar1997/BQ-Packages/issues"
+  },
+  "homepage": "https://github.com/Nageshwar1997/BQ-Packages/tree/main/shared/constants#readme",
   "type": "module",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
