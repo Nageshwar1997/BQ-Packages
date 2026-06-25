@@ -1,3 +1,16 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+coverage
+*.tsbuildinfo
+
+# Environment
+.env
+.env.*
+!.env.example
+
 # Logs
 logs
 *.log
@@ -7,26 +20,29 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-coverage
-dist
-dist-ssr
+# Local files
 *.local
-*.tsbuildinfo
 
-# Env
-.env
-.env.production
+# Package archives
+*.tgz
 
-# Editor directories and files
+# IDE
 .vscode/*
 !.vscode/extensions.json
-!.vscode/tasks.json
 !.vscode/settings.json
+!.vscode/tasks.json
+
 .idea
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Visual Studio
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
+
+# Vim
 *.sw?
