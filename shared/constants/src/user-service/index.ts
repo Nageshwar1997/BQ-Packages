@@ -14,6 +14,9 @@ export const SELLER_TYPES = [
   'Retail Store',
   'Salon',
   'Wholesale Distributor',
+  'Spa',
+  'Clinic',
+  'Brand',
 ] as const;
 export type TSeller = (typeof SELLER_TYPES)[number];
 
