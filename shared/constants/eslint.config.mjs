@@ -1,55 +1,71 @@
 import js from '@eslint/js';
 import prettier from 'eslint-config-prettier';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import tseslint from 'typescript-eslint';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+export default tseslint.config(
+  /* Global configuration */
+  { ignores: ['dist', 'coverage', 'node_modules', '*.d.ts'] },
 
-export default [
-  // Ignore some folders
-  { ignores: ['dist', 'node_modules'] },
-
-  // Base JS rules
+  /* JavaScript recommended rules */
   js.configs.recommended,
 
-  // TypeScript rules (modern setup)
-  ...tseslint.configs.recommended,
-  ...tseslint.configs.strict,
-  ...tseslint.configs.stylistic,
+  /* TypeScript recommended rules */
+  ...tseslint.configs.recommendedTypeChecked,
+
+  /* Additional strict TypeScript rules */
+  ...tseslint.configs.strictTypeChecked,
+
+  /* TypeScript code style rules */
+  ...tseslint.configs.stylisticTypeChecked,
 
   {
     files: ['**/*.ts'],
 
-    languageOptions: {
-      parser: tseslint.parser,
+    plugins: { 'simple-import-sort': simpleImportSort },
 
-      parserOptions: { project: true, tsconfigRootDir: __dirname },
+    languageOptions: {
+      parserOptions: { projectService: true },
     },
 
     rules: {
-      // 🔥 Important rules (production level)
+      /* Import & Export sorting */
+      'simple-import-sort/imports': 'error',
+      'simple-import-sort/exports': 'error',
+
+      'sort-imports': ['warn', { ignoreDeclarationSort: true, allowSeparatedGroups: true }],
+
+      /* TypeScript */
+      '@typescript-eslint/consistent-type-imports': 'error',
+
       '@typescript-eslint/no-unused-vars': [
         'warn',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
       ],
 
       '@typescript-eslint/no-explicit-any': 'warn',
 
-      '@typescript-eslint/consistent-type-imports': 'error',
+      '@typescript-eslint/no-floating-promises': 'error',
 
-      // Code quality
+      '@typescript-eslint/no-misused-promises': 'error',
+
+      '@typescript-eslint/await-thenable': 'error',
+
+      '@typescript-eslint/require-await': 'error',
+
+      /* JavaScript */
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+
       'no-debugger': 'error',
 
-      // Best practices
       eqeqeq: ['error', 'always'],
 
       curly: ['error', 'all'],
-
-      // Imports cleanliness
-      'sort-imports': ['warn', { ignoreDeclarationSort: true }],
     },
   },
 
+  /**
+   * Disable formatting rules handled by Prettier
+   */
   prettier,
-];
+);
