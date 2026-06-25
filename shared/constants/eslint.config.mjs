@@ -25,7 +25,7 @@ export default tseslint.config(
     plugins: { 'simple-import-sort': simpleImportSort },
 
     languageOptions: {
-      parserOptions: { projectService: true },
+      parserOptions: { projectService: { allowDefaultProject: ['tsup.config.ts'] } },
     },
 
     rules: {

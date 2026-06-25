@@ -1,23 +1,53 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
+  /**
+   * Entry files
+   */
   entry: ['src/index.ts'],
 
+  /**
+   * Output formats
+   */
   format: ['esm', 'cjs'],
 
+  /**
+   * Generate TypeScript declaration files
+   */
   dts: true,
 
-  clean: true,
-
-  sourcemap: true,
-
-  splitting: false,
-
-  treeshake: true,
-
+  /**
+   * Target JavaScript version
+   */
   target: 'es2025',
 
-  platform: 'node',
+  /**
+   * Clean output directory before build
+   */
+  clean: true,
 
+  /**
+   * Generate source maps
+   */
+  sourcemap: true,
+
+  /**
+   * Enable tree shaking
+   */
+  treeshake: true,
+
+  /**
+   * Don't split chunks
+   */
+  splitting: false,
+
+  /**
+   * Don't minify library output
+   */
+  minify: false,
+
+  /**
+   * Output directory
+   */
   outDir: 'dist',
 });

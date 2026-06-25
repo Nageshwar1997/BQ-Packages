@@ -1,35 +1,41 @@
 {
   "compilerOptions": {
+    /* Language */
     "target": "ES2025",
 
+    /* Modules */
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
 
+    /* Project */
     "rootDir": "./src",
-    "outDir": "./dist",
-
-    "strict": true,
-
     "types": ["node"],
 
-    "verbatimModuleSyntax": true,
+    /* Type Checking */
+    "strict": true,
 
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
 
-    "forceConsistentCasingInFileNames": true,
+    /* Build Compatibility */
+    "isolatedModules": true,
 
-    "sourceMap": true,
-
-    "declaration": true,
-    "declarationMap": true,
-
+    /* Interop */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
 
+    /* Source Maps */
+    "sourceMap": true,
+
+    /* Misc */
+    "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
+
   "include": ["src"]
 }
