@@ -8,6 +8,7 @@
     "typescript",
     "node",
     "library",
+    "package",
     "shared",
     "npm"
   ],
@@ -16,12 +17,12 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Nageshwar1997/BQ-Packages.git",
-    "directory": "shared/constants"
+    "directory": "packages/shared/constants"
   },
   "bugs": {
     "url": "https://github.com/Nageshwar1997/BQ-Packages/issues"
   },
-  "homepage": "https://github.com/Nageshwar1997/BQ-Packages/tree/main/shared/constants#readme",
+  "homepage": "https://github.com/Nageshwar1997/BQ-Packages/tree/main/packages/shared/constants#readme",
   "type": "module",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
