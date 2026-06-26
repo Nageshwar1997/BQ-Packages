@@ -1,4 +1,8 @@
-import { PACKAGE_NAME_REGEX } from "./constants.mjs";
+import {
+  PACKAGE_DESCRIPTION_MAX_LENGTH,
+  PACKAGE_DESCRIPTION_MIN_LENGTH,
+  PACKAGE_NAME_REGEX,
+} from "./constants.mjs";
 import { normalizeText } from "./utils.mjs";
 
 /* -------------------------------------------------------------------------- */
@@ -49,7 +53,6 @@ export function validatePackageName(value) {
   return true;
 }
 
-
 /* -------------------------------------------------------------------------- */
 /*                               DESCRIPTION                                  */
 /* -------------------------------------------------------------------------- */
@@ -59,11 +62,33 @@ export function validatePackageName(value) {
  *
  * Rules:
  *  • Required
- *  • Cannot be empty after normalization
+ *  • Minimum length: 10 characters
+ *  • Maximum length: 150 characters
+ *  • Must contain at least one letter or number
  *
  * @param {string} value
  * @returns {true | string}
  */
 export function validateDescription(value) {
-  return validateRequired(value, "Package description");
+  const required = validateRequired(value, "Package description");
+
+  if (required !== true) {
+    return required;
+  }
+
+  const normalizedValue = normalizeText(value);
+
+  if (normalizedValue.length < PACKAGE_DESCRIPTION_MIN_LENGTH) {
+    return `Package description must be at least ${PACKAGE_DESCRIPTION_MIN_LENGTH} characters long.`;
+  }
+
+  if (normalizedValue.length > PACKAGE_DESCRIPTION_MAX_LENGTH) {
+    return `Package description cannot exceed ${PACKAGE_DESCRIPTION_MAX_LENGTH} characters.`;
+  }
+
+  if (!/[\p{L}\p{N}]/u.test(normalizedValue)) {
+    return "Package description must contain at least one letter or number.";
+  }
+
+  return true;
 }
