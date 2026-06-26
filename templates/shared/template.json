@@ -1,0 +1,10 @@
+{
+  "type": "shared",
+  "directory": "packages/shared",
+  "packagePrefix": "shared",
+  "config": {
+    "tsconfig": "tsconfig.shared.json",
+    "eslint": "eslint.shared.config.mjs",
+    "tsup": "tsup.shared.config.ts"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "backend",
+  "directory": "packages/backend",
+  "packagePrefix": "backend",
+  "config": {
+    "tsconfig": "tsconfig.backend.json",
+    "eslint": "eslint.backend.config.mjs",
+    "tsup": "tsup.backend.config.ts"
+  }
+}

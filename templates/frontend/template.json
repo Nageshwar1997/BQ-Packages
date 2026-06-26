@@ -1,0 +1,10 @@
+{
+  "type": "frontend",
+  "directory": "packages/frontend",
+  "packagePrefix": "frontend",
+  "config": {
+    "tsconfig": "tsconfig.frontend.json",
+    "eslint": "eslint.frontend.config.mjs",
+    "tsup": "tsup.frontend.config.ts"
+  }
+}
