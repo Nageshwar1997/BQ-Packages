@@ -1,5 +1,6 @@
 import {
   promptDescription,
+  promptKeywords,
   promptPackageName,
   promptTemplate,
 } from "./prompts.mjs";
@@ -19,12 +20,14 @@ async function main() {
   const template = await promptTemplate();
   const packageName = await promptPackageName();
   const description = await promptDescription();
+  const keywords = await promptKeywords();
 
   console.log("\nPackage Details");
   console.log("───────────────");
   console.log(`Template     : ${template}`);
   console.log(`Package Name : ${packageName}`);
   console.log(`Description  : ${description}`);
+  console.log(`Keywords     : ${keywords.join(", ")}`);
 }
 
 await main();

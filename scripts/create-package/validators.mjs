@@ -1,9 +1,13 @@
 import {
   PACKAGE_DESCRIPTION_MAX_LENGTH,
   PACKAGE_DESCRIPTION_MIN_LENGTH,
+  PACKAGE_KEYWORD_MAX_LENGTH,
+  PACKAGE_KEYWORD_MIN_LENGTH,
+  PACKAGE_KEYWORDS_MAX_COUNT,
+  PACKAGE_KEYWORDS_MIN_COUNT,
   PACKAGE_NAME_REGEX,
 } from "./constants.mjs";
-import { normalizeText } from "./utils.mjs";
+import { normalizeKeywords, normalizeText } from "./utils.mjs";
 
 /* -------------------------------------------------------------------------- */
 /*                                   COMMON                                   */
@@ -88,6 +92,51 @@ export function validateDescription(value) {
 
   if (!/[\p{L}\p{N}]/u.test(normalizedValue)) {
     return "Package description must contain at least one letter or number.";
+  }
+
+  return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                 KEYWORDS                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Validates package keywords.
+ *
+ * Validation rules:
+ *  • Required
+ *  • Number of keywords must be within the allowed limits
+ *  • Each keyword must be within the allowed length limits
+ *
+ * @param {string} value
+ * @returns {true | string}
+ */
+export function validateKeywords(value) {
+  const required = validateRequired(value, "Package keywords");
+
+  if (required !== true) {
+    return required;
+  }
+
+  const keywords = normalizeKeywords(value);
+
+  if (keywords.length < PACKAGE_KEYWORDS_MIN_COUNT) {
+    return `At least ${PACKAGE_KEYWORDS_MIN_COUNT} keyword is required.`;
+  }
+
+  if (keywords.length > PACKAGE_KEYWORDS_MAX_COUNT) {
+    return `A maximum of ${PACKAGE_KEYWORDS_MAX_COUNT} keywords is allowed.`;
+  }
+
+  for (const keyword of keywords) {
+    if (keyword.length < PACKAGE_KEYWORD_MIN_LENGTH) {
+      return `Keyword "${keyword}" must be at least ${PACKAGE_KEYWORD_MIN_LENGTH} characters long.`;
+    }
+
+    if (keyword.length > PACKAGE_KEYWORD_MAX_LENGTH) {
+      return `Keyword "${keyword}" cannot exceed ${PACKAGE_KEYWORD_MAX_LENGTH} characters.`;
+    }
   }
 
   return true;

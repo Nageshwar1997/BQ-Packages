@@ -1,6 +1,6 @@
 import { input, select } from "@inquirer/prompts";
-import { normalizeText } from "./utils.mjs";
-import { validateDescription, validatePackageName } from "./validators.mjs";
+import { normalizeKeywords, normalizeText } from "./utils.mjs";
+import { validateDescription, validateKeywords, validatePackageName } from "./validators.mjs";
 
 /* -------------------------------------------------------------------------- */
 /*                                   PROMPTS                                  */
@@ -55,6 +55,21 @@ export async function promptDescription() {
     await input({
       message: "Package description",
       validate: validateDescription,
+    }),
+  );
+}
+
+
+/**
+ * Prompts the user to enter package keywords.
+ *
+ * @returns {Promise<string[]>}
+ */
+export async function promptKeywords() {
+  return normalizeKeywords(
+    await input({
+      message: "Package keywords (comma separated)",
+      validate: validateKeywords,
     }),
   );
 }
