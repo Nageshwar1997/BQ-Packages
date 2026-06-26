@@ -1,10 +1,19 @@
 {
-  "type": "backend",
   "directory": "packages/backend",
   "packagePrefix": "backend",
   "config": {
     "tsconfig": "tsconfig.backend.json",
     "eslint": "eslint.backend.config.mjs",
     "tsup": "tsup.backend.config.ts"
+  },
+  "packageJson": {
+    "private": false,
+    "scripts": {
+      "dev": "tsx watch src/index.ts",
+      "build": "tsup",
+      "start": "node dist/index.js",
+      "lint": "eslint .",
+      "type-check": "tsc --noEmit"
+    }
   }
 }
