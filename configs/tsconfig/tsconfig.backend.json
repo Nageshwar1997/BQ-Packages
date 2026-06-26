@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.base.json",
+
+  "compilerOptions": {
+    /* Project */
+    "rootDir": "./src",
+    "types": ["node"],
+
+    /* Build Output */
+    "declaration": true,
+    "declarationMap": true
+  },
+
+  "include": ["src"]
+}
