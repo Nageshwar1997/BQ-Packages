@@ -56,7 +56,7 @@ export const CATEGORY_LEVELS_MAP = Object.fromEntries(
 ) as {
   readonly [K in `L${TCategoryLevel}`]: K extends `L${infer L extends TCategoryLevel}` ? L : never;
 };
-export type TCategoryLevelSMap = typeof CATEGORY_LEVELS_MAP;
+export type TCategoryLevelsMap = typeof CATEGORY_LEVELS_MAP;
 
 export const VARIANT_TYPES = ['Color', 'Text'] as const;
 export type TVariantType = (typeof VARIANT_TYPES)[number];
