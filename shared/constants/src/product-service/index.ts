@@ -51,9 +51,17 @@ export type TDraftProductFormKeys = {
 export const CATEGORY_LEVELS = [1, 2, 3] as const;
 export type TCategoryLevel = (typeof CATEGORY_LEVELS)[number];
 
-export const CATEGORY_LEVEL_MAP = Object.fromEntries(
+export const CATEGORY_LEVELS_MAP = Object.fromEntries(
   CATEGORY_LEVELS.map((level) => [`L${String(level)}`, level] as const),
 ) as {
   readonly [K in `L${TCategoryLevel}`]: K extends `L${infer L extends TCategoryLevel}` ? L : never;
 };
-export type TCategoryLevelMap = typeof CATEGORY_LEVEL_MAP;
+export type TCategoryLevelSMap = typeof CATEGORY_LEVELS_MAP;
+
+export const VARIANT_TYPES = ['Color', 'Text'] as const;
+export type TVariantType = (typeof VARIANT_TYPES)[number];
+
+export const VARIANT_TYPES_MAP = Object.fromEntries(
+  VARIANT_TYPES.map((type) => [type, type] as const),
+) as { readonly [K in TVariantType]: K };
+export type TVariantTypesMap = typeof VARIANT_TYPES_MAP;
