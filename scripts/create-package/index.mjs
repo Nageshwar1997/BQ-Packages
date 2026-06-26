@@ -1,4 +1,8 @@
-import { promptPackageName, promptTemplate } from "./prompts.mjs";
+import {
+  promptDescription,
+  promptPackageName,
+  promptTemplate,
+} from "./prompts.mjs";
 
 /* -------------------------------------------------------------------------- */
 /*                                    MAIN                                    */
@@ -14,11 +18,13 @@ async function main() {
 
   const template = await promptTemplate();
   const packageName = await promptPackageName();
+  const description = await promptDescription();
 
   console.log("\nPackage Details");
   console.log("───────────────");
   console.log(`Template     : ${template}`);
   console.log(`Package Name : ${packageName}`);
+  console.log(`Description  : ${description}`);
 }
 
 await main();

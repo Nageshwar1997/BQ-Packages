@@ -1,6 +1,6 @@
 import { input, select } from "@inquirer/prompts";
 import { normalizeText } from "./utils.mjs";
-import { validatePackageName } from "./validators.mjs";
+import { validateDescription, validatePackageName } from "./validators.mjs";
 
 /* -------------------------------------------------------------------------- */
 /*                                   PROMPTS                                  */
@@ -42,5 +42,19 @@ export async function promptTemplate() {
 export async function promptPackageName() {
   return normalizeText(
     await input({ message: "Package name", validate: validatePackageName }),
+  );
+}
+
+/**
+ * Prompts the user to enter a package description.
+ *
+ * @returns {Promise<string>}
+ */
+export async function promptDescription() {
+  return normalizeText(
+    await input({
+      message: "Package description",
+      validate: validateDescription,
+    }),
   );
 }

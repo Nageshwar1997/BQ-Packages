@@ -48,3 +48,22 @@ export function validatePackageName(value) {
 
   return true;
 }
+
+
+/* -------------------------------------------------------------------------- */
+/*                               DESCRIPTION                                  */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Validates the package description.
+ *
+ * Rules:
+ *  • Required
+ *  • Cannot be empty after normalization
+ *
+ * @param {string} value
+ * @returns {true | string}
+ */
+export function validateDescription(value) {
+  return validateRequired(value, "Package description");
+}
