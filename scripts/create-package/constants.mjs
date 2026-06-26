@@ -30,3 +30,8 @@ export const PACKAGE_KEYWORDS_MAX_COUNT = 10;
 
 export const PACKAGE_KEYWORD_MIN_LENGTH = 2;
 export const PACKAGE_KEYWORD_MAX_LENGTH = 30;
+
+/**
+ * Package scope used for all generated packages.
+ */
+export const PACKAGE_SCOPE = "@beautinique";

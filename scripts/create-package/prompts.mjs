@@ -1,6 +1,10 @@
-import { input, select } from "@inquirer/prompts";
+import { confirm, input, select } from "@inquirer/prompts";
 import { normalizeKeywords, normalizeText } from "./utils.mjs";
-import { validateDescription, validateKeywords, validatePackageName } from "./validators.mjs";
+import {
+  validateDescription,
+  validateKeywords,
+  validatePackageName,
+} from "./validators.mjs";
 
 /* -------------------------------------------------------------------------- */
 /*                                   PROMPTS                                  */
@@ -59,7 +63,6 @@ export async function promptDescription() {
   );
 }
 
-
 /**
  * Prompts the user to enter package keywords.
  *
@@ -72,4 +75,13 @@ export async function promptKeywords() {
       validate: validateKeywords,
     }),
   );
+}
+
+/**
+ * Prompts the user to confirm package creation.
+ *
+ * @returns {Promise<boolean>}
+ */
+export async function promptConfirmation() {
+  return confirm({ message: "Create package?", default: true });
 }

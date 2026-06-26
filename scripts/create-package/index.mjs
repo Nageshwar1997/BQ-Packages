@@ -1,4 +1,5 @@
 import {
+  promptConfirmation,
   promptDescription,
   promptKeywords,
   promptPackageName,
@@ -28,6 +29,13 @@ async function main() {
   console.log(`Package Name : ${packageName}`);
   console.log(`Description  : ${description}`);
   console.log(`Keywords     : ${keywords.join(", ")}`);
+
+  const confirmed = await promptConfirmation();
+
+  if (!confirmed) {
+    console.log("\n❌ Package creation cancelled.");
+    return;
+  }
 }
 
 await main();
