@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    /* Language */
+    "target": "ES2025",
+
+    /* Modules */
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+
+    /* Type Checking */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+
+    /* Build Compatibility */
+    "isolatedModules": true,
+
+    /* Module Resolution */
+    "resolveJsonModule": true,
+
+    /* Interop */
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    /* Source Maps */
+    "sourceMap": true,
+
+    /* Misc */
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    /* TODO: Remove once tsup fully supports TypeScript 6 */
+    "ignoreDeprecations": "6.0"
+  }
+}
