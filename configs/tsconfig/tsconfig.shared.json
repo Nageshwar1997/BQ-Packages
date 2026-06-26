@@ -1,14 +1,7 @@
 {
   "extends": "./tsconfig.base.json",
-
   "compilerOptions": {
-    /* Project */
-    "rootDir": "./src",
-
-    /* Declaration Files */
     "declaration": true,
     "declarationMap": true
-  },
-
-  "include": ["src"]
+  }
 }

@@ -2,14 +2,11 @@
   "extends": "./tsconfig.base.json",
 
   "compilerOptions": {
-    /* Project */
-    "rootDir": "./src",
+    /* Environment */
     "types": ["node"],
 
-    /* Build Output */
+    /* Declaration Files */
     "declaration": true,
     "declarationMap": true
-  },
-
-  "include": ["src"]
+  }
 }
