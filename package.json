@@ -1,0 +1,44 @@
+{
+  "name": "@beautinique/packages",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo for Beautinique packages.",
+  "keywords": [
+    "beautinique",
+    "monorepo",
+    "packages",
+    "typescript",
+    "npm"
+  ],
+  "author": "Nageshwar Pawar",
+  "license": "ISC",
+  "type": "module",
+  "workspaces": [
+    "packages/*/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces",
+    "lint:fix": "npm run lint:fix --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "clean": "node ./scripts/clean.mjs",
+    "create": "node ./scripts/create-package.mjs",
+    "publish:package": "powershell -ExecutionPolicy Bypass -File ./scripts/publish-package.ps1"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.0.1",
+    "eslint": "^10.5.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-simple-import-sort": "^13.0.0",
+    "prettier": "^3.8.5",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.62.0"
+  }
+}
