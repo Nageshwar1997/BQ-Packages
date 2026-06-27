@@ -1,12 +1,19 @@
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
+  PACKAGE_AUTHOR,
+  PACKAGE_BUGS_URL,
   PACKAGE_EXPORTS,
   PACKAGE_FILES,
+  PACKAGE_HOMEPAGE,
   PACKAGE_LICENSE,
   PACKAGE_MAIN,
   PACKAGE_MODULE,
+  PACKAGE_NODE_ENGINE,
+  PACKAGE_PUBLISH_ACCESS,
+  PACKAGE_REPOSITORY,
   PACKAGE_SCRIPTS,
+  PACKAGE_SIDE_EFFECTS,
   PACKAGE_TYPE,
   PACKAGE_TYPES,
   PACKAGE_VERSION,
@@ -32,7 +39,18 @@ export async function generatePackageJson(metadata) {
 
     keywords: metadata.keywords,
 
+    author: PACKAGE_AUTHOR,
+
     license: PACKAGE_LICENSE,
+
+    repository: {
+      ...PACKAGE_REPOSITORY,
+      directory: `${metadata.directory}/${metadata.packageName}`,
+    },
+
+    bugs: { url: PACKAGE_BUGS_URL },
+
+    homepage: `${PACKAGE_HOMEPAGE}/tree/main/${metadata.directory}/${metadata.packageName}#readme`,
 
     type: PACKAGE_TYPE,
 
@@ -44,9 +62,15 @@ export async function generatePackageJson(metadata) {
 
     files: PACKAGE_FILES,
 
+    sideEffects: PACKAGE_SIDE_EFFECTS,
+
     exports: PACKAGE_EXPORTS,
 
     scripts: PACKAGE_SCRIPTS,
+
+    publishConfig: { access: PACKAGE_PUBLISH_ACCESS },
+
+    engines: { node: PACKAGE_NODE_ENGINE },
   };
 
   await writeFile(

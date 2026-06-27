@@ -74,6 +74,11 @@ export const PACKAGE_MODULE = "./dist/index.js";
 export const PACKAGE_TYPES = "./dist/index.d.ts";
 
 /**
+ * Package.json export path.
+ */
+export const PACKAGE_JSON_EXPORT = "./package.json";
+
+/**
  * Files included when publishing the package.
  */
 export const PACKAGE_FILES = ["dist"];
@@ -88,6 +93,7 @@ export const PACKAGE_EXPORTS = {
     require: PACKAGE_MAIN,
     default: PACKAGE_MODULE,
   },
+  [PACKAGE_JSON_EXPORT]: PACKAGE_JSON_EXPORT,
 };
 
 /* -------------------------------------------------------------------------- */
@@ -108,3 +114,42 @@ export const PACKAGE_SCRIPTS = {
  * Relative path from a generated package to the shared configuration directory.
  */
 export const SHARED_CONFIGS_DIRECTORY = "../../../configs";
+
+/**
+ * Package author.
+ */
+export const PACKAGE_AUTHOR = "Nageshwar Pawar";
+
+/**
+ * Package repository.
+ */
+export const PACKAGE_REPOSITORY = {
+  type: "git",
+  url: "git+https://github.com/Nageshwar1997/BQ-Packages.git",
+};
+
+/**
+ * Package bugs URL.
+ */
+export const PACKAGE_BUGS_URL =
+  "https://github.com/Nageshwar1997/BQ-Packages/issues";
+
+/**
+ * Package homepage.
+ */
+export const PACKAGE_HOMEPAGE = "https://github.com/Nageshwar1997/BQ-Packages";
+
+/**
+ * Package publish access.
+ */
+export const PACKAGE_PUBLISH_ACCESS = "public";
+
+/**
+ * Minimum supported Node.js version.
+ */
+export const PACKAGE_NODE_ENGINE = ">=24";
+
+/**
+ * Whether the package has side effects.
+ */
+export const PACKAGE_SIDE_EFFECTS = false;
