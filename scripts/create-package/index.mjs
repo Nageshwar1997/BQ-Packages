@@ -1,4 +1,5 @@
 import { copyBaseTemplate } from "./generators/copy-template.mjs";
+import { generatePackageJson } from "./generators/package-json.mjs";
 import { buildPackageMetadata } from "./metadata.mjs";
 import { checkPackageExists, createPackageDirectory } from "./package.mjs";
 import {
@@ -71,6 +72,8 @@ async function main() {
   console.log(`\n✅ Created package directory:\n${metadata.packageDirectory}`);
 
   await copyBaseTemplate(metadata);
+
+  await generatePackageJson(metadata);
 
   console.log("\n✅ Base template copied successfully.");
 }

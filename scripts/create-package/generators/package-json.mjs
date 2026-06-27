@@ -1,5 +1,16 @@
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
+import {
+  PACKAGE_EXPORTS,
+  PACKAGE_FILES,
+  PACKAGE_LICENSE,
+  PACKAGE_MAIN,
+  PACKAGE_MODULE,
+  PACKAGE_SCRIPTS,
+  PACKAGE_TYPE,
+  PACKAGE_TYPES,
+  PACKAGE_VERSION,
+} from "../constants.mjs";
 
 /* -------------------------------------------------------------------------- */
 /*                               PACKAGE JSON                                 */
@@ -14,35 +25,28 @@ import path from "node:path";
 export async function generatePackageJson(metadata) {
   const packageJson = {
     name: metadata.scopedPackageName,
-    version: "1.0.0",
+
+    version: PACKAGE_VERSION,
+
     description: metadata.description,
+
     keywords: metadata.keywords,
 
-    license: "MIT",
+    license: PACKAGE_LICENSE,
 
-    type: "module",
+    type: PACKAGE_TYPE,
 
-    main: "./dist/index.cjs",
-    module: "./dist/index.js",
-    types: "./dist/index.d.ts",
+    main: PACKAGE_MAIN,
 
-    files: ["dist"],
+    module: PACKAGE_MODULE,
 
-    exports: {
-      ".": {
-        types: "./dist/index.d.ts",
-        import: "./dist/index.js",
-        require: "./dist/index.cjs",
-        default: "./dist/index.js",
-      },
-    },
+    types: PACKAGE_TYPES,
 
-    scripts: {
-      build: "tsup",
-      dev: "tsup --watch",
-      lint: "eslint .",
-      "type-check": "tsc --noEmit",
-    },
+    files: PACKAGE_FILES,
+
+    exports: PACKAGE_EXPORTS,
+
+    scripts: PACKAGE_SCRIPTS,
   };
 
   await writeFile(

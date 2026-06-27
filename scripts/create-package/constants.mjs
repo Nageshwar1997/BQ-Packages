@@ -35,3 +35,72 @@ export const PACKAGE_KEYWORD_MAX_LENGTH = 30;
  * Package scope used for all generated packages.
  */
 export const PACKAGE_SCOPE = "@beautinique";
+
+/* -------------------------------------------------------------------------- */
+/*                            PACKAGE CONFIGURATION                           */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Default package version.
+ */
+export const PACKAGE_VERSION = "1.0.0";
+
+/**
+ * Default package license.
+ */
+export const PACKAGE_LICENSE = "MIT";
+
+/**
+ * Package module type.
+ */
+export const PACKAGE_TYPE = "module";
+
+/* -------------------------------------------------------------------------- */
+/*                                BUILD OUTPUT                                */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * CommonJS entry point.
+ */
+export const PACKAGE_MAIN = "./dist/index.cjs";
+
+/**
+ * ECMAScript module entry point.
+ */
+export const PACKAGE_MODULE = "./dist/index.js";
+
+/**
+ * TypeScript declaration entry point.
+ */
+export const PACKAGE_TYPES = "./dist/index.d.ts";
+
+/**
+ * Files included when publishing the package.
+ */
+export const PACKAGE_FILES = ["dist"];
+
+/**
+ * Package export map.
+ */
+export const PACKAGE_EXPORTS = {
+  ".": {
+    types: PACKAGE_TYPES,
+    import: PACKAGE_MODULE,
+    require: PACKAGE_MAIN,
+    default: PACKAGE_MODULE,
+  },
+};
+
+/* -------------------------------------------------------------------------- */
+/*                                  SCRIPTS                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Default package scripts.
+ */
+export const PACKAGE_SCRIPTS = {
+  build: "tsup",
+  dev: "tsup --watch",
+  lint: "eslint .",
+  "type-check": "tsc --noEmit",
+};
