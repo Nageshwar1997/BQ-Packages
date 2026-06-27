@@ -6,12 +6,12 @@ import { getPackageJsonPath } from './paths.mjs';
 import { readJson } from './utils.mjs';
 
 /**
- * @typedef {{
- *   name: string;
- *   version: string;
- *   type: string;
- *   scope: string;
- * }} Dependency
+ * @import {
+ *   Dependency,
+ *   PackageJson,
+ *   PackageMetadata,
+ *   WorkspacePackage,
+ * } from './types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -52,14 +52,7 @@ function addDependencies(dependencies, records, type) {
 }
 
 /**
- * Returns all package dependencies.
- *
- * @param {{
- *   dependencies?: Record<string, string>;
- *   devDependencies?: Record<string, string>;
- *   peerDependencies?: Record<string, string>;
- *   optionalDependencies?: Record<string, string>;
- * }} packageJson
+ * @param {PackageJson} packageJson
  * @returns {Dependency[]}
  */
 function getDependencies(packageJson) {
@@ -95,11 +88,8 @@ function getDependencies(packageJson) {
 /**
  * Returns runtime metadata for a workspace package.
  *
- * @param {{
- *   packageType: string;
- *   name: string;
- *   directory: string;
- * }} pkg
+ * @param {WorkspacePackage} pkg
+ * @returns {Promise<PackageMetadata>}
  */
 export async function getPackageMetadata(pkg) {
   const packageJson = await readJson(getPackageJsonPath(pkg.directory));
@@ -118,6 +108,8 @@ export async function getPackageMetadata(pkg) {
 
     published: packageInfo.published,
 
+    publishConfig: packageJson.publishConfig ?? null,
+
     dependencies: getDependencies(packageJson),
   };
 
@@ -131,13 +123,7 @@ export async function getPackageMetadata(pkg) {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Returns the package status.
- *
- * @param {{
- *   published: boolean;
- *   localVersion: string;
- *   remoteVersion: string | null;
- * }}
+ * @param {PackageMetadata} metadata
  * @returns {string}
  */
 function getPackageStatus({ published, localVersion, remoteVersion }) {
