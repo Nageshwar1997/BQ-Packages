@@ -1,6 +1,9 @@
+import { confirmPublish, enterCustomVersion, selectVersion } from './prompts.mjs';
 import { getPackageMetadata } from './metadata.mjs';
 import { publish as publishToNpm } from './npm.mjs';
+import { calculateVersion, updatePackageVersion } from './version.mjs';
 import { validatePackage, validatePublish } from './validators.mjs';
+import { VERSION_TYPES } from './constants.mjs';
 
 /**
  * @import { WorkspacePackage } from './types.mjs'
@@ -19,7 +22,26 @@ import { validatePackage, validatePublish } from './validators.mjs';
 async function publishWorkspacePackage(pkg) {
   await validatePackage(pkg);
 
-  const metadata = await getPackageMetadata(pkg);
+  let metadata = await getPackageMetadata(pkg);
+
+  const versionType = await selectVersion(metadata.localVersion);
+
+  const customVersion =
+    versionType === VERSION_TYPES.CUSTOM
+      ? await enterCustomVersion(metadata.localVersion)
+      : undefined;
+
+  const version = calculateVersion(metadata.localVersion, versionType, customVersion);
+
+  const confirmed = await confirmPublish(metadata, version);
+
+  if (!confirmed) {
+    return;
+  }
+
+  await updatePackageVersion(metadata.directory, version);
+
+  metadata = await getPackageMetadata(pkg);
 
   await validatePublish(metadata);
 

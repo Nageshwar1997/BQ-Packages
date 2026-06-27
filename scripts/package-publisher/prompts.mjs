@@ -1,6 +1,5 @@
 import inquirer from 'inquirer';
 import semver from 'semver';
-
 import { VERSION_TYPES } from './constants.mjs';
 
 /**
