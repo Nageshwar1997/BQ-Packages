@@ -1,12 +1,12 @@
-import sharedConfig from "./eslint.shared.config.mjs";
+import sharedConfig from './eslint.shared.config.mjs';
 
-import tseslint from "typescript-eslint";
+import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   ...sharedConfig,
 
   {
-    files: ["**/*.{ts,tsx,mts,cts}"],
+    files: ['**/*.{ts,tsx,mts,cts}'],
 
     languageOptions: { parserOptions: { projectService: true } },
 
@@ -18,8 +18,8 @@ export default tseslint.config(
 
     rules: {
       /* React projects commonly use async event handlers */
-      "@typescript-eslint/no-misused-promises": [
-        "error",
+      '@typescript-eslint/no-misused-promises': [
+        'error',
         { checksVoidReturn: { attributes: false } },
       ],
     },

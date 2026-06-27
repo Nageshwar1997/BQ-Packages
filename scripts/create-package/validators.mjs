@@ -6,8 +6,8 @@ import {
   PACKAGE_KEYWORDS_MAX_COUNT,
   PACKAGE_KEYWORDS_MIN_COUNT,
   PACKAGE_NAME_REGEX,
-} from "./constants.mjs";
-import { normalizeKeywords, normalizeText } from "./utils.mjs";
+} from './constants.mjs';
+import { normalizeKeywords, normalizeText } from './utils.mjs';
 
 /* -------------------------------------------------------------------------- */
 /*                                   COMMON                                   */
@@ -44,14 +44,14 @@ export function validateRequired(value, field) {
  * @returns {true | string}
  */
 export function validatePackageName(value) {
-  const required = validateRequired(value, "Package name");
+  const required = validateRequired(value, 'Package name');
 
   if (required !== true) {
     return required;
   }
 
   if (!PACKAGE_NAME_REGEX.test(value)) {
-    return "Package name must start with a lowercase letter and contain only lowercase letters, numbers, and hyphens.";
+    return 'Package name must start with a lowercase letter and contain only lowercase letters, numbers, and hyphens.';
   }
 
   return true;
@@ -74,7 +74,7 @@ export function validatePackageName(value) {
  * @returns {true | string}
  */
 export function validateDescription(value) {
-  const required = validateRequired(value, "Package description");
+  const required = validateRequired(value, 'Package description');
 
   if (required !== true) {
     return required;
@@ -91,7 +91,7 @@ export function validateDescription(value) {
   }
 
   if (!/[\p{L}\p{N}]/u.test(normalizedValue)) {
-    return "Package description must contain at least one letter or number.";
+    return 'Package description must contain at least one letter or number.';
   }
 
   return true;
@@ -113,7 +113,7 @@ export function validateDescription(value) {
  * @returns {true | string}
  */
 export function validateKeywords(value) {
-  const required = validateRequired(value, "Package keywords");
+  const required = validateRequired(value, 'Package keywords');
 
   if (required !== true) {
     return required;

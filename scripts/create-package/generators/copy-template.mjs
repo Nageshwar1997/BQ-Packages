@@ -1,5 +1,5 @@
-import { cp } from "node:fs/promises";
-import path from "node:path";
+import { cp } from 'node:fs/promises';
+import path from 'node:path';
 
 /* -------------------------------------------------------------------------- */
 /*                               COPY TEMPLATE                                */
@@ -12,9 +12,7 @@ import path from "node:path";
  * @returns {Promise<void>}
  */
 export async function copyBaseTemplate(metadata) {
-  const sourceDirectory = path.join(process.cwd(), "templates", "base");
+  const sourceDirectory = path.join(process.cwd(), 'templates', 'base');
 
-  await cp(sourceDirectory, metadata.packageDirectory, {
-    recursive: true,
-  });
+  await cp(sourceDirectory, metadata.packageDirectory, { recursive: true });
 }

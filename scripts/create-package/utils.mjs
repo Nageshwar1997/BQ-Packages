@@ -14,9 +14,8 @@
  * @returns {string}
  */
 export function normalizeText(value) {
-  return value.trim().replace(/[^\S\r\n]+/g, " ");
+  return value.trim().replace(/[^\S\r\n]+/g, ' ');
 }
-
 
 /* -------------------------------------------------------------------------- */
 /*                                  KEYWORDS                                  */
@@ -29,10 +28,12 @@ export function normalizeText(value) {
  * @returns {string[]}
  */
 export function normalizeKeywords(value) {
-  return [...new Set(
-    value
-      .split(",")
-      .map((keyword) => normalizeText(keyword).toLowerCase())
-      .filter(Boolean),
-  )];
+  return [
+    ...new Set(
+      value
+        .split(',')
+        .map((keyword) => normalizeText(keyword).toLowerCase())
+        .filter(Boolean),
+    ),
+  ];
 }

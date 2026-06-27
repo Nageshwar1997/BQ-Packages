@@ -1,9 +1,9 @@
-import { rm } from "node:fs/promises";
-import { generateEslint } from "./eslint.mjs";
-import { generatePackageJson } from "./package-json.mjs";
-import { generateReadme } from "./readme.mjs";
-import { generateTsconfig } from "./tsconfig.mjs";
-import { generateTsup } from "./tsup.mjs";
+import { rm } from 'node:fs/promises';
+import { generateEslint } from './eslint.mjs';
+import { generatePackageJson } from './package-json.mjs';
+import { generateReadme } from './readme.mjs';
+import { generateTsconfig } from './tsconfig.mjs';
+import { generateTsup } from './tsup.mjs';
 
 /* -------------------------------------------------------------------------- */
 /*                              GENERATE PACKAGE                              */

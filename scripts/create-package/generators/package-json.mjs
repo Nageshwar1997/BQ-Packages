@@ -1,5 +1,5 @@
-import { writeFile } from "node:fs/promises";
-import path from "node:path";
+import { writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import {
   PACKAGE_AUTHOR,
   PACKAGE_BUGS_URL,
@@ -17,7 +17,7 @@ import {
   PACKAGE_TYPE,
   PACKAGE_TYPES,
   PACKAGE_VERSION,
-} from "../constants.mjs";
+} from '../constants.mjs';
 
 /* -------------------------------------------------------------------------- */
 /*                               PACKAGE JSON                                 */
@@ -74,8 +74,8 @@ export async function generatePackageJson(metadata) {
   };
 
   await writeFile(
-    path.join(metadata.packageDirectory, "package.json"),
+    path.join(metadata.packageDirectory, 'package.json'),
     `${JSON.stringify(packageJson, null, 2)}\n`,
-    "utf8",
+    'utf8',
   );
 }

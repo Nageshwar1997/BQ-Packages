@@ -1,5 +1,5 @@
-import path from "node:path";
-import { PACKAGE_SCOPE } from "./constants.mjs";
+import path from 'node:path';
+import { PACKAGE_SCOPE } from './constants.mjs';
 
 /* -------------------------------------------------------------------------- */
 /*                                  METADATA                                  */
@@ -30,11 +30,7 @@ export function buildPackageMetadata({
 
     scopedPackageName: `${PACKAGE_SCOPE}/${templateConfig.packagePrefix}-${packageName}`,
 
-    packageDirectory: path.join(
-      process.cwd(),
-      templateConfig.directory,
-      packageName,
-    ),
+    packageDirectory: path.join(process.cwd(), templateConfig.directory, packageName),
 
     description,
 

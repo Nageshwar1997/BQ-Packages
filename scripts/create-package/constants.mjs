@@ -33,7 +33,7 @@ export const PACKAGE_KEYWORD_MAX_LENGTH = 30;
 /**
  * Package scope used for all generated packages.
  */
-export const PACKAGE_SCOPE = "@beautinique";
+export const PACKAGE_SCOPE = '@beautinique';
 
 /* -------------------------------------------------------------------------- */
 /*                            PACKAGE CONFIGURATION                           */
@@ -42,17 +42,17 @@ export const PACKAGE_SCOPE = "@beautinique";
 /**
  * Default package version.
  */
-export const PACKAGE_VERSION = "1.0.0";
+export const PACKAGE_VERSION = '1.0.0';
 
 /**
  * Default package license.
  */
-export const PACKAGE_LICENSE = "MIT";
+export const PACKAGE_LICENSE = 'MIT';
 
 /**
  * Package module type.
  */
-export const PACKAGE_TYPE = "module";
+export const PACKAGE_TYPE = 'module';
 
 /* -------------------------------------------------------------------------- */
 /*                                BUILD OUTPUT                                */
@@ -61,33 +61,33 @@ export const PACKAGE_TYPE = "module";
 /**
  * CommonJS entry point.
  */
-export const PACKAGE_MAIN = "./dist/index.cjs";
+export const PACKAGE_MAIN = './dist/index.cjs';
 
 /**
  * ECMAScript module entry point.
  */
-export const PACKAGE_MODULE = "./dist/index.js";
+export const PACKAGE_MODULE = './dist/index.js';
 
 /**
  * TypeScript declaration entry point.
  */
-export const PACKAGE_TYPES = "./dist/index.d.ts";
+export const PACKAGE_TYPES = './dist/index.d.ts';
 
 /**
  * Package.json export path.
  */
-export const PACKAGE_JSON_EXPORT = "./package.json";
+export const PACKAGE_JSON_EXPORT = './package.json';
 
 /**
  * Files included when publishing the package.
  */
-export const PACKAGE_FILES = ["dist"];
+export const PACKAGE_FILES = ['dist'];
 
 /**
  * Package export map.
  */
 export const PACKAGE_EXPORTS = {
-  ".": {
+  '.': {
     types: PACKAGE_TYPES,
     import: PACKAGE_MODULE,
     require: PACKAGE_MAIN,
@@ -104,50 +104,49 @@ export const PACKAGE_EXPORTS = {
  * Default package scripts.
  */
 export const PACKAGE_SCRIPTS = {
-  build: "tsup",
-  dev: "tsup --watch",
-  lint: "eslint .",
-  typecheck: "tsc --noEmit",
+  build: 'tsup',
+  dev: 'tsup --watch',
+  lint: 'eslint .',
+  typecheck: 'tsc --noEmit',
 };
 
 /**
  * Relative path from a generated package to the shared configuration directory.
  */
-export const SHARED_CONFIGS_DIRECTORY = "../../../configs";
+export const SHARED_CONFIGS_DIRECTORY = '../../../configs';
 
 /**
  * Package author.
  */
-export const PACKAGE_AUTHOR = "Nageshwar Pawar";
+export const PACKAGE_AUTHOR = 'Nageshwar Pawar';
 
 /**
  * Package repository.
  */
 export const PACKAGE_REPOSITORY = {
-  type: "git",
-  url: "git+https://github.com/Nageshwar1997/BQ-Packages.git",
+  type: 'git',
+  url: 'git+https://github.com/Nageshwar1997/BQ-Packages.git',
 };
 
 /**
  * Package bugs URL.
  */
-export const PACKAGE_BUGS_URL =
-  "https://github.com/Nageshwar1997/BQ-Packages/issues";
+export const PACKAGE_BUGS_URL = 'https://github.com/Nageshwar1997/BQ-Packages/issues';
 
 /**
  * Package homepage.
  */
-export const PACKAGE_HOMEPAGE = "https://github.com/Nageshwar1997/BQ-Packages";
+export const PACKAGE_HOMEPAGE = 'https://github.com/Nageshwar1997/BQ-Packages';
 
 /**
  * Package publish access.
  */
-export const PACKAGE_PUBLISH_ACCESS = "public";
+export const PACKAGE_PUBLISH_ACCESS = 'public';
 
 /**
  * Minimum supported Node.js version.
  */
-export const PACKAGE_NODE_ENGINE = ">=24";
+export const PACKAGE_NODE_ENGINE = '>=24';
 
 /**
  * Whether the package has side effects.

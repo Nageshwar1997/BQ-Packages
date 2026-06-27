@@ -1,17 +1,17 @@
-import type { Options } from "tsup";
+import type { Options } from 'tsup';
 
 export const baseConfig: Options = {
   /* Entry files */
-  entry: ["src/index.ts"],
+  entry: ['src/index.ts'],
 
   /* Output formats */
-  format: ["esm", "cjs"],
+  format: ['esm', 'cjs'],
 
   /* Generate TypeScript declaration files */
   dts: true,
 
   /* Target JavaScript version */
-  target: "es2025",
+  target: 'es2025',
 
   /* Clean output directory before build */
   clean: true,
@@ -35,5 +35,5 @@ export const baseConfig: Options = {
   minify: false,
 
   /* Output directory */
-  outDir: "dist",
+  outDir: 'dist',
 };

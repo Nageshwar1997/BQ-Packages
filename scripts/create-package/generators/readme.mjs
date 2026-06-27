@@ -1,6 +1,6 @@
-import { writeFile } from "node:fs/promises";
-import path from "node:path";
-import { PACKAGE_LICENSE } from "../constants.mjs";
+import { writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { PACKAGE_LICENSE } from '../constants.mjs';
 
 /* -------------------------------------------------------------------------- */
 /*                                   README                                   */
@@ -22,9 +22,5 @@ ${metadata.description}
 ${PACKAGE_LICENSE}
 `;
 
-  await writeFile(
-    path.join(metadata.packageDirectory, "README.md"),
-    readme,
-    "utf8",
-  );
+  await writeFile(path.join(metadata.packageDirectory, 'README.md'), readme, 'utf8');
 }

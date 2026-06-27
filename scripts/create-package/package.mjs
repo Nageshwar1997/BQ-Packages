@@ -1,5 +1,5 @@
-import { access, mkdir } from "node:fs/promises";
-import { constants } from "node:fs";
+import { constants } from 'node:fs';
+import { access, mkdir } from 'node:fs/promises';
 
 /* -------------------------------------------------------------------------- */
 /*                                   PACKAGE                                  */
@@ -21,7 +21,6 @@ export async function checkPackageExists(metadata) {
   }
 }
 
-
 /**
  * Creates the package directory.
  *
@@ -29,7 +28,5 @@ export async function checkPackageExists(metadata) {
  * @returns {Promise<void>}
  */
 export async function createPackageDirectory(metadata) {
-  await mkdir(metadata.packageDirectory, {
-    recursive: true,
-  });
+  await mkdir(metadata.packageDirectory, { recursive: true });
 }

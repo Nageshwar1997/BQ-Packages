@@ -1,6 +1,6 @@
-import { writeFile } from "node:fs/promises";
-import path from "node:path";
-import { SHARED_CONFIGS_DIRECTORY } from "../constants.mjs";
+import { writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { SHARED_CONFIGS_DIRECTORY } from '../constants.mjs';
 
 /* -------------------------------------------------------------------------- */
 /*                                    TSUP                                    */
@@ -20,9 +20,5 @@ export async function generateTsup(metadata) {
 export default config;
 `;
 
-  await writeFile(
-    path.join(metadata.packageDirectory, "tsup.config.ts"),
-    tsup,
-    "utf8",
-  );
+  await writeFile(path.join(metadata.packageDirectory, 'tsup.config.ts'), tsup, 'utf8');
 }

@@ -1,12 +1,12 @@
-import sharedConfig from "./eslint.shared.config.mjs";
+import sharedConfig from './eslint.shared.config.mjs';
 
-import tseslint from "typescript-eslint";
+import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   ...sharedConfig,
 
   {
-    files: ["**/*.{ts,mts,cts}"],
+    files: ['**/*.{ts,mts,cts}'],
 
     languageOptions: { parserOptions: { projectService: true } },
 
@@ -18,13 +18,13 @@ export default tseslint.config(
 
     rules: {
       /* Async */
-      "@typescript-eslint/await-thenable": "error",
+      '@typescript-eslint/await-thenable': 'error',
 
-      "@typescript-eslint/no-floating-promises": "error",
+      '@typescript-eslint/no-floating-promises': 'error',
 
-      "@typescript-eslint/no-misused-promises": "error",
+      '@typescript-eslint/no-misused-promises': 'error',
 
-      "@typescript-eslint/require-await": "error",
+      '@typescript-eslint/require-await': 'error',
     },
   },
 );

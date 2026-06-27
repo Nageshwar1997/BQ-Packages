@@ -1,6 +1,6 @@
-import { writeFile } from "node:fs/promises";
-import path from "node:path";
-import { SHARED_CONFIGS_DIRECTORY } from "../constants.mjs";
+import { writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { SHARED_CONFIGS_DIRECTORY } from '../constants.mjs';
 
 /* -------------------------------------------------------------------------- */
 /*                                   ESLINT                                   */
@@ -18,9 +18,5 @@ export async function generateEslint(metadata) {
 export default config;
 `;
 
-  await writeFile(
-    path.join(metadata.packageDirectory, "eslint.config.mjs"),
-    eslint,
-    "utf8",
-  );
+  await writeFile(path.join(metadata.packageDirectory, 'eslint.config.mjs'), eslint, 'utf8');
 }
