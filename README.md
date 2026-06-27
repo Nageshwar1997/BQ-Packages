@@ -27,3 +27,39 @@ Reusable frontend libraries for React applications.
 ## License
 
 MIT
+
+
+
+<!-- Remove it  -->
+
+Mera next checklist ye hoga:
+
+Step 1
+✅ Package Generate
+
+Step 2
+✅ Project Structure
+
+Step 3
+✅ Configuration
+
+Step 4
+✅ Initial Constants
+
+Step 5
+⏳ Package Metadata Review
+
+Step 6
+⏳ Build Validation
+
+Step 7
+⏳ Publish Validation
+
+Step 8
+⏳ Publish to npm
+
+Step 9
+⏳ Install in Microservices
+
+Step 10
+⏳ Real Project Testing
