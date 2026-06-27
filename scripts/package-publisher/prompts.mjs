@@ -19,7 +19,7 @@ import { ACTIONS, VERSION_TYPES } from './constants.mjs';
 export async function selectAction(username) {
   const { action } = await inquirer.prompt([
     {
-      type: 'list',
+      type: 'select',
       name: 'action',
       message: 'What would you like to do?',
       choices: [
@@ -77,7 +77,7 @@ export async function selectAction(username) {
 export async function selectPackage(packages) {
   const { pkg } = await inquirer.prompt([
     {
-      type: 'list',
+      type: 'select',
       name: 'pkg',
       message: 'Select a package:',
       choices: packages.map((pkg) => ({
@@ -128,7 +128,7 @@ export async function selectPackages(packages) {
 export async function selectVersion(currentVersion) {
   const { versionType } = await inquirer.prompt([
     {
-      type: 'list',
+      type: 'select',
       name: 'versionType',
       message: `Current version: ${currentVersion}`,
       choices: [
