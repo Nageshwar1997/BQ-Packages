@@ -25,7 +25,7 @@
     "format:check": "prettier . --check",
     "clean": "node ./scripts/clean.mjs",
     "create": "node ./scripts/create-package/index.mjs",
-    "publish:package": "powershell -ExecutionPolicy Bypass -File ./scripts/publish-package.ps1"
+    "publish": "node ./scripts/package-publisher/index.mjs"
   },
   "engines": {
     "node": ">=24"

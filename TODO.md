@@ -1,0 +1,1 @@
+* "clean": "node ./scripts/clean.mjs", // Not created clean.mjs
