@@ -1,6 +1,6 @@
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
-import { CONFIGS_DIRECTORY } from "../constants.mjs";
+import { SHARED_CONFIGS_DIRECTORY } from "../constants.mjs";
 
 /* -------------------------------------------------------------------------- */
 /*                                 TSCONFIG                                   */
@@ -14,7 +14,7 @@ import { CONFIGS_DIRECTORY } from "../constants.mjs";
  */
 export async function generateTsconfig(metadata) {
   const tsconfig = {
-    extends: `${CONFIGS_DIRECTORY}/tsconfig/${metadata.config.tsconfig}`,
+    extends: `${SHARED_CONFIGS_DIRECTORY}/tsconfig/${metadata.config.tsconfig}`,
   };
 
   await writeFile(

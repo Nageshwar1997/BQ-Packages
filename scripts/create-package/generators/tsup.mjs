@@ -1,6 +1,6 @@
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
-import { CONFIGS_DIRECTORY } from "../constants.mjs";
+import { SHARED_CONFIGS_DIRECTORY } from "../constants.mjs";
 
 /* -------------------------------------------------------------------------- */
 /*                                    TSUP                                    */
@@ -13,7 +13,7 @@ import { CONFIGS_DIRECTORY } from "../constants.mjs";
  * @returns {Promise<void>}
  */
 export async function generateTsup(metadata) {
-  const tsup = `import config from "${CONFIGS_DIRECTORY}/tsup/${metadata.config.tsup}";
+  const tsup = `import config from "${SHARED_CONFIGS_DIRECTORY}/tsup/${metadata.config.tsup}";
 
 export default config;
 `;

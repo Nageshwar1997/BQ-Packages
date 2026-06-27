@@ -106,6 +106,6 @@ export const PACKAGE_SCRIPTS = {
 };
 
 /**
- * Relative path from a generated package directory to the configs directory.
+ * Relative path from a generated package to the shared configuration directory.
  */
-export const CONFIGS_DIRECTORY = "../../../configs";
+export const SHARED_CONFIGS_DIRECTORY = "../../../configs";

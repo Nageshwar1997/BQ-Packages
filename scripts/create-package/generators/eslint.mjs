@@ -1,6 +1,6 @@
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
-import { CONFIGS_DIRECTORY } from "../constants.mjs";
+import { SHARED_CONFIGS_DIRECTORY } from "../constants.mjs";
 
 /* -------------------------------------------------------------------------- */
 /*                                   ESLINT                                   */
@@ -13,7 +13,7 @@ import { CONFIGS_DIRECTORY } from "../constants.mjs";
  * @returns {Promise<void>}
  */
 export async function generateEslint(metadata) {
-  const eslint = `import config from "${CONFIGS_DIRECTORY}/eslint/${metadata.config.eslint}";
+  const eslint = `import config from "${SHARED_CONFIGS_DIRECTORY}/eslint/${metadata.config.eslint}";
 
 export default config;
 `;
