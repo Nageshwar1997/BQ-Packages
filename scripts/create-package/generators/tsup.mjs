@@ -13,7 +13,9 @@ import { SHARED_CONFIGS_DIRECTORY } from "../constants.mjs";
  * @returns {Promise<void>}
  */
 export async function generateTsup(metadata) {
-  const tsup = `import config from "${SHARED_CONFIGS_DIRECTORY}/tsup/${metadata.config.tsup}";
+  const configName = path.parse(metadata.config.tsup).name;
+
+  const tsup = `import config from "${SHARED_CONFIGS_DIRECTORY}/tsup/${configName}.js";
 
 export default config;
 `;
