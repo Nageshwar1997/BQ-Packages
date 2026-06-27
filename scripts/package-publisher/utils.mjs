@@ -19,7 +19,13 @@ const execFileAsync = promisify(execFile);
 export async function readJson(filePath) {
   const content = await readFile(filePath, 'utf8');
 
-  return JSON.parse(content);
+  try {
+    return JSON.parse(content);
+  } catch (error) {
+    throw new Error(`Failed to parse JSON: ${filePath}`, {
+      cause: error,
+    });
+  }
 }
 
 /**
@@ -69,9 +75,19 @@ export async function pathExists(filePath) {
  * }>}
  */
 export async function runCommand(command, args = [], options = {}) {
-  const { stdout, stderr } = await execFileAsync(command, args, options);
+  try {
+    const { stdout, stderr } = await execFileAsync(command, args, options);
 
-  return { stdout: stdout.trimEnd(), stderr: stderr.trimEnd() };
+    return {
+      stdout: stdout.trimEnd(),
+      stderr: stderr.trimEnd(),
+    };
+  } catch (error) {
+    error.stdout = error.stdout?.trimEnd();
+    error.stderr = error.stderr?.trimEnd();
+
+    throw error;
+  }
 }
 
 /* -------------------------------------------------------------------------- */
