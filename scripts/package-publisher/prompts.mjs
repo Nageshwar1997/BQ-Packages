@@ -1,11 +1,15 @@
 import inquirer from 'inquirer';
+import semver from 'semver';
 
 import { VERSION_TYPES } from './constants.mjs';
 
 /**
- * @import { WorkspacePackage, VersionType } from './types.mjs'
+ * @import { PackageMetadata, WorkspacePackage, VersionType } from './types.mjs'
  */
 
+/* -------------------------------------------------------------------------- */
+/*                                  PACKAGE                                   */
+/* -------------------------------------------------------------------------- */
 
 /**
  * Prompts the user to select a package.
@@ -36,10 +40,10 @@ export async function selectPackage(packages) {
  * @returns {Promise<WorkspacePackage[]>}
  */
 export async function selectPackages(packages) {
-  const { selectedPackages } = await inquirer.prompt([
+  const { packages: selectedPackages } = await inquirer.prompt([
     {
       type: 'checkbox',
-      name: 'selectedPackages',
+      name: 'packages',
       message: 'Select packages:',
       choices: packages.map((pkg) => ({
         name: pkg.packageName,
@@ -54,42 +58,98 @@ export async function selectPackages(packages) {
   return selectedPackages;
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                  VERSION                                   */
+/* -------------------------------------------------------------------------- */
+
 /**
  * Prompts the user to select a version strategy.
  *
+ * @param {string} currentVersion
  * @returns {Promise<VersionType>}
  */
-export async function selectVersion() {
-  const { version } = await inquirer.prompt([
+export async function selectVersion(currentVersion) {
+  const { versionType } = await inquirer.prompt([
     {
       type: 'list',
-      name: 'version',
-      message: 'Select version type:',
+      name: 'versionType',
+      message: `Current version: ${currentVersion}`,
       choices: [
-        VERSION_TYPES.PATCH,
-        VERSION_TYPES.MINOR,
-        VERSION_TYPES.MAJOR,
-        VERSION_TYPES.CURRENT_VERSION,
-        VERSION_TYPES.CUSTOM,
+        {
+          name: 'Patch',
+          value: VERSION_TYPES.PATCH,
+        },
+        {
+          name: 'Minor',
+          value: VERSION_TYPES.MINOR,
+        },
+        {
+          name: 'Major',
+          value: VERSION_TYPES.MAJOR,
+        },
+        {
+          name: 'Current Version',
+          value: VERSION_TYPES.CURRENT_VERSION,
+        },
+        {
+          name: 'Custom',
+          value: VERSION_TYPES.CUSTOM,
+        },
       ],
+    },
+  ]);
+
+  return versionType;
+}
+
+/**
+ * Prompts the user for a custom version.
+ *
+ * @param {string} currentVersion
+ * @returns {Promise<string>}
+ */
+export async function enterCustomVersion(currentVersion) {
+  const { version } = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'version',
+      message: 'Enter custom version:',
+      default: currentVersion,
+      validate(value) {
+        if (!semver.valid(value)) {
+          return 'Enter a valid semantic version.';
+        }
+
+        if (!semver.gt(value, currentVersion)) {
+          return 'Version must be greater than the current version.';
+        }
+
+        return true;
+      },
     },
   ]);
 
   return version;
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                  CONFIRM                                   */
+/* -------------------------------------------------------------------------- */
+
 /**
  * Prompts the user to confirm publishing.
  *
+ * @param {PackageMetadata} metadata
+ * @param {string} version
  * @returns {Promise<boolean>}
  */
-export async function confirmPublish() {
+export async function confirmPublish(metadata, version) {
   const { confirmed } = await inquirer.prompt([
     {
       type: 'confirm',
       name: 'confirmed',
-      message: 'Continue publishing?',
-      default: false,
+      message: `Publish "${metadata.packageName}" v${version}?`,
+      default: true,
     },
   ]);
 
