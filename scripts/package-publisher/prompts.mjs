@@ -1,10 +1,68 @@
 import inquirer from 'inquirer';
 import semver from 'semver';
-import { VERSION_TYPES } from './constants.mjs';
+import { ACTIONS, VERSION_TYPES } from './constants.mjs';
 
 /**
- * @import { PackageMetadata, WorkspacePackage, VersionType } from './types.mjs'
+ * @import { Action, PackageMetadata, WorkspacePackage, VersionType } from './types.mjs'
  */
+
+/* -------------------------------------------------------------------------- */
+/*                                  ACTION                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Prompts the user to select an action.
+ *
+ * @param {string | null} username
+ * @returns {Promise<Action>}
+ */
+export async function selectAction(username) {
+  const { action } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'action',
+      message: 'What would you like to do?',
+      choices: [
+        {
+          name: 'Publish Package',
+          value: ACTIONS.PUBLISH_PACKAGE,
+        },
+        {
+          name: 'Publish Packages',
+          value: ACTIONS.PUBLISH_PACKAGES,
+        },
+        {
+          name: 'Publish All Packages',
+          value: ACTIONS.PUBLISH_ALL,
+        },
+        {
+          name: 'Package Status',
+          value: ACTIONS.PACKAGE_STATUS,
+        },
+        ...(username
+          ? [
+              {
+                name: `Logout (${username})`,
+                value: ACTIONS.LOGOUT,
+              },
+            ]
+          : [
+              {
+                name: 'Login',
+                value: ACTIONS.LOGIN,
+              },
+            ]),
+        new inquirer.Separator(),
+        {
+          name: 'Exit',
+          value: ACTIONS.EXIT,
+        },
+      ],
+    },
+  ]);
+
+  return action;
+}
 
 /* -------------------------------------------------------------------------- */
 /*                                  PACKAGE                                   */

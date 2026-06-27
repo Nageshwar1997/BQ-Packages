@@ -50,4 +50,8 @@
  * @typedef {'patch' | 'minor' | 'major' | 'custom' | 'current-version'} VersionType
  */
 
+/**
+ * @typedef {'publish-package' | 'publish-packages' | 'publish-all' | 'package-status' | 'login' | 'logout' | 'exit'} Action
+ */
+
 export {};
