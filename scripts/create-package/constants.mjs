@@ -104,3 +104,8 @@ export const PACKAGE_SCRIPTS = {
   lint: "eslint .",
   "type-check": "tsc --noEmit",
 };
+
+/**
+ * Relative path from a generated package directory to the configs directory.
+ */
+export const CONFIGS_DIRECTORY = "../../../configs";

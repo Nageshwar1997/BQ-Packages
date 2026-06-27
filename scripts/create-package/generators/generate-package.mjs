@@ -23,10 +23,7 @@ export async function generatePackage(metadata) {
     await generateEslint(metadata);
     await generateTsup(metadata);
   } catch (error) {
-    await rm(metadata.packageDirectory, {
-      recursive: true,
-      force: true,
-    });
+    await rm(metadata.packageDirectory, { recursive: true, force: true });
 
     throw error;
   }
