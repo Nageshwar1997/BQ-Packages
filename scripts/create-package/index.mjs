@@ -1,5 +1,5 @@
 import { copyBaseTemplate } from "./generators/copy-template.mjs";
-import { generatePackageJson } from "./generators/package-json.mjs";
+import { generatePackage } from "./generators/generate-package.mjs";
 import { buildPackageMetadata } from "./metadata.mjs";
 import { checkPackageExists, createPackageDirectory } from "./package.mjs";
 import {
@@ -44,9 +44,6 @@ async function main() {
 
   const templateConfig = await loadTemplate(template);
 
-  console.log(templateConfig);
-
-
   const metadata = buildPackageMetadata({
     template,
     packageName,
@@ -54,8 +51,6 @@ async function main() {
     keywords,
     templateConfig,
   });
-
-  console.log(metadata);
 
   const packageExists = await checkPackageExists(metadata);
 
@@ -68,14 +63,12 @@ async function main() {
   }
 
   await createPackageDirectory(metadata);
-
-  console.log(`\n✅ Created package directory:\n${metadata.packageDirectory}`);
-
   await copyBaseTemplate(metadata);
+  await generatePackage(metadata);
 
-  await generatePackageJson(metadata);
-
-  console.log("\n✅ Base template copied successfully.");
+  console.log(
+    `\n✅ Package "${metadata.scopedPackageName}" created successfully.`,
+  );
 }
 
 await main();
