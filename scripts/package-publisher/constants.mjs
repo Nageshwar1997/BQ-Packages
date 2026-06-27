@@ -24,8 +24,8 @@ export const VERSION_TYPES = {
   PATCH: 'patch',
   MINOR: 'minor',
   MAJOR: 'major',
-  CUSTOM: 'custom',
   CURRENT_VERSION: 'current-version',
+  CUSTOM: 'custom',
 };
 
 export const EXIT_CODE = { SUCCESS: 0, FAILURE: 1 };
