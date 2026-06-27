@@ -1,4 +1,4 @@
-import { runCommand } from './utils.mjs';
+import { runCommand, runInteractiveCommand } from './utils.mjs';
 
 /* -------------------------------------------------------------------------- */
 /*                               NPM ACCOUNT                                  */
@@ -13,7 +13,7 @@ export async function whoami() {
   try {
     const { stdout } = await runCommand('npm', ['whoami']);
 
-    return stdout || null;
+    return stdout;
   } catch {
     return null;
   }
@@ -61,7 +61,7 @@ export async function getPackageInfo(packageName) {
  * @returns {Promise<void>}
  */
 export async function login() {
-  await runCommand('npm', ['login'], { stdio: 'inherit' });
+  await runInteractiveCommand('npm', ['login']);
 }
 
 /**
@@ -70,7 +70,7 @@ export async function login() {
  * @returns {Promise<void>}
  */
 export async function logout() {
-  await runCommand('npm', ['logout'], { stdio: 'inherit' });
+  await runInteractiveCommand('npm', ['logout']);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -84,8 +84,7 @@ export async function logout() {
  * @returns {Promise<void>}
  */
 export async function publish(directory) {
-  await runCommand('npm', ['publish', '--access', 'public'], {
+  await runInteractiveCommand('npm', ['publish'], {
     cwd: directory,
-    stdio: 'inherit',
   });
 }

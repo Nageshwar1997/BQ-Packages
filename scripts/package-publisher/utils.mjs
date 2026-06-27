@@ -1,4 +1,4 @@
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { constants } from 'node:fs';
 import { access, readFile, writeFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
@@ -71,5 +71,42 @@ export async function pathExists(filePath) {
 export async function runCommand(command, args = [], options = {}) {
   const { stdout, stderr } = await execFileAsync(command, args, options);
 
-  return { stdout: stdout.trim(), stderr: stderr.trim() };
+  return { stdout: stdout.trimEnd(), stderr: stderr.trimEnd() };
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           INTERACTIVE COMMAND                              */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Runs an interactive command.
+ *
+ * @param {string} command
+ * @param {string[]} [args=[]]
+ * @param {import('node:child_process').SpawnOptions} [options={}]
+ * @returns {Promise<void>}
+ */
+export function runInteractiveCommand(command, args = [], options = {}) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      stdio: 'inherit',
+      shell: process.platform === 'win32',
+      ...options,
+    });
+
+    child.on('error', reject);
+
+    child.on('exit', (code) => {
+      if (code === 0) {
+        resolve();
+        return;
+      }
+
+      reject(
+        new Error(
+          code === null ? 'Command terminated unexpectedly.' : `Command exited with code ${code}.`,
+        ),
+      );
+    });
+  });
 }
