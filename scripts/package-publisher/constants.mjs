@@ -29,3 +29,22 @@ export const VERSION_TYPES = {
 };
 
 export const EXIT_CODE = { SUCCESS: 0, FAILURE: 1 };
+
+export const PACKAGE_STATUS = {
+  UNPUBLISHED: 'unpublished',
+  SYNCED: 'synced',
+  UPDATE_AVAILABLE: 'update-available',
+  OUTDATED: 'outdated',
+};
+
+export const DEPENDENCY_TYPES = {
+  DEPENDENCY: 'dependency',
+  DEV_DEPENDENCY: 'devDependency',
+  PEER_DEPENDENCY: 'peerDependency',
+  OPTIONAL_DEPENDENCY: 'optionalDependency',
+};
+
+export const DEPENDENCY_SCOPES = {
+  INTERNAL: 'internal',
+  EXTERNAL: 'external',
+};
