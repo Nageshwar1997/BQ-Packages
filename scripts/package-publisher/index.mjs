@@ -4,6 +4,23 @@ import { findPackages } from './package.mjs';
 import { selectAction, selectPackage, selectPackages } from './prompts.mjs';
 import { publishAllPackages, publishPackage, publishPackages } from './publish.mjs';
 
+/**
+ * @import { WorkspacePackage } from './types.mjs'
+ */
+
+/* -------------------------------------------------------------------------- */
+/*                                  HELPERS                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Returns all workspace packages.
+ *
+ * @returns {Promise<WorkspacePackage[]>}
+ */
+async function getPackages() {
+  return findPackages();
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                   MAIN                                     */
 /* -------------------------------------------------------------------------- */
@@ -22,7 +39,7 @@ async function main() {
 
       switch (action) {
         case ACTIONS.PUBLISH_PACKAGE: {
-          const packages = await findPackages();
+          const packages = await getPackages();
 
           const pkg = await selectPackage(packages);
 
@@ -32,7 +49,7 @@ async function main() {
         }
 
         case ACTIONS.PUBLISH_PACKAGES: {
-          const packages = await findPackages();
+          const packages = await getPackages();
 
           const selectedPackages = await selectPackages(packages);
 
@@ -42,7 +59,7 @@ async function main() {
         }
 
         case ACTIONS.PUBLISH_ALL: {
-          const packages = await findPackages();
+          const packages = await getPackages();
 
           await publishAllPackages(packages);
 
@@ -71,6 +88,9 @@ async function main() {
           throw new Error(`Unknown action "${action}".`);
       }
     } catch (error) {
+      if (error instanceof Error && error.name === 'ExitPromptError') {
+        process.exit(0);
+      }
       console.error(error instanceof Error ? error.message : error);
     }
   }

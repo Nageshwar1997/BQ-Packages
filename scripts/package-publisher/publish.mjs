@@ -1,9 +1,9 @@
-import { confirmPublish, enterCustomVersion, selectVersion } from './prompts.mjs';
+import { VERSION_TYPES } from './constants.mjs';
 import { getPackageMetadata } from './metadata.mjs';
 import { publish as publishToNpm } from './npm.mjs';
-import { calculateVersion, updatePackageVersion } from './version.mjs';
+import { confirmPublish, enterCustomVersion, selectVersion } from './prompts.mjs';
 import { validatePackage, validatePublish } from './validators.mjs';
-import { VERSION_TYPES } from './constants.mjs';
+import { calculateVersion, updatePackageVersion } from './version.mjs';
 
 /**
  * @import { WorkspacePackage } from './types.mjs'
@@ -22,7 +22,7 @@ import { VERSION_TYPES } from './constants.mjs';
 async function publishWorkspacePackage(pkg) {
   await validatePackage(pkg);
 
-  let metadata = await getPackageMetadata(pkg);
+  const metadata = await getPackageMetadata(pkg);
 
   const versionType = await selectVersion(metadata.localVersion);
 
@@ -41,11 +41,11 @@ async function publishWorkspacePackage(pkg) {
 
   await updatePackageVersion(metadata.directory, version);
 
-  metadata = await getPackageMetadata(pkg);
+  const updatedMetadata = await getPackageMetadata(pkg);
 
-  await validatePublish(metadata);
+  await validatePublish(updatedMetadata);
 
-  await publishToNpm(metadata.directory);
+  await publishToNpm(updatedMetadata.directory);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -81,5 +81,7 @@ export async function publishPackages(packages) {
  * @returns {Promise<void>}
  */
 export async function publishAllPackages(packages) {
-  await publishPackages(packages);
+  for (const pkg of packages) {
+    await publishWorkspacePackage(pkg);
+  }
 }
