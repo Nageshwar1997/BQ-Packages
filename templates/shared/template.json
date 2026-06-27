@@ -5,14 +5,5 @@
     "tsconfig": "tsconfig.shared.json",
     "eslint": "eslint.shared.config.mjs",
     "tsup": "tsup.shared.config.ts"
-  },
-  "packageJson": {
-    "private": false,
-    "scripts": {
-      "build": "tsup",
-      "dev": "tsup --watch",
-      "lint": "eslint .",
-      "type-check": "tsc --noEmit"
-    }
   }
 }

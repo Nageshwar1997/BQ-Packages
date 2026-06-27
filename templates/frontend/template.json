@@ -5,15 +5,5 @@
     "tsconfig": "tsconfig.frontend.json",
     "eslint": "eslint.frontend.config.mjs",
     "tsup": "tsup.frontend.config.ts"
-  },
-  "packageJson": {
-    "private": false,
-    "scripts": {
-      "dev": "vite",
-      "build": "vite build",
-      "preview": "vite preview",
-      "lint": "eslint .",
-      "type-check": "tsc --noEmit"
-    }
   }
 }
