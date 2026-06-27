@@ -17,7 +17,6 @@ export const PACKAGE_NAME_REGEX = /^[a-z][a-z0-9-]*$/;
 export const PACKAGE_DESCRIPTION_MIN_LENGTH = 10;
 export const PACKAGE_DESCRIPTION_MAX_LENGTH = 150;
 
-
 /**
  * Package keyword validation constraints.
  *
@@ -102,7 +101,7 @@ export const PACKAGE_SCRIPTS = {
   build: "tsup",
   dev: "tsup --watch",
   lint: "eslint .",
-  "type-check": "tsc --noEmit",
+  typecheck: "tsc --noEmit",
 };
 
 /**
