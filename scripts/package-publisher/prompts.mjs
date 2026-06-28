@@ -81,7 +81,7 @@ export async function selectPackage(packages) {
       name: 'pkg',
       message: 'Select a package:',
       choices: packages.map((pkg) => ({
-        name: pkg.packageName,
+        name: pkg.name,
         value: pkg,
       })),
     },
