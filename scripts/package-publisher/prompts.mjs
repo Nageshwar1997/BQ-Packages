@@ -145,10 +145,6 @@ export async function selectVersion(currentVersion) {
           value: VERSION_TYPES.MAJOR,
         },
         {
-          name: 'Current Version',
-          value: VERSION_TYPES.CURRENT_VERSION,
-        },
-        {
           name: 'Custom',
           value: VERSION_TYPES.CUSTOM,
         },

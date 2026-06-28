@@ -47,7 +47,7 @@
  */
 
 /**
- * @typedef {'patch' | 'minor' | 'major' | 'custom' | 'current-version'} VersionType
+ * @typedef {'patch' | 'minor' | 'major' | 'custom'} VersionType
  */
 
 /**

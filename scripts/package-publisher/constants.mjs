@@ -24,7 +24,6 @@ export const VERSION_TYPES = {
   PATCH: 'patch',
   MINOR: 'minor',
   MAJOR: 'major',
-  CURRENT_VERSION: 'current-version',
   CUSTOM: 'custom',
 };
 

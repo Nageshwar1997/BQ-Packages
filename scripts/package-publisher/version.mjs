@@ -35,9 +35,6 @@ export function calculateVersion(currentVersion, versionType, customVersion) {
     case VERSION_TYPES.MAJOR:
       return semver.inc(currentVersion, 'major');
 
-    case VERSION_TYPES.CURRENT_VERSION:
-      return currentVersion;
-
     case VERSION_TYPES.CUSTOM: {
       if (!customVersion) {
         throw new Error('Custom version is required.');
