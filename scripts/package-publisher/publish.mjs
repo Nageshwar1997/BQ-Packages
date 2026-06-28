@@ -1,9 +1,7 @@
-import { VERSION_TYPES } from './constants.mjs';
 import { getPackageMetadata } from './metadata.mjs';
-import { publish as publishToNpm } from './npm.mjs';
-import { confirmPublish, enterCustomVersion, selectVersion } from './prompts.mjs';
+import { publish as publishToNpm, whoami } from './npm.mjs';
+import { confirmPublish } from './prompts.mjs';
 import { validatePackage, validatePublish } from './validators.mjs';
-import { calculateVersion, updatePackageVersion } from './version.mjs';
 
 /**
  * @import { WorkspacePackage } from './types.mjs'
@@ -14,38 +12,37 @@ import { calculateVersion, updatePackageVersion } from './version.mjs';
 /* -------------------------------------------------------------------------- */
 
 /**
- * Publishes a workspace package.
+ * Publishes a new workspace package.
  *
  * @param {WorkspacePackage} pkg
  * @returns {Promise<void>}
  */
-async function publishWorkspacePackage(pkg) {
+async function publishNewWorkspacePackage(pkg) {
+  const username = await whoami();
+
+  if (!username) {
+    throw new Error('Please login before publishing packages.');
+  }
+
   await validatePackage(pkg);
 
   const metadata = await getPackageMetadata(pkg);
 
-  const versionType = await selectVersion(metadata.localVersion);
+  if (metadata.published) {
+    throw new Error(`"${metadata.packageName}" is already published.`);
+  }
 
-  const customVersion =
-    versionType === VERSION_TYPES.CUSTOM
-      ? await enterCustomVersion(metadata.localVersion)
-      : undefined;
-
-  const version = calculateVersion(metadata.localVersion, versionType, customVersion);
-
-  const confirmed = await confirmPublish(metadata, version);
+  const confirmed = await confirmPublish(metadata);
 
   if (!confirmed) {
     return;
   }
 
-  await updatePackageVersion(metadata.directory, version);
+  await validatePublish(metadata);
 
-  const updatedMetadata = await getPackageMetadata(pkg);
+  await publishToNpm(metadata.directory);
 
-  await validatePublish(updatedMetadata);
-
-  await publishToNpm(updatedMetadata.directory);
+  console.log(`✔ Successfully published "${metadata.packageName}@${metadata.localVersion}".`);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -53,35 +50,11 @@ async function publishWorkspacePackage(pkg) {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Publishes a workspace package.
+ * Publishes a new workspace package.
  *
  * @param {WorkspacePackage} pkg
  * @returns {Promise<void>}
  */
-export async function publishPackage(pkg) {
-  await publishWorkspacePackage(pkg);
-}
-
-/**
- * Publishes multiple workspace packages.
- *
- * @param {WorkspacePackage[]} packages
- * @returns {Promise<void>}
- */
-export async function publishPackages(packages) {
-  for (const pkg of packages) {
-    await publishWorkspacePackage(pkg);
-  }
-}
-
-/**
- * Publishes all workspace packages.
- *
- * @param {WorkspacePackage[]} packages
- * @returns {Promise<void>}
- */
-export async function publishAllPackages(packages) {
-  for (const pkg of packages) {
-    await publishWorkspacePackage(pkg);
-  }
+export async function publishNewPackage(pkg) {
+  await publishNewWorkspacePackage(pkg);
 }

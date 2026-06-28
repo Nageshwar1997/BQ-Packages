@@ -1,8 +1,8 @@
 import { ACTIONS } from './constants.mjs';
 import { login, logout, whoami } from './npm.mjs';
 import { findPackages } from './package.mjs';
-import { selectAction, selectPackage, selectPackages } from './prompts.mjs';
-import { publishAllPackages, publishPackage, publishPackages } from './publish.mjs';
+import { selectAction, selectPackage } from './prompts.mjs';
+import { publishNewPackage } from './publish.mjs';
 
 /**
  * @import { WorkspacePackage } from './types.mjs'
@@ -43,25 +43,7 @@ async function main() {
 
           const pkg = await selectPackage(packages);
 
-          await publishPackage(pkg);
-
-          break;
-        }
-
-        case ACTIONS.PUBLISH_PACKAGES: {
-          const packages = await getPackages();
-
-          const selectedPackages = await selectPackages(packages);
-
-          await publishPackages(selectedPackages);
-
-          break;
-        }
-
-        case ACTIONS.PUBLISH_ALL: {
-          const packages = await getPackages();
-
-          await publishAllPackages(packages);
+          await publishNewPackage(pkg);
 
           break;
         }
@@ -91,6 +73,7 @@ async function main() {
       if (error instanceof Error && error.name === 'ExitPromptError') {
         process.exit(0);
       }
+
       console.error(error instanceof Error ? error.message : error);
     }
   }
