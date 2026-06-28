@@ -57,3 +57,9 @@ export const DEPENDENCY_SCOPES = Object.freeze({
   INTERNAL: 'internal',
   EXTERNAL: 'external',
 });
+
+export const TABLE_ALIGNMENTS = Object.freeze({
+  LEFT: 'left',
+  CENTER: 'center',
+  RIGHT: 'right',
+});

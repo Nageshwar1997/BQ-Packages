@@ -4,6 +4,7 @@
  *   DEPENDENCY_SCOPES,
  *   DEPENDENCY_TYPES,
  *   PACKAGE_STATUS,
+ *   TABLE_ALIGNMENTS,
  *   VERSION_TYPES,
  * } from './constants.mjs'
  */
@@ -90,4 +91,15 @@
  * @typedef {(typeof ACTIONS)[keyof typeof ACTIONS]} Action
  */
 
+/**
+ * @typedef {(typeof TABLE_ALIGNMENTS)[keyof typeof TABLE_ALIGNMENTS]} TableAlignment
+ */
+
+/**
+ * @typedef {{
+ *   key: string;
+ *   title: string;
+ *   align?: TableAlignment;
+ * }} TableColumn
+ */
 export {};
