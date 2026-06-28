@@ -1,6 +1,6 @@
 import { ensureLoggedIn } from './auth.mjs';
 import { publish as publishToNpm } from './npm.mjs';
-import { confirmPublish } from './prompts.mjs';
+import { confirmPublish, confirmPublishMany } from './prompts.mjs';
 import { validatePublish } from './validators.mjs';
 
 /**
@@ -52,4 +52,55 @@ export async function publishNewPackage(metadata) {
   const username = await ensureLoggedIn();
 
   await publishWorkspacePackage(metadata, username);
+}
+
+/**
+ * Publishes multiple packages.
+ *
+ * @param {PackageMetadata[]} packages
+ * @returns {Promise<void>}
+ */
+export async function publishPackages(packages) {
+  const username = await ensureLoggedIn();
+
+  const confirmed = await confirmPublishMany(packages);
+
+  if (!confirmed) {
+    return;
+  }
+
+  let success = 0;
+  let failed = 0;
+
+  for (const metadata of packages) {
+    try {
+      await publishWorkspacePackage(metadata, username);
+      success++;
+    } catch (error) {
+      failed++;
+
+      console.error(
+        `✖ Failed to publish "${metadata.workspaceName}" (${metadata.npmPackageName}).`,
+      );
+
+      console.error(error instanceof Error ? error.message : error);
+    }
+  }
+
+  console.log('');
+
+  console.log('Publish Summary');
+
+  console.log(`✔ Successful : ${success}`);
+  console.log(`✖ Failed     : ${failed}`);
+}
+
+/**
+ * Publishes all packages.
+ *
+ * @param {PackageMetadata[]} packages
+ * @returns {Promise<void>}
+ */
+export async function publishAllPackages(packages) {
+  await publishPackages(packages);
 }
