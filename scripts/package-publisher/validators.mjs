@@ -1,5 +1,5 @@
 import semver from 'semver';
-import { getLicensePath, getPackageJsonPath, getReadmePath } from './paths.mjs';
+import { getPackageJsonPath, getReadmePath } from './paths.mjs';
 import { pathExists } from './utils.mjs';
 
 /**
@@ -16,11 +16,7 @@ import { pathExists } from './utils.mjs';
  * @returns {Promise<void>}
  */
 async function validateRequiredFiles(packageDirectory) {
-  const requiredFiles = [
-    getPackageJsonPath(packageDirectory),
-    getReadmePath(packageDirectory),
-    getLicensePath(packageDirectory),
-  ];
+  const requiredFiles = [getPackageJsonPath(packageDirectory), getReadmePath(packageDirectory)];
 
   for (const file of requiredFiles) {
     if (await pathExists(file)) continue;

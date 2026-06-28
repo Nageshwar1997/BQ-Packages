@@ -12,6 +12,3 @@ export function getReadmePath(packageDirectory) {
   return path.join(packageDirectory, 'README.md');
 }
 
-export function getLicensePath(packageDirectory) {
-  return path.join(packageDirectory, 'LICENSE');
-}
