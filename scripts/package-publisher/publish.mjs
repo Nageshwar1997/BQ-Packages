@@ -1,8 +1,9 @@
 import { ensureLoggedIn } from './auth.mjs';
+import { runBatchOperation } from './batch-operation.mjs';
 import { sortPackagesByDependencies } from './dependency-sort.mjs';
 import { publish as publishToNpm } from './npm.mjs';
 import { confirmPublish, confirmPublishMany } from './prompts.mjs';
-import { reportError, reportSuccess, reportSummary } from './reporter.mjs';
+import { reportSuccess } from './reporter.mjs';
 import { validatePublish } from './validators.mjs';
 
 /**
@@ -20,7 +21,7 @@ import { validatePublish } from './validators.mjs';
  * @param {string} username
  * @returns {Promise<void>}
  */
-async function publishWorkspacePackage(metadata, username) {
+async function publishPackageInternal(metadata, username) {
   if (metadata.published) {
     throw new Error(`"${metadata.npmPackageName}" is already published.`);
   }
@@ -53,7 +54,7 @@ export async function publishNewPackage(metadata) {
     return;
   }
 
-  await publishWorkspacePackage(metadata, username);
+  await publishPackageInternal(metadata, username);
 }
 
 /**
@@ -73,23 +74,12 @@ export async function publishPackages(packages) {
     return;
   }
 
-  let successful = 0;
-  let failed = 0;
-
-  for (const metadata of sortedPackages) {
-    try {
-      await publishWorkspacePackage(metadata, username);
-      successful++;
-    } catch (error) {
-      failed++;
-
-      reportError(`Failed to publish "${metadata.workspaceName}" (${metadata.npmPackageName}).`);
-
-      reportError(error instanceof Error ? error.message : String(error));
-    }
-  }
-
-  reportSummary({ title: 'Publish Summary', successful, failed });
+  await runBatchOperation({
+    title: 'Publish Summary',
+    items: sortedPackages,
+    operation: (metadata) => publishPackageInternal(metadata, username),
+    getItemName: (metadata) => `${metadata.workspaceName} (${metadata.npmPackageName})`,
+  });
 }
 
 /**
