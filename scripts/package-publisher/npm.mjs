@@ -5,7 +5,7 @@ import { runCommand, runInteractiveCommand } from './utils.mjs';
 /* -------------------------------------------------------------------------- */
 
 /**
- * Returns the currently logged in npm username.
+ * Returns the current npm username.
  *
  * @returns {Promise<string | null>}
  */

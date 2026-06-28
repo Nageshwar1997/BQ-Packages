@@ -1,3 +1,4 @@
+import { ensureLoggedIn, ensureLoggedOut } from './auth.mjs';
 import { ACTIONS } from './constants.mjs';
 import { login, logout, whoami } from './npm.mjs';
 import { findPackages } from './package.mjs';
@@ -54,11 +55,13 @@ async function main() {
         }
 
         case ACTIONS.LOGIN: {
+          await ensureLoggedOut();
           await login();
           break;
         }
 
         case ACTIONS.LOGOUT: {
+          await ensureLoggedIn();
           await logout();
           break;
         }

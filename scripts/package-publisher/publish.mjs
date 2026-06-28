@@ -1,5 +1,6 @@
+import { ensureLoggedIn } from './auth.mjs';
 import { getPackageMetadata } from './metadata.mjs';
-import { publish as publishToNpm, whoami } from './npm.mjs';
+import { publish as publishToNpm } from './npm.mjs';
 import { confirmPublish } from './prompts.mjs';
 import { validatePackage, validatePublish } from './validators.mjs';
 
@@ -18,12 +19,6 @@ import { validatePackage, validatePublish } from './validators.mjs';
  * @returns {Promise<void>}
  */
 async function publishNewWorkspacePackage(pkg) {
-  const username = await whoami();
-
-  if (!username) {
-    throw new Error('Please login before publishing packages.');
-  }
-
   await validatePackage(pkg);
 
   const metadata = await getPackageMetadata(pkg);
@@ -56,5 +51,7 @@ async function publishNewWorkspacePackage(pkg) {
  * @returns {Promise<void>}
  */
 export async function publishNewPackage(pkg) {
+  await ensureLoggedIn();
+
   await publishNewWorkspacePackage(pkg);
 }
