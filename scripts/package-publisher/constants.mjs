@@ -1,24 +1,31 @@
 export const APP_NAME = 'Beautinique Package Publisher';
 
 export const ACTIONS = {
-  PUBLISH_PACKAGE: 'publish-package',
-  PUBLISH_PACKAGES: 'publish-packages',
-  PUBLISH_ALL: 'publish-all',
+  /* -------------------------------------------------------------------------- */
+  /*                               PUBLISH NEW                                  */
+  /* -------------------------------------------------------------------------- */
+
+  PUBLISH_NEW_PACKAGE: 'publish-new-package',
+  PUBLISH_NEW_PACKAGES: 'publish-new-packages',
+  PUBLISH_ALL_NEW_PACKAGES: 'publish-all-new-packages',
+
+  /* -------------------------------------------------------------------------- */
+  /*                              REPUBLISH                                     */
+  /* -------------------------------------------------------------------------- */
+
+  REPUBLISH_PACKAGE: 'republish-package',
+  REPUBLISH_PACKAGES: 'republish-packages',
+  REPUBLISH_ALL_PACKAGES: 'republish-all-packages',
+
+  /* -------------------------------------------------------------------------- */
+  /*                                 OTHER                                      */
+  /* -------------------------------------------------------------------------- */
+
   PACKAGE_STATUS: 'package-status',
   LOGIN: 'login',
   LOGOUT: 'logout',
   EXIT: 'exit',
 };
-
-export const MAIN_MENU = [
-  { name: 'Publish Package', value: ACTIONS.PUBLISH_PACKAGE },
-  { name: 'Publish Packages', value: ACTIONS.PUBLISH_PACKAGES },
-  { name: 'Publish All Packages', value: ACTIONS.PUBLISH_ALL },
-  { name: 'Package Status', value: ACTIONS.PACKAGE_STATUS },
-  { name: 'Login to npm', value: ACTIONS.LOGIN },
-  { name: 'Logout from npm', value: ACTIONS.LOGOUT },
-  { name: 'Exit', value: ACTIONS.EXIT },
-];
 
 export const VERSION_TYPES = {
   PATCH: 'patch',

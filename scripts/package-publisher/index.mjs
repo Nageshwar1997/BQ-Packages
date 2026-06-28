@@ -38,7 +38,7 @@ async function main() {
       const action = await selectAction(username);
 
       switch (action) {
-        case ACTIONS.PUBLISH_PACKAGE: {
+        case ACTIONS.PUBLISH_NEW_PACKAGE: {
           const packages = await getPackages();
 
           const pkg = await selectPackage(packages);

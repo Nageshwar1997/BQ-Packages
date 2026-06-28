@@ -24,16 +24,16 @@ export async function selectAction(username) {
       message: 'What would you like to do?',
       choices: [
         {
-          name: 'Publish Package',
-          value: ACTIONS.PUBLISH_PACKAGE,
+          name: 'Publish New Package',
+          value: ACTIONS.PUBLISH_NEW_PACKAGE,
         },
         {
-          name: 'Publish Packages',
-          value: ACTIONS.PUBLISH_PACKAGES,
+          name: 'Publish New Packages',
+          value: ACTIONS.PUBLISH_NEW_PACKAGES,
         },
         {
-          name: 'Publish All Packages',
-          value: ACTIONS.PUBLISH_ALL,
+          name: 'Publish New All Packages',
+          value: ACTIONS.PUBLISH_ALL_NEW_PACKAGES,
         },
         {
           name: 'Package Status',

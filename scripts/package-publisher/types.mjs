@@ -51,7 +51,7 @@
  */
 
 /**
- * @typedef {'publish-package' | 'publish-packages' | 'publish-all' | 'package-status' | 'login' | 'logout' | 'exit'} Action
+ * @typedef {'publish-new-package' | 'publish-new-packages' | 'publish-all-new-packages' | 'republish-package' | 'republish-packages' | 'republish-all-packages' | 'package-status' | 'login' | 'logout' | 'exit'} Action
  */
 
 export {};
