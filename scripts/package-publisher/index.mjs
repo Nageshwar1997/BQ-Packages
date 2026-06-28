@@ -2,9 +2,10 @@ import { ensureLoggedIn, ensureLoggedOut } from './auth.mjs';
 import { ACTIONS, EXIT_CODES } from './constants.mjs';
 import { login, logout, whoami } from './npm.mjs';
 import { getPackage, getPackages, getSelectedPackages } from './package-selection.mjs';
+import { showPackageStatus } from './package-status.mjs';
 import { selectAction } from './prompts.mjs';
 import { publishAllPackages, publishNewPackage, publishPackages } from './publish.mjs';
-import { reportError, reportInfo } from './reporter.mjs';
+import { reportError } from './reporter.mjs';
 import { republishAllPackages, republishPackage, republishPackages } from './republish.mjs';
 
 /* -------------------------------------------------------------------------- */
@@ -98,7 +99,7 @@ async function main() {
         }
 
         case ACTIONS.PACKAGE_STATUS:
-          reportInfo('Package status is not implemented yet.');
+          await showPackageStatus();
           break;
 
         case ACTIONS.LOGIN:
