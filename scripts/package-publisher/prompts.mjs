@@ -7,6 +7,28 @@ import { ACTIONS, VERSION_TYPES } from './constants.mjs';
  */
 
 /* -------------------------------------------------------------------------- */
+/*                                  HELPERS                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Returns package choices.
+ *
+ * @param {PackageMetadata[]} packages
+ * @returns {{
+ *   name: string;
+ *   value: PackageMetadata;
+ * }[]}
+ */
+function getPackageChoices(packages) {
+  return [...packages]
+    .sort((a, b) => a.workspaceName.localeCompare(b.workspaceName))
+    .map((pkg) => ({
+      name: `${pkg.workspaceName} (${pkg.npmPackageName})`,
+      value: pkg,
+    }));
+}
+
+/* -------------------------------------------------------------------------- */
 /*                                  ACTION                                    */
 /* -------------------------------------------------------------------------- */
 
@@ -35,10 +57,29 @@ export async function selectAction(username) {
           name: 'Publish All New Packages',
           value: ACTIONS.PUBLISH_ALL_NEW_PACKAGES,
         },
+
+        new inquirer.Separator(),
+
+        {
+          name: 'Republish Package',
+          value: ACTIONS.REPUBLISH_PACKAGE,
+        },
+        {
+          name: 'Republish Packages',
+          value: ACTIONS.REPUBLISH_PACKAGES,
+        },
+        {
+          name: 'Republish All Packages',
+          value: ACTIONS.REPUBLISH_ALL_PACKAGES,
+        },
+
+        new inquirer.Separator(),
+
         {
           name: 'Package Status',
           value: ACTIONS.PACKAGE_STATUS,
         },
+
         ...(username
           ? [
               {
@@ -52,7 +93,9 @@ export async function selectAction(username) {
                 value: ACTIONS.LOGIN,
               },
             ]),
+
         new inquirer.Separator(),
+
         {
           name: 'Exit',
           value: ACTIONS.EXIT,
@@ -80,12 +123,7 @@ export async function selectPackage(packages) {
       type: 'select',
       name: 'pkg',
       message: 'Select a package:',
-      choices: [...packages]
-        .sort((a, b) => a.workspaceName.localeCompare(b.workspaceName))
-        .map((pkg) => ({
-          name: `${pkg.workspaceName} (${pkg.npmPackageName})`,
-          value: pkg,
-        })),
+      choices: getPackageChoices(packages),
     },
   ]);
 
@@ -104,12 +142,7 @@ export async function selectPackages(packages) {
       type: 'checkbox',
       name: 'packages',
       message: 'Select packages:',
-      choices: [...packages]
-        .sort((a, b) => a.workspaceName.localeCompare(b.workspaceName))
-        .map((pkg) => ({
-          name: `${pkg.workspaceName} (${pkg.npmPackageName})`,
-          value: pkg,
-        })),
+      choices: getPackageChoices(packages),
       validate(value) {
         return value.length > 0 || 'Select at least one package.';
       },
@@ -197,17 +230,99 @@ export async function enterCustomVersion(currentVersion) {
  * Prompts the user to confirm publishing.
  *
  * @param {PackageMetadata} metadata
- * @param {string} [version]
  * @returns {Promise<boolean>}
  */
-export async function confirmPublish(metadata, version) {
+export async function confirmPublish(metadata) {
   const { confirmed } = await inquirer.prompt([
     {
       type: 'confirm',
       name: 'confirmed',
-      message: version
-        ? `Publish "${metadata.npmPackageName}" v${version}?`
-        : `Publish "${metadata.npmPackageName}"?`,
+      message: [
+        `Publish "${metadata.npmPackageName}"?`,
+        '',
+        `Version : ${metadata.localVersion}`,
+      ].join('\n'),
+      default: true,
+    },
+  ]);
+
+  return confirmed;
+}
+
+/**
+ * Prompts the user to confirm publishing multiple packages.
+ *
+ * @param {PackageMetadata[]} packages
+ * @returns {Promise<boolean>}
+ */
+export async function confirmPublishMany(packages) {
+  const message = [
+    `Publish ${packages.length} new package${packages.length === 1 ? '' : 's'}?`,
+    '',
+    ...packages.map((pkg) => `${pkg.workspaceName} (${pkg.npmPackageName}) v${pkg.localVersion}`),
+  ].join('\n');
+
+  const { confirmed } = await inquirer.prompt([
+    {
+      type: 'confirm',
+      name: 'confirmed',
+      message,
+      default: true,
+    },
+  ]);
+
+  return confirmed;
+}
+
+/**
+ * Prompts the user to confirm republishing.
+ *
+ * @param {PackageMetadata} metadata
+ * @param {string} version
+ * @returns {Promise<boolean>}
+ */
+export async function confirmRepublish(metadata, version) {
+  const { confirmed } = await inquirer.prompt([
+    {
+      type: 'confirm',
+      name: 'confirmed',
+      message: [
+        `Republish "${metadata.npmPackageName}"?`,
+        '',
+        `Current Version : ${metadata.localVersion}`,
+        `Next Version    : ${version}`,
+      ].join('\n'),
+      default: true,
+    },
+  ]);
+
+  return confirmed;
+}
+
+/**
+ * Prompts the user to confirm republishing multiple packages.
+ *
+ * @param {{
+ *   metadata: PackageMetadata;
+ *   version: string;
+ * }[]} packages
+ * @returns {Promise<boolean>}
+ */
+export async function confirmRepublishMany(packages) {
+  const message = [
+    `Republish ${packages.length} package${packages.length === 1 ? '' : 's'}?`,
+    '',
+    ...packages.map(
+      ({ metadata, version }) =>
+        `${metadata.workspaceName} (${metadata.npmPackageName}) ${metadata.localVersion} → ${version}`,
+    ),
+  ].join('\n');
+
+  const { confirmed } = await inquirer.prompt([
+    {
+      type: 'confirm',
+      name: 'confirmed',
+      message,
       default: true,
     },
   ]);

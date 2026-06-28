@@ -1,29 +1,11 @@
 import { ensureLoggedIn, ensureLoggedOut } from './auth.mjs';
-import { ACTIONS, EXIT_CODES, PACKAGE_STATUS } from './constants.mjs';
+import { ACTIONS, EXIT_CODES } from './constants.mjs';
 import { getPackagesMetadata } from './metadata.mjs';
 import { login, logout, whoami } from './npm.mjs';
 import { selectAction, selectPackage } from './prompts.mjs';
 import { publishNewPackage } from './publish.mjs';
+import { republishPackage } from './republish.mjs';
 import { validatePackage } from './validators.mjs';
-
-/**
- * @import { PackageMetadata } from './types.mjs'
- */
-
-/* -------------------------------------------------------------------------- */
-/*                                  HELPERS                                   */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Returns all unpublished packages.
- *
- * @returns {Promise<PackageMetadata[]>}
- */
-async function getUnpublishedPackages() {
-  const packages = await getPackagesMetadata();
-
-  return packages.filter((pkg) => pkg.status === PACKAGE_STATUS.UNPUBLISHED);
-}
 
 /* -------------------------------------------------------------------------- */
 /*                                   MAIN                                     */
@@ -43,7 +25,7 @@ async function main() {
 
       switch (action) {
         case ACTIONS.PUBLISH_NEW_PACKAGE: {
-          const packages = await getUnpublishedPackages();
+          const packages = (await getPackagesMetadata()).filter((pkg) => !pkg.published);
 
           if (packages.length === 0) {
             console.log('No unpublished packages found.');
@@ -63,6 +45,27 @@ async function main() {
           continue;
         }
 
+        case ACTIONS.REPUBLISH_PACKAGE: {
+          const packages = (await getPackagesMetadata()).filter((pkg) => pkg.published);
+
+          if (packages.length === 0) {
+            console.log('No published packages found.');
+            continue;
+          }
+
+          const metadata = await selectPackage(packages);
+
+          await validatePackage({
+            packageType: metadata.packageType,
+            workspaceName: metadata.workspaceName,
+            directory: metadata.directory,
+          });
+
+          await republishPackage(metadata);
+
+          continue;
+        }
+
         case ACTIONS.PACKAGE_STATUS:
           console.log('Package status is not implemented yet.');
           continue;
@@ -78,14 +81,14 @@ async function main() {
           continue;
 
         case ACTIONS.EXIT:
-          process.exit(EXIT_CODES.SUCCESS);
+          return;
 
         default:
           throw new Error(`Unknown action "${action}".`);
       }
     } catch (error) {
       if (error instanceof Error && error.name === 'ExitPromptError') {
-        process.exit(EXIT_CODES.SUCCESS);
+        return;
       }
 
       console.error(error instanceof Error ? error.message : error);
@@ -94,3 +97,5 @@ async function main() {
 }
 
 await main();
+
+process.exit(EXIT_CODES.SUCCESS);

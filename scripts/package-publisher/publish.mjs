@@ -15,9 +15,10 @@ import { validatePublish } from './validators.mjs';
  * Publishes a new package.
  *
  * @param {PackageMetadata} metadata
+ * @param {string} username
  * @returns {Promise<void>}
  */
-async function publishPackage(metadata) {
+async function publishWorkspacePackage(metadata, username) {
   if (metadata.published) {
     throw new Error(`"${metadata.npmPackageName}" is already published.`);
   }
@@ -31,6 +32,10 @@ async function publishPackage(metadata) {
   validatePublish(metadata);
 
   await publishToNpm(metadata.directory);
+
+  console.log(
+    `✔ Successfully published "${metadata.workspaceName}" (${metadata.npmPackageName}@${metadata.localVersion}) as "${username}".`,
+  );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -46,9 +51,5 @@ async function publishPackage(metadata) {
 export async function publishNewPackage(metadata) {
   const username = await ensureLoggedIn();
 
-  await publishPackage(metadata);
-
-  console.log(
-    `✔ Successfully published "${metadata.workspaceName}" (${metadata.npmPackageName}@${metadata.localVersion}) as "${username}".`,
-  );
+  await publishWorkspacePackage(metadata, username);
 }

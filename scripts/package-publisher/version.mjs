@@ -8,6 +8,20 @@ import { readJson, writeJson } from './utils.mjs';
  */
 
 /* -------------------------------------------------------------------------- */
+/*                             PRIVATE HELPERS                                */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Reads a package.json file.
+ *
+ * @param {string} packageDirectory
+ * @returns {Promise<PackageJson>}
+ */
+async function readPackageJson(packageDirectory) {
+  return readJson(getPackageJsonPath(packageDirectory));
+}
+
+/* -------------------------------------------------------------------------- */
 /*                              VERSION HELPERS                               */
 /* -------------------------------------------------------------------------- */
 
@@ -62,10 +76,7 @@ export function calculateVersion(currentVersion, versionType, customVersion) {
  * @returns {Promise<string>}
  */
 export async function getPackageVersion(packageDirectory) {
-  const packageJsonPath = getPackageJsonPath(packageDirectory);
-
-  /** @type {PackageJson} */
-  const packageJson = await readJson(packageJsonPath);
+  const packageJson = await readPackageJson(packageDirectory);
 
   return packageJson.version;
 }
@@ -84,8 +95,7 @@ export async function updatePackageVersion(packageDirectory, version) {
 
   const packageJsonPath = getPackageJsonPath(packageDirectory);
 
-  /** @type {PackageJson} */
-  const packageJson = await readJson(packageJsonPath);
+  const packageJson = await readPackageJson(packageDirectory);
 
   packageJson.version = version;
 
