@@ -13,7 +13,7 @@ export async function whoami() {
   try {
     const { stdout } = await runCommand('npm', ['whoami']);
 
-    return stdout;
+    return stdout || null;
   } catch {
     return null;
   }

@@ -124,6 +124,10 @@ async function main() {
       }
 
       reportError(error instanceof Error ? error.message : String(error));
+
+      if (!(error instanceof Error && error.expected === true)) {
+        exit(EXIT_CODES.FAILURE);
+      }
     }
   }
 }

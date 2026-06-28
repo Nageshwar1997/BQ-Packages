@@ -1,9 +1,9 @@
-import { execFile, spawn } from 'node:child_process';
+import { exec, spawn } from 'node:child_process';
 import { constants } from 'node:fs';
 import { access, readFile, writeFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
 
-const execFileAsync = promisify(execFile);
+const execAsync = promisify(exec);
 
 /* -------------------------------------------------------------------------- */
 /*                                   JSON                                     */
@@ -59,15 +59,48 @@ export async function pathExists(filePath) {
 }
 
 /* -------------------------------------------------------------------------- */
+/*                              PRIVATE HELPERS                               */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Escapes a shell argument.
+ *
+ * @param {string} value
+ * @returns {string}
+ */
+function escapeShellArgument(value) {
+  if (/^[a-zA-Z0-9_./:@=-]+$/.test(value)) {
+    return value;
+  }
+
+  if (process.platform === 'win32') {
+    return `"${value.replaceAll('"', '\\"')}"`;
+  }
+
+  return `'${value.replaceAll("'", "'\\''")}'`;
+}
+
+/**
+ * Builds a command string.
+ *
+ * @param {string} command
+ * @param {string[]} args
+ * @returns {string}
+ */
+function buildCommand(command, args) {
+  return [command, ...args.map(escapeShellArgument)].join(' ');
+}
+
+/* -------------------------------------------------------------------------- */
 /*                                  COMMAND                                   */
 /* -------------------------------------------------------------------------- */
 
 /**
- * Runs a command.
+ * Runs a command and captures stdout/stderr.
  *
  * @param {string} command
  * @param {string[]} [args=[]]
- * @param {import('node:child_process').ExecFileOptions} [options={}]
+ * @param {import('node:child_process').ExecOptions} [options={}]
  * @returns {Promise<{
  *   stdout: string;
  *   stderr: string;
@@ -75,14 +108,17 @@ export async function pathExists(filePath) {
  */
 export async function runCommand(command, args = [], options = {}) {
   try {
-    const { stdout, stderr } = await execFileAsync(command, args, options);
+    const { stdout, stderr } = await execAsync(buildCommand(command, args), {
+      ...options,
+      windowsHide: true,
+    });
 
     return {
-      stdout: stdout.trimEnd(),
-      stderr: stderr.trimEnd(),
+      stdout: stdout.trim(),
+      stderr: stderr.trim(),
     };
   } catch (error) {
-    throw new Error(error.stderr?.trimEnd() || error.message, {
+    throw new Error(error.stderr?.trim() || error.stdout?.trim() || error.message, {
       cause: error,
     });
   }
@@ -103,14 +139,15 @@ export async function runCommand(command, args = [], options = {}) {
 export function runInteractiveCommand(command, args = [], options = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
-      stdio: 'inherit',
-      shell: process.platform === 'win32',
       ...options,
+      stdio: 'inherit',
+      shell: true,
+      windowsHide: true,
     });
 
     child.once('error', reject);
 
-    child.once('exit', (code) => {
+    child.once('close', (code) => {
       if (code === 0) {
         resolve();
         return;
