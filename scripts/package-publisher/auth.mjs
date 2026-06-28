@@ -7,7 +7,7 @@ import { whoami } from './npm.mjs';
 /**
  * Ensures the user is logged in to npm.
  *
- * @returns {Promise<void>}
+ * @returns {Promise<string>}
  */
 export async function ensureLoggedIn() {
   const username = await whoami();
@@ -15,6 +15,8 @@ export async function ensureLoggedIn() {
   if (!username) {
     throw new Error('Please login to npm before continuing.');
   }
+
+  return username;
 }
 
 /**

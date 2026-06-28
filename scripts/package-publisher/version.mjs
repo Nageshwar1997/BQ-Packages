@@ -1,5 +1,4 @@
 import semver from 'semver';
-
 import { VERSION_TYPES } from './constants.mjs';
 import { getPackageJsonPath } from './paths.mjs';
 import { readJson, writeJson } from './utils.mjs';
@@ -55,6 +54,21 @@ export function calculateVersion(currentVersion, versionType, customVersion) {
 /* -------------------------------------------------------------------------- */
 /*                              PACKAGE VERSION                               */
 /* -------------------------------------------------------------------------- */
+
+/**
+ * Returns the current package version.
+ *
+ * @param {string} packageDirectory
+ * @returns {Promise<string>}
+ */
+export async function getPackageVersion(packageDirectory) {
+  const packageJsonPath = getPackageJsonPath(packageDirectory);
+
+  /** @type {PackageJson} */
+  const packageJson = await readJson(packageJsonPath);
+
+  return packageJson.version;
+}
 
 /**
  * Updates the package version.

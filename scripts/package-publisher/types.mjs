@@ -1,57 +1,93 @@
 /**
+ * @import {
+ *   ACTIONS,
+ *   DEPENDENCY_SCOPES,
+ *   DEPENDENCY_TYPES,
+ *   PACKAGE_STATUS,
+ *   VERSION_TYPES,
+ * } from './constants.mjs'
+ */
+
+/* -------------------------------------------------------------------------- */
+/*                                  COMMON                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * @typedef {{
+ *   access?: 'public';
+ * }} PublishConfig
+ */
+
+/* -------------------------------------------------------------------------- */
+/*                               DEPENDENCIES                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
  * @typedef {{
  *   name: string;
  *   version: string;
- *   type: string;
- *   scope: string;
+ *   type: (typeof DEPENDENCY_TYPES)[keyof typeof DEPENDENCY_TYPES];
+ *   scope: (typeof DEPENDENCY_SCOPES)[keyof typeof DEPENDENCY_SCOPES];
  * }} Dependency
  */
 
-/**
- * @typedef {{
- *   packageType: string;
- *   name: string;
- *   packageName: string;
- *   directory: string;
- *   localVersion: string;
- *   remoteVersion: string | null;
- *   published: boolean;
- *   publishConfig: {
- *     access?: string;
- *   } | null;
- *   dependencies: Dependency[];
- *   status: string;
- * }} PackageMetadata
- */
+/* -------------------------------------------------------------------------- */
+/*                              WORKSPACE PACKAGE                             */
+/* -------------------------------------------------------------------------- */
 
 /**
  * @typedef {{
  *   packageType: string;
- *   name: string;
+ *   workspaceName: string;
  *   directory: string;
  * }} WorkspacePackage
  */
 
+/* -------------------------------------------------------------------------- */
+/*                               PACKAGE.JSON                                 */
+/* -------------------------------------------------------------------------- */
+
 /**
  * @typedef {{
+ *   name: string;
+ *   version: string;
  *   dependencies?: Record<string, string>;
  *   devDependencies?: Record<string, string>;
  *   peerDependencies?: Record<string, string>;
  *   optionalDependencies?: Record<string, string>;
- *   name: string;
- *   version: string;
- *   publishConfig?: {
- *     access?: string;
- *   };
+ *   publishConfig?: PublishConfig;
  * }} PackageJson
  */
 
+/* -------------------------------------------------------------------------- */
+/*                              PACKAGE METADATA                              */
+/* -------------------------------------------------------------------------- */
+
 /**
- * @typedef {'patch' | 'minor' | 'major' | 'custom'} VersionType
+ * @typedef {{
+ *   packageType: string;
+ *   workspaceName: string;
+ *   npmPackageName: string;
+ *   directory: string;
+ *   localVersion: string;
+ *   remoteVersion: string | null;
+ *   published: boolean;
+ *   publishConfig: PublishConfig | null;
+ *   dependencies: Dependency[];
+ *   status: (typeof PACKAGE_STATUS)[keyof typeof PACKAGE_STATUS];
+ * }} PackageMetadata
+ */
+
+/* -------------------------------------------------------------------------- */
+/*                                   TYPES                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * @typedef {(typeof VERSION_TYPES)[keyof typeof VERSION_TYPES]} VersionType
  */
 
 /**
- * @typedef {'publish-new-package' | 'publish-new-packages' | 'publish-all-new-packages' | 'republish-package' | 'republish-packages' | 'republish-all-packages' | 'package-status' | 'login' | 'logout' | 'exit'} Action
+ * @typedef {(typeof ACTIONS)[keyof typeof ACTIONS]} Action
  */
 
 export {};

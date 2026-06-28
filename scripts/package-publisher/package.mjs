@@ -2,6 +2,10 @@ import { readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { PACKAGES_DIRECTORY } from './paths.mjs';
 
+/**
+ * @import { WorkspacePackage } from './types.mjs'
+ */
+
 /* -------------------------------------------------------------------------- */
 /*                               FIND PACKAGES                                */
 /* -------------------------------------------------------------------------- */
@@ -9,15 +13,10 @@ import { PACKAGES_DIRECTORY } from './paths.mjs';
 /**
  * Finds all workspace packages.
  *
- * @returns {Promise<
- *   {
- *     type: string;
- *     name: string;
- *     directory: string;
- *   }[]
- * >}
+ * @returns {Promise<WorkspacePackage[]>}
  */
 export async function findPackages() {
+  /** @type {WorkspacePackage[]} */
   const packages = [];
 
   const packageTypes = await readdir(PACKAGES_DIRECTORY, {
@@ -37,14 +36,22 @@ export async function findPackages() {
       if (!packageDirectory.isDirectory()) continue;
 
       packages.push({
-        type: packageType.name,
-        name: packageDirectory.name,
+        packageType: packageType.name,
+        workspaceName: packageDirectory.name,
         directory: path.join(typeDirectory, packageDirectory.name),
       });
     }
   }
 
-  return packages;
+  return packages.sort((a, b) => {
+    const typeComparison = a.packageType.localeCompare(b.packageType);
+
+    if (typeComparison !== 0) {
+      return typeComparison;
+    }
+
+    return a.workspaceName.localeCompare(b.workspaceName);
+  });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -54,15 +61,11 @@ export async function findPackages() {
 /**
  * Finds a workspace package.
  *
- * @param {string} name
- * @returns {Promise<{
- *   type: string;
- *   name: string;
- *   directory: string;
- * } | null>}
+ * @param {string} workspaceName
+ * @returns {Promise<WorkspacePackage | null>}
  */
-export async function findPackage(name) {
+export async function findPackage(workspaceName) {
   const packages = await findPackages();
 
-  return packages.find((pkg) => pkg.name === name) ?? null;
+  return packages.find((pkg) => pkg.workspaceName === workspaceName) ?? null;
 }

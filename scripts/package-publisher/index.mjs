@@ -1,12 +1,13 @@
 import { ensureLoggedIn, ensureLoggedOut } from './auth.mjs';
-import { ACTIONS } from './constants.mjs';
+import { ACTIONS, EXIT_CODES, PACKAGE_STATUS } from './constants.mjs';
+import { getPackagesMetadata } from './metadata.mjs';
 import { login, logout, whoami } from './npm.mjs';
-import { findPackages } from './package.mjs';
 import { selectAction, selectPackage } from './prompts.mjs';
 import { publishNewPackage } from './publish.mjs';
+import { validatePackage } from './validators.mjs';
 
 /**
- * @import { WorkspacePackage } from './types.mjs'
+ * @import { PackageMetadata } from './types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -14,12 +15,14 @@ import { publishNewPackage } from './publish.mjs';
 /* -------------------------------------------------------------------------- */
 
 /**
- * Returns all workspace packages.
+ * Returns all unpublished packages.
  *
- * @returns {Promise<WorkspacePackage[]>}
+ * @returns {Promise<PackageMetadata[]>}
  */
-async function getPackages() {
-  return findPackages();
+async function getUnpublishedPackages() {
+  const packages = await getPackagesMetadata();
+
+  return packages.filter((pkg) => pkg.status === PACKAGE_STATUS.UNPUBLISHED);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -40,41 +43,49 @@ async function main() {
 
       switch (action) {
         case ACTIONS.PUBLISH_NEW_PACKAGE: {
-          const packages = await getPackages();
+          const packages = await getUnpublishedPackages();
 
-          const pkg = await selectPackage(packages);
+          if (packages.length === 0) {
+            console.log('No unpublished packages found.');
+            continue;
+          }
 
-          await publishNewPackage(pkg);
+          const metadata = await selectPackage(packages);
 
-          break;
+          await validatePackage({
+            packageType: metadata.packageType,
+            workspaceName: metadata.workspaceName,
+            directory: metadata.directory,
+          });
+
+          await publishNewPackage(metadata);
+
+          continue;
         }
 
-        case ACTIONS.PACKAGE_STATUS: {
+        case ACTIONS.PACKAGE_STATUS:
           console.log('Package status is not implemented yet.');
-          break;
-        }
+          continue;
 
-        case ACTIONS.LOGIN: {
+        case ACTIONS.LOGIN:
           await ensureLoggedOut();
           await login();
-          break;
-        }
+          continue;
 
-        case ACTIONS.LOGOUT: {
+        case ACTIONS.LOGOUT:
           await ensureLoggedIn();
           await logout();
-          break;
-        }
+          continue;
 
         case ACTIONS.EXIT:
-          return;
+          process.exit(EXIT_CODES.SUCCESS);
 
         default:
           throw new Error(`Unknown action "${action}".`);
       }
     } catch (error) {
       if (error instanceof Error && error.name === 'ExitPromptError') {
-        process.exit(0);
+        process.exit(EXIT_CODES.SUCCESS);
       }
 
       console.error(error instanceof Error ? error.message : error);

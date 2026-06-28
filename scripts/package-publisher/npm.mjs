@@ -19,15 +19,6 @@ export async function whoami() {
   }
 }
 
-/**
- * Returns whether the user is logged in to npm.
- *
- * @returns {Promise<boolean>}
- */
-export async function isLoggedIn() {
-  return (await whoami()) !== null;
-}
-
 /* -------------------------------------------------------------------------- */
 /*                               PACKAGE INFO                                 */
 /* -------------------------------------------------------------------------- */
@@ -45,9 +36,17 @@ export async function getPackageInfo(packageName) {
   try {
     const { stdout } = await runCommand('npm', ['view', packageName, 'version', '--json']);
 
-    return { published: true, version: JSON.parse(stdout) };
+    const version = JSON.parse(stdout);
+
+    return {
+      published: true,
+      version: Array.isArray(version) ? (version.at(-1) ?? null) : version,
+    };
   } catch {
-    return { published: false, version: null };
+    return {
+      published: false,
+      version: null,
+    };
   }
 }
 
@@ -56,7 +55,7 @@ export async function getPackageInfo(packageName) {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Opens npm login.
+ * Opens the npm login prompt.
  *
  * @returns {Promise<void>}
  */
@@ -65,7 +64,7 @@ export async function login() {
 }
 
 /**
- * Opens npm logout.
+ * Opens the npm logout prompt.
  *
  * @returns {Promise<void>}
  */
@@ -78,13 +77,13 @@ export async function logout() {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Publishes a package.
+ * Publishes a package to npm.
  *
  * @param {string} directory
  * @returns {Promise<void>}
  */
 export async function publish(directory) {
-  await runInteractiveCommand('npm', ['publish'], {
+  await runInteractiveCommand('npm', ['publish', '--access', 'public'], {
     cwd: directory,
   });
 }

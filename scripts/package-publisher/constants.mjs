@@ -1,6 +1,6 @@
 export const APP_NAME = 'Beautinique Package Publisher';
 
-export const ACTIONS = {
+export const ACTIONS = Object.freeze({
   /* -------------------------------------------------------------------------- */
   /*                               PUBLISH NEW                                  */
   /* -------------------------------------------------------------------------- */
@@ -10,7 +10,7 @@ export const ACTIONS = {
   PUBLISH_ALL_NEW_PACKAGES: 'publish-all-new-packages',
 
   /* -------------------------------------------------------------------------- */
-  /*                              REPUBLISH                                     */
+  /*                               REPUBLISH                                    */
   /* -------------------------------------------------------------------------- */
 
   REPUBLISH_PACKAGE: 'republish-package',
@@ -18,39 +18,42 @@ export const ACTIONS = {
   REPUBLISH_ALL_PACKAGES: 'republish-all-packages',
 
   /* -------------------------------------------------------------------------- */
-  /*                                 OTHER                                      */
+  /*                                  OTHER                                     */
   /* -------------------------------------------------------------------------- */
 
   PACKAGE_STATUS: 'package-status',
   LOGIN: 'login',
   LOGOUT: 'logout',
   EXIT: 'exit',
-};
+});
 
-export const VERSION_TYPES = {
+export const VERSION_TYPES = Object.freeze({
   PATCH: 'patch',
   MINOR: 'minor',
   MAJOR: 'major',
   CUSTOM: 'custom',
-};
+});
 
-export const EXIT_CODE = { SUCCESS: 0, FAILURE: 1 };
+export const EXIT_CODES = Object.freeze({
+  SUCCESS: 0,
+  FAILURE: 1,
+});
 
-export const PACKAGE_STATUS = {
+export const PACKAGE_STATUS = Object.freeze({
   UNPUBLISHED: 'unpublished',
   SYNCED: 'synced',
   UPDATE_AVAILABLE: 'update-available',
   OUTDATED: 'outdated',
-};
+});
 
-export const DEPENDENCY_TYPES = {
+export const DEPENDENCY_TYPES = Object.freeze({
   DEPENDENCY: 'dependency',
   DEV_DEPENDENCY: 'devDependency',
   PEER_DEPENDENCY: 'peerDependency',
   OPTIONAL_DEPENDENCY: 'optionalDependency',
-};
+});
 
-export const DEPENDENCY_SCOPES = {
+export const DEPENDENCY_SCOPES = Object.freeze({
   INTERNAL: 'internal',
   EXTERNAL: 'external',
-};
+});

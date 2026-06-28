@@ -2,6 +2,7 @@ import semver from 'semver';
 import { PACKAGE_SCOPE } from '../create-package/constants.mjs';
 import { DEPENDENCY_SCOPES, DEPENDENCY_TYPES, PACKAGE_STATUS } from './constants.mjs';
 import { getPackageInfo } from './npm.mjs';
+import { findPackages } from './package.mjs';
 import { getPackageJsonPath } from './paths.mjs';
 import { readJson } from './utils.mjs';
 
@@ -22,7 +23,7 @@ import { readJson } from './utils.mjs';
  * Returns the dependency scope.
  *
  * @param {string} packageName
- * @returns {string}
+ * @returns {Dependency['scope']}
  */
 function getDependencyScope(packageName) {
   return packageName.startsWith(`${PACKAGE_SCOPE}/`)
@@ -35,7 +36,7 @@ function getDependencyScope(packageName) {
  *
  * @param {Dependency[]} dependencies
  * @param {Record<string, string> | undefined} records
- * @param {string} type
+ * @param {Dependency['type']} type
  * @returns {void}
  */
 function addDependencies(dependencies, records, type) {
@@ -52,33 +53,28 @@ function addDependencies(dependencies, records, type) {
 }
 
 /**
+ * Returns all package dependencies.
+ *
  * @param {PackageJson} packageJson
  * @returns {Dependency[]}
  */
 function getDependencies(packageJson) {
-  const collectedDependencies = [];
+  /** @type {Dependency[]} */
+  const dependencies = [];
 
-  addDependencies(collectedDependencies, packageJson.dependencies, DEPENDENCY_TYPES.DEPENDENCY);
+  addDependencies(dependencies, packageJson.dependencies, DEPENDENCY_TYPES.DEPENDENCY);
 
-  addDependencies(
-    collectedDependencies,
-    packageJson.devDependencies,
-    DEPENDENCY_TYPES.DEV_DEPENDENCY,
-  );
+  addDependencies(dependencies, packageJson.devDependencies, DEPENDENCY_TYPES.DEV_DEPENDENCY);
 
-  addDependencies(
-    collectedDependencies,
-    packageJson.peerDependencies,
-    DEPENDENCY_TYPES.PEER_DEPENDENCY,
-  );
+  addDependencies(dependencies, packageJson.peerDependencies, DEPENDENCY_TYPES.PEER_DEPENDENCY);
 
   addDependencies(
-    collectedDependencies,
+    dependencies,
     packageJson.optionalDependencies,
     DEPENDENCY_TYPES.OPTIONAL_DEPENDENCY,
   );
 
-  return collectedDependencies;
+  return dependencies;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -98,8 +94,8 @@ export async function getPackageMetadata(pkg) {
 
   const metadata = {
     packageType: pkg.packageType,
-    name: pkg.name,
-    packageName: packageJson.name,
+    workspaceName: pkg.workspaceName,
+    npmPackageName: packageJson.name,
 
     directory: pkg.directory,
 
@@ -113,9 +109,21 @@ export async function getPackageMetadata(pkg) {
     dependencies: getDependencies(packageJson),
   };
 
-  const status = getPackageStatus(metadata);
+  return {
+    ...metadata,
+    status: getPackageStatus(metadata),
+  };
+}
 
-  return { ...metadata, status };
+/**
+ * Returns metadata for all workspace packages.
+ *
+ * @returns {Promise<PackageMetadata[]>}
+ */
+export async function getPackagesMetadata() {
+  const packages = await findPackages();
+
+  return Promise.all(packages.map(getPackageMetadata));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -123,8 +131,10 @@ export async function getPackageMetadata(pkg) {
 /* -------------------------------------------------------------------------- */
 
 /**
- * @param {PackageMetadata} metadata
- * @returns {string}
+ * Returns the package status.
+ *
+ * @param {Pick<PackageMetadata, 'published' | 'localVersion' | 'remoteVersion'>} metadata
+ * @returns {PackageMetadata['status']}
  */
 function getPackageStatus({ published, localVersion, remoteVersion }) {
   if (!published) {

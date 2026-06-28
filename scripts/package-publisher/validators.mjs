@@ -9,8 +9,12 @@ import { pathExists } from './utils.mjs';
  * } from './types.mjs'
  */
 
+/* -------------------------------------------------------------------------- */
+/*                              REQUIRED FILES                                */
+/* -------------------------------------------------------------------------- */
+
 /**
- * Validates required package files.
+ * Validates the required package files.
  *
  * @param {string} packageDirectory
  * @returns {Promise<void>}
@@ -25,6 +29,10 @@ async function validateRequiredFiles(packageDirectory) {
   }
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                  VERSION                                   */
+/* -------------------------------------------------------------------------- */
+
 /**
  * Validates the package version.
  *
@@ -34,7 +42,7 @@ async function validateRequiredFiles(packageDirectory) {
 function validateVersion(metadata) {
   if (!semver.valid(metadata.localVersion)) {
     throw new Error(
-      `Invalid local version "${metadata.localVersion}" for "${metadata.packageName}".`,
+      `Invalid local version "${metadata.localVersion}" for "${metadata.npmPackageName}".`,
     );
   }
 
@@ -44,32 +52,40 @@ function validateVersion(metadata) {
 
   if (!semver.valid(metadata.remoteVersion)) {
     throw new Error(
-      `Invalid remote version "${metadata.remoteVersion}" for "${metadata.packageName}".`,
+      `Invalid remote version "${metadata.remoteVersion}" for "${metadata.npmPackageName}".`,
     );
   }
 
   if (!semver.gt(metadata.localVersion, metadata.remoteVersion)) {
     throw new Error(
-      `"${metadata.packageName}" version must be greater than the published version.`,
+      `"${metadata.npmPackageName}" version must be greater than the published version.`,
     );
   }
 }
 
+/* -------------------------------------------------------------------------- */
+/*                              PUBLISH CONFIG                                */
+/* -------------------------------------------------------------------------- */
+
 /**
- * Validates publish configuration.
+ * Validates the publish configuration.
  *
  * @param {PackageMetadata} metadata
  * @returns {void}
  */
 function validatePublishConfig(metadata) {
   if (!metadata.publishConfig) {
-    throw new Error(`"${metadata.packageName}" is missing "publishConfig".`);
+    throw new Error(`"${metadata.npmPackageName}" is missing "publishConfig".`);
   }
 
   if (metadata.publishConfig.access !== 'public') {
-    throw new Error(`"${metadata.packageName}" must use "publishConfig.access": "public".`);
+    throw new Error(`"${metadata.npmPackageName}" must use "publishConfig.access": "public".`);
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/*                               PUBLIC API                                   */
+/* -------------------------------------------------------------------------- */
 
 /**
  * Validates the required files of a workspace package.
@@ -85,9 +101,9 @@ export async function validatePackage(pkg) {
  * Validates whether a package can be published.
  *
  * @param {PackageMetadata} metadata
- * @returns {Promise<void>}
+ * @returns {void}
  */
-export async function validatePublish(metadata) {
+export function validatePublish(metadata) {
   validateVersion(metadata);
   validatePublishConfig(metadata);
 }

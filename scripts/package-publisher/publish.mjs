@@ -1,11 +1,10 @@
 import { ensureLoggedIn } from './auth.mjs';
-import { getPackageMetadata } from './metadata.mjs';
 import { publish as publishToNpm } from './npm.mjs';
 import { confirmPublish } from './prompts.mjs';
-import { validatePackage, validatePublish } from './validators.mjs';
+import { validatePublish } from './validators.mjs';
 
 /**
- * @import { WorkspacePackage } from './types.mjs'
+ * @import { PackageMetadata } from './types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -13,18 +12,14 @@ import { validatePackage, validatePublish } from './validators.mjs';
 /* -------------------------------------------------------------------------- */
 
 /**
- * Publishes a new workspace package.
+ * Publishes a new package.
  *
- * @param {WorkspacePackage} pkg
+ * @param {PackageMetadata} metadata
  * @returns {Promise<void>}
  */
-async function publishNewWorkspacePackage(pkg) {
-  await validatePackage(pkg);
-
-  const metadata = await getPackageMetadata(pkg);
-
+async function publishPackage(metadata) {
   if (metadata.published) {
-    throw new Error(`"${metadata.packageName}" is already published.`);
+    throw new Error(`"${metadata.npmPackageName}" is already published.`);
   }
 
   const confirmed = await confirmPublish(metadata);
@@ -33,11 +28,9 @@ async function publishNewWorkspacePackage(pkg) {
     return;
   }
 
-  await validatePublish(metadata);
+  validatePublish(metadata);
 
   await publishToNpm(metadata.directory);
-
-  console.log(`✔ Successfully published "${metadata.packageName}@${metadata.localVersion}".`);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -45,13 +38,17 @@ async function publishNewWorkspacePackage(pkg) {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Publishes a new workspace package.
+ * Publishes a new package.
  *
- * @param {WorkspacePackage} pkg
+ * @param {PackageMetadata} metadata
  * @returns {Promise<void>}
  */
-export async function publishNewPackage(pkg) {
-  await ensureLoggedIn();
+export async function publishNewPackage(metadata) {
+  const username = await ensureLoggedIn();
 
-  await publishNewWorkspacePackage(pkg);
+  await publishPackage(metadata);
+
+  console.log(
+    `✔ Successfully published "${metadata.workspaceName}" (${metadata.npmPackageName}@${metadata.localVersion}) as "${username}".`,
+  );
 }

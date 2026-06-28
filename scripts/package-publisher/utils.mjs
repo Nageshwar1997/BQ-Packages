@@ -52,7 +52,6 @@ export async function writeJson(filePath, data) {
 export async function pathExists(filePath) {
   try {
     await access(filePath, constants.F_OK);
-
     return true;
   } catch {
     return false;
@@ -83,10 +82,9 @@ export async function runCommand(command, args = [], options = {}) {
       stderr: stderr.trimEnd(),
     };
   } catch (error) {
-    error.stdout = error.stdout?.trimEnd();
-    error.stderr = error.stderr?.trimEnd();
-
-    throw error;
+    throw new Error(error.stderr?.trimEnd() || error.message, {
+      cause: error,
+    });
   }
 }
 
@@ -110,9 +108,9 @@ export function runInteractiveCommand(command, args = [], options = {}) {
       ...options,
     });
 
-    child.on('error', reject);
+    child.once('error', reject);
 
-    child.on('exit', (code) => {
+    child.once('exit', (code) => {
       if (code === 0) {
         resolve();
         return;

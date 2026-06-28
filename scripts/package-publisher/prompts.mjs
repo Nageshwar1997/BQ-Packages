@@ -3,11 +3,11 @@ import semver from 'semver';
 import { ACTIONS, VERSION_TYPES } from './constants.mjs';
 
 /**
- * @import { Action, PackageMetadata, WorkspacePackage, VersionType } from './types.mjs'
+ * @import { Action, PackageMetadata, VersionType } from './types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
-/*                                  ACTION                                   */
+/*                                  ACTION                                    */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -32,7 +32,7 @@ export async function selectAction(username) {
           value: ACTIONS.PUBLISH_NEW_PACKAGES,
         },
         {
-          name: 'Publish New All Packages',
+          name: 'Publish All New Packages',
           value: ACTIONS.PUBLISH_ALL_NEW_PACKAGES,
         },
         {
@@ -71,8 +71,8 @@ export async function selectAction(username) {
 /**
  * Prompts the user to select a package.
  *
- * @param {WorkspacePackage[]} packages
- * @returns {Promise<WorkspacePackage>}
+ * @param {PackageMetadata[]} packages
+ * @returns {Promise<PackageMetadata>}
  */
 export async function selectPackage(packages) {
   const { pkg } = await inquirer.prompt([
@@ -80,10 +80,12 @@ export async function selectPackage(packages) {
       type: 'select',
       name: 'pkg',
       message: 'Select a package:',
-      choices: packages.map((pkg) => ({
-        name: pkg.name,
-        value: pkg,
-      })),
+      choices: [...packages]
+        .sort((a, b) => a.workspaceName.localeCompare(b.workspaceName))
+        .map((pkg) => ({
+          name: `${pkg.workspaceName} (${pkg.npmPackageName})`,
+          value: pkg,
+        })),
     },
   ]);
 
@@ -93,8 +95,8 @@ export async function selectPackage(packages) {
 /**
  * Prompts the user to select multiple packages.
  *
- * @param {WorkspacePackage[]} packages
- * @returns {Promise<WorkspacePackage[]>}
+ * @param {PackageMetadata[]} packages
+ * @returns {Promise<PackageMetadata[]>}
  */
 export async function selectPackages(packages) {
   const { packages: selectedPackages } = await inquirer.prompt([
@@ -102,10 +104,12 @@ export async function selectPackages(packages) {
       type: 'checkbox',
       name: 'packages',
       message: 'Select packages:',
-      choices: packages.map((pkg) => ({
-        name: pkg.packageName,
-        value: pkg,
-      })),
+      choices: [...packages]
+        .sort((a, b) => a.workspaceName.localeCompare(b.workspaceName))
+        .map((pkg) => ({
+          name: `${pkg.workspaceName} (${pkg.npmPackageName})`,
+          value: pkg,
+        })),
       validate(value) {
         return value.length > 0 || 'Select at least one package.';
       },
@@ -193,7 +197,7 @@ export async function enterCustomVersion(currentVersion) {
  * Prompts the user to confirm publishing.
  *
  * @param {PackageMetadata} metadata
- * @param {string} version
+ * @param {string} [version]
  * @returns {Promise<boolean>}
  */
 export async function confirmPublish(metadata, version) {
@@ -201,7 +205,9 @@ export async function confirmPublish(metadata, version) {
     {
       type: 'confirm',
       name: 'confirmed',
-      message: `Publish "${metadata.packageName}" v${version}?`,
+      message: version
+        ? `Publish "${metadata.npmPackageName}" v${version}?`
+        : `Publish "${metadata.npmPackageName}"?`,
       default: true,
     },
   ]);
