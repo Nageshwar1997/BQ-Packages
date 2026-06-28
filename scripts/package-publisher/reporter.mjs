@@ -1,3 +1,5 @@
+import { printTable } from './table.mjs';
+
 /* -------------------------------------------------------------------------- */
 /*                              PRIVATE HELPERS                               */
 /* -------------------------------------------------------------------------- */
@@ -9,6 +11,32 @@
  */
 function newline() {
   console.log('');
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                  LAYOUT                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Prints a section heading.
+ *
+ * @param {string} title
+ * @returns {void}
+ */
+export function reportSection(title) {
+  newline();
+
+  console.log(title);
+  console.log('─'.repeat(title.length));
+}
+
+/**
+ * Prints a divider.
+ *
+ * @returns {void}
+ */
+export function reportDivider() {
+  console.log('─'.repeat(80));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -68,26 +96,41 @@ export function reportError(message) {
 }
 
 /* -------------------------------------------------------------------------- */
+/*                                   TABLE                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Prints a table.
+ *
+ * @param {{
+ *   columns: import('./types.mjs').TableColumn[];
+ *   rows: Record<string, unknown>[];
+ * }} options
+ * @returns {void}
+ */
+export function reportTable(options) {
+  printTable(options);
+}
+
+/* -------------------------------------------------------------------------- */
 /*                                  SUMMARY                                   */
 /* -------------------------------------------------------------------------- */
 
 /**
- * Prints an operation summary.
+ * Prints a summary.
  *
  * @param {{
  *   title: string;
- *   successful: number;
- *   failed: number;
+ *   items: readonly (readonly [string, string | number])[];
  * }} summary
  * @returns {void}
  */
-export function reportSummary({ title, successful, failed }) {
-  newline();
+export function reportSummary({ title, items }) {
+  reportSection(title);
 
-  console.log(title);
+  const width = Math.max(...items.map(([label]) => label.length));
 
-  console.log('-'.repeat(title.length));
-
-  console.log(`✔ Successful : ${successful}`);
-  console.log(`✖ Failed     : ${failed}`);
+  for (const [label, value] of items) {
+    console.log(`${label.padEnd(width)} : ${value}`);
+  }
 }

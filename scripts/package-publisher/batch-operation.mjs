@@ -1,9 +1,5 @@
 import { reportError, reportSummary } from './reporter.mjs';
 
-/**
- * @template T
- */
-
 /* -------------------------------------------------------------------------- */
 /*                               PUBLIC API                                   */
 /* -------------------------------------------------------------------------- */
@@ -17,10 +13,17 @@ import { reportError, reportSummary } from './reporter.mjs';
  *   items: T[];
  *   operation: (item: T) => Promise<void>;
  *   getItemName?: (item: T) => string;
+ *   continueOnError?: boolean;
  * }} options
  * @returns {Promise<void>}
  */
-export async function runBatchOperation({ title, items, operation, getItemName = () => 'Item' }) {
+export async function runBatchOperation({
+  title,
+  items,
+  operation,
+  getItemName = () => 'Item',
+  continueOnError = true,
+}) {
   let successful = 0;
   let failed = 0;
 
@@ -32,10 +35,20 @@ export async function runBatchOperation({ title, items, operation, getItemName =
       failed++;
 
       reportError(`Failed: ${getItemName(item)}`);
-
       reportError(error instanceof Error ? error.message : String(error));
+
+      if (!continueOnError) {
+        break;
+      }
     }
   }
 
-  reportSummary({ title, total: items.length, successful, failed, skipped: 0 });
+  reportSummary({
+    title,
+    items: [
+      ['Total', items.length],
+      ['Successful', successful],
+      ['Failed', failed],
+    ],
+  });
 }

@@ -66,9 +66,9 @@ export async function publishNewPackage(metadata) {
 export async function publishPackages(packages) {
   const username = await ensureLoggedIn();
 
-  const sortedPackages = sortPackagesByDependencies(packages);
+  const packagesToPublish = sortPackagesByDependencies(packages);
 
-  const confirmed = await confirmPublishMany(sortedPackages);
+  const confirmed = await confirmPublishMany(packagesToPublish);
 
   if (!confirmed) {
     return;
@@ -76,7 +76,7 @@ export async function publishPackages(packages) {
 
   await runBatchOperation({
     title: 'Publish Summary',
-    items: sortedPackages,
+    items: packagesToPublish,
     operation: (metadata) => publishPackageInternal(metadata, username),
     getItemName: (metadata) => `${metadata.workspaceName} (${metadata.npmPackageName})`,
   });

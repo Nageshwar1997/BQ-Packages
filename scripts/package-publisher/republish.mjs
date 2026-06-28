@@ -32,7 +32,7 @@ async function restoreVersion(metadata) {
 }
 
 /**
- * Republishes a package.
+ * Publishes an updated package version.
  *
  * @param {PackageMetadata} metadata
  * @param {string} version
@@ -64,7 +64,7 @@ async function republishPackageInternal(metadata, version, username) {
 }
 
 /**
- * Calculates the next package version.
+ * Returns the next package version.
  *
  * @param {PackageMetadata} metadata
  * @returns {Promise<string>}
@@ -78,6 +78,30 @@ async function getNextVersion(metadata) {
       : undefined;
 
   return calculateVersion(metadata.localVersion, versionType, customVersion);
+}
+
+/**
+ * Builds republish items.
+ *
+ * @param {PackageMetadata[]} packages
+ * @returns {Promise<
+ *   {
+ *     metadata: PackageMetadata;
+ *     version: string;
+ *   }[]
+ * >}
+ */
+async function buildRepublishItems(packages) {
+  const items = [];
+
+  for (const metadata of packages) {
+    items.push({
+      metadata,
+      version: await getNextVersion(metadata),
+    });
+  }
+
+  return items;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -113,16 +137,9 @@ export async function republishPackage(metadata) {
 export async function republishPackages(packages) {
   const username = await ensureLoggedIn();
 
-  const sortedPackages = sortPackagesByDependencies(packages);
+  const packagesToRepublish = sortPackagesByDependencies(packages);
 
-  const items = [];
-
-  for (const metadata of sortedPackages) {
-    items.push({
-      metadata,
-      version: await getNextVersion(metadata),
-    });
-  }
+  const items = await buildRepublishItems(packagesToRepublish);
 
   const confirmed = await confirmRepublishMany(items);
 

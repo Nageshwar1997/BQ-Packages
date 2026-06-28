@@ -2,8 +2,23 @@ import { ensureLoggedIn, ensureLoggedOut } from './auth.mjs';
 import { ACTIONS, EXIT_CODES } from './constants.mjs';
 import { login, logout, whoami } from './npm.mjs';
 import { getPackage, getPackages, getSelectedPackages } from './package-selection.mjs';
+import { selectAction } from './prompts.mjs';
 import { publishAllPackages, publishNewPackage, publishPackages } from './publish.mjs';
+import { reportError, reportInfo } from './reporter.mjs';
 import { republishAllPackages, republishPackage, republishPackages } from './republish.mjs';
+
+/* -------------------------------------------------------------------------- */
+/*                              PRIVATE HELPERS                               */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Exits the process successfully.
+ *
+ * @returns {never}
+ */
+function exit() {
+  process.exit(EXIT_CODES.SUCCESS);
+}
 
 /* -------------------------------------------------------------------------- */
 /*                                   MAIN                                     */
@@ -83,7 +98,7 @@ async function main() {
         }
 
         case ACTIONS.PACKAGE_STATUS:
-          console.log('Package status is not implemented yet.');
+          reportInfo('Package status is not implemented yet.');
           break;
 
         case ACTIONS.LOGIN:
@@ -97,17 +112,17 @@ async function main() {
           break;
 
         case ACTIONS.EXIT:
-          process.exit(EXIT_CODES.SUCCESS);
+          exit();
 
         default:
           throw new Error(`Unknown action "${action}".`);
       }
     } catch (error) {
       if (error instanceof Error && error.name === 'ExitPromptError') {
-        process.exit(EXIT_CODES.SUCCESS);
+        exit();
       }
 
-      console.error(error instanceof Error ? error.message : error);
+      reportError(error instanceof Error ? error.message : String(error));
     }
   }
 }
