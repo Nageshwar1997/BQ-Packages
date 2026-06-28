@@ -1,4 +1,17 @@
 /* -------------------------------------------------------------------------- */
+/*                              PRIVATE HELPERS                               */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Prints a blank line.
+ *
+ * @returns {void}
+ */
+function newline() {
+  console.log('');
+}
+
+/* -------------------------------------------------------------------------- */
 /*                                   INFO                                     */
 /* -------------------------------------------------------------------------- */
 
@@ -59,19 +72,21 @@ export function reportError(message) {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Prints a publish summary.
+ * Prints an operation summary.
  *
  * @param {{
+ *   title: string;
  *   successful: number;
  *   failed: number;
  * }} summary
  * @returns {void}
  */
-export function reportSummary({ successful, failed }) {
-  console.log('');
+export function reportSummary({ title, successful, failed }) {
+  newline();
 
-  console.log('Summary');
-  console.log('-------');
+  console.log(title);
+
+  console.log('-'.repeat(title.length));
 
   console.log(`✔ Successful : ${successful}`);
   console.log(`✖ Failed     : ${failed}`);

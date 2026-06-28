@@ -1,6 +1,8 @@
 import { ensureLoggedIn } from './auth.mjs';
+import { sortPackagesByDependencies } from './dependency-sort.mjs';
 import { publish as publishToNpm } from './npm.mjs';
 import { confirmPublish, confirmPublishMany } from './prompts.mjs';
+import { reportError, reportSuccess, reportSummary } from './reporter.mjs';
 import { validatePublish } from './validators.mjs';
 
 /**
@@ -12,7 +14,7 @@ import { validatePublish } from './validators.mjs';
 /* -------------------------------------------------------------------------- */
 
 /**
- * Publishes a new package.
+ * Publishes a package.
  *
  * @param {PackageMetadata} metadata
  * @param {string} username
@@ -23,18 +25,12 @@ async function publishWorkspacePackage(metadata, username) {
     throw new Error(`"${metadata.npmPackageName}" is already published.`);
   }
 
-  const confirmed = await confirmPublish(metadata);
-
-  if (!confirmed) {
-    return;
-  }
-
   validatePublish(metadata);
 
   await publishToNpm(metadata.directory);
 
-  console.log(
-    `✔ Successfully published "${metadata.workspaceName}" (${metadata.npmPackageName}@${metadata.localVersion}) as "${username}".`,
+  reportSuccess(
+    `Published "${metadata.workspaceName}" (${metadata.npmPackageName}@${metadata.localVersion}) as "${username}".`,
   );
 }
 
@@ -51,6 +47,12 @@ async function publishWorkspacePackage(metadata, username) {
 export async function publishNewPackage(metadata) {
   const username = await ensureLoggedIn();
 
+  const confirmed = await confirmPublish(metadata);
+
+  if (!confirmed) {
+    return;
+  }
+
   await publishWorkspacePackage(metadata, username);
 }
 
@@ -63,36 +65,31 @@ export async function publishNewPackage(metadata) {
 export async function publishPackages(packages) {
   const username = await ensureLoggedIn();
 
-  const confirmed = await confirmPublishMany(packages);
+  const sortedPackages = sortPackagesByDependencies(packages);
+
+  const confirmed = await confirmPublishMany(sortedPackages);
 
   if (!confirmed) {
     return;
   }
 
-  let success = 0;
+  let successful = 0;
   let failed = 0;
 
-  for (const metadata of packages) {
+  for (const metadata of sortedPackages) {
     try {
       await publishWorkspacePackage(metadata, username);
-      success++;
+      successful++;
     } catch (error) {
       failed++;
 
-      console.error(
-        `✖ Failed to publish "${metadata.workspaceName}" (${metadata.npmPackageName}).`,
-      );
+      reportError(`Failed to publish "${metadata.workspaceName}" (${metadata.npmPackageName}).`);
 
-      console.error(error instanceof Error ? error.message : error);
+      reportError(error instanceof Error ? error.message : String(error));
     }
   }
 
-  console.log('');
-
-  console.log('Publish Summary');
-
-  console.log(`✔ Successful : ${success}`);
-  console.log(`✖ Failed     : ${failed}`);
+  reportSummary({ title: 'Publish Summary', successful, failed });
 }
 
 /**

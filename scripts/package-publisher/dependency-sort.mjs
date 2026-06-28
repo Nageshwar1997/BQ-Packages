@@ -4,60 +4,69 @@ import { DEPENDENCY_SCOPES } from './constants.mjs';
  * @import { PackageMetadata } from './types.mjs'
  */
 
+/**
+ * @typedef {'visiting' | 'visited'} VisitState
+ */
+
+/**
+ * @typedef {{
+ *   packageMap: Map<string, PackageMetadata>;
+ *   visitState: Map<string, VisitState>;
+ *   sortedPackages: PackageMetadata[];
+ * }} DependencySortContext
+ */
+
 /* -------------------------------------------------------------------------- */
-/*                             PRIVATE HELPERS                                */
+/*                              PRIVATE HELPERS                               */
 /* -------------------------------------------------------------------------- */
 
 /**
- * Builds a package lookup map.
+ * Creates a package lookup map.
  *
  * @param {PackageMetadata[]} packages
  * @returns {Map<string, PackageMetadata>}
  */
-function buildPackageMap(packages) {
+function createPackageMap(packages) {
   return new Map(packages.map((pkg) => [pkg.npmPackageName, pkg]));
 }
 
 /**
- * Visits a package and its dependencies.
+ * Visits a package and its internal dependencies.
  *
  * @param {PackageMetadata} metadata
- * @param {Map<string, PackageMetadata>} packageMap
- * @param {Set<string>} visiting
- * @param {Set<string>} visited
- * @param {PackageMetadata[]} sortedPackages
+ * @param {DependencySortContext} context
  * @returns {void}
  */
-function visit(metadata, packageMap, visiting, visited, sortedPackages) {
-  if (visited.has(metadata.npmPackageName)) {
+function visit(metadata, context) {
+  const state = context.visitState.get(metadata.npmPackageName);
+
+  if (state === 'visited') {
     return;
   }
 
-  if (visiting.has(metadata.npmPackageName)) {
+  if (state === 'visiting') {
     throw new Error(`Circular dependency detected involving "${metadata.npmPackageName}".`);
   }
 
-  visiting.add(metadata.npmPackageName);
+  context.visitState.set(metadata.npmPackageName, 'visiting');
 
   for (const dependency of metadata.dependencies) {
     if (dependency.scope !== DEPENDENCY_SCOPES.INTERNAL) {
       continue;
     }
 
-    const dependencyPackage = packageMap.get(dependency.name);
+    const dependencyPackage = context.packageMap.get(dependency.name);
 
     if (!dependencyPackage) {
       continue;
     }
 
-    visit(dependencyPackage, packageMap, visiting, visited, sortedPackages);
+    visit(dependencyPackage, context);
   }
 
-  visiting.delete(metadata.npmPackageName);
+  context.visitState.set(metadata.npmPackageName, 'visited');
 
-  visited.add(metadata.npmPackageName);
-
-  sortedPackages.push(metadata);
+  context.sortedPackages.push(metadata);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -67,21 +76,23 @@ function visit(metadata, packageMap, visiting, visited, sortedPackages) {
 /**
  * Sorts packages by dependency order.
  *
+ * Internal dependencies are always ordered before the packages that depend
+ * on them.
+ *
  * @param {PackageMetadata[]} packages
  * @returns {PackageMetadata[]}
  */
 export function sortPackagesByDependencies(packages) {
-  const packageMap = buildPackageMap(packages);
-
-  const visiting = new Set();
-
-  const visited = new Set();
-
-  const sortedPackages = [];
+  /** @type {DependencySortContext} */
+  const context = {
+    packageMap: createPackageMap(packages),
+    visitState: new Map(),
+    sortedPackages: [],
+  };
 
   for (const metadata of packages) {
-    visit(metadata, packageMap, visiting, visited, sortedPackages);
+    visit(metadata, context);
   }
 
-  return sortedPackages;
+  return context.sortedPackages;
 }
