@@ -6,3 +6,4 @@ export const error = pc.red;
 export const info = pc.cyan;
 export const heading = pc.bold;
 export const dim = pc.dim;
+export const muted = pc.gray;

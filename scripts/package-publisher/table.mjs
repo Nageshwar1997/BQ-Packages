@@ -1,4 +1,4 @@
-import { dim, heading } from './color.mjs';
+import { heading, info, muted } from './color.mjs';
 import { TABLE_ALIGNMENTS } from './constants.mjs';
 
 /**
@@ -60,11 +60,25 @@ function getColumnWidths(columns, rows) {
  * @param {Record<string, unknown>} values
  * @returns {string}
  */
-function formatValues(columns, widths, values) {
+function formatValues(columns, widths, values, isHeader = false) {
   return columns
-    .map((column, index) =>
-      pad(String(values[column.key] ?? ''), widths[index], column.align ?? DEFAULT_ALIGNMENT),
-    )
+    .map((column, index) => {
+      let value = pad(
+        String(values[column.key] ?? ''),
+        widths[index],
+        column.align ?? DEFAULT_ALIGNMENT,
+      );
+
+      if (isHeader) {
+        return heading(value);
+      }
+
+      if (index === 0) {
+        return info(value);
+      }
+
+      return value;
+    })
     .join(COLUMN_SEPARATOR);
 }
 
@@ -76,12 +90,11 @@ function formatValues(columns, widths, values) {
  * @returns {string}
  */
 function formatHeader(columns, widths) {
-  return heading(
-    formatValues(
-      columns,
-      widths,
-      Object.fromEntries(columns.map((column) => [column.key, column.title])),
-    ),
+  return formatValues(
+    columns,
+    widths,
+    Object.fromEntries(columns.map((column) => [column.key, column.title])),
+    true,
   );
 }
 
@@ -92,7 +105,7 @@ function formatHeader(columns, widths) {
  * @returns {string}
  */
 function formatSeparator(widths) {
-  return dim(widths.map((width) => '─'.repeat(width)).join(COLUMN_SEPARATOR));
+  return muted(widths.map((width) => '─'.repeat(width)).join(COLUMN_SEPARATOR));
 }
 
 /* -------------------------------------------------------------------------- */
