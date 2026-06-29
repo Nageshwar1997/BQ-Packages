@@ -1,3 +1,4 @@
+import semver from 'semver';
 import { runCommand, runInteractiveCommand } from './utils.mjs';
 
 /* -------------------------------------------------------------------------- */
@@ -80,10 +81,19 @@ export async function logout() {
  * Publishes a package to npm.
  *
  * @param {string} directory
+ * @param {string} version
  * @returns {Promise<void>}
  */
-export async function publish(directory) {
-  await runInteractiveCommand('npm', ['publish', '--access', 'public'], {
+export async function publish(directory, version) {
+  const args = ['publish', '--access', 'public'];
+
+  const prerelease = semver.prerelease(version);
+
+  if (prerelease) {
+    args.push('--tag', String(prerelease[0]));
+  }
+
+  await runInteractiveCommand('npm', args, {
     cwd: directory,
   });
 }

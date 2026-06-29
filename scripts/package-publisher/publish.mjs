@@ -28,7 +28,7 @@ async function publishPackageInternal(metadata, username) {
 
   validatePublish(metadata);
 
-  await publishToNpm(metadata.directory);
+  await publishToNpm(metadata.directory, metadata.localVersion);
 
   reportSuccess(
     `Published "${metadata.workspaceName}" (${metadata.npmPackageName}@${metadata.localVersion}) as "${username}".`,

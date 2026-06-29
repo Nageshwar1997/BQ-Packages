@@ -52,7 +52,7 @@ async function republishPackageInternal(metadata, version, username) {
       localVersion: version,
     });
 
-    await publishToNpm(metadata.directory);
+    await publishToNpm(metadata.directory, version);
 
     reportSuccess(
       `Republished "${metadata.workspaceName}" (${metadata.npmPackageName}) ${metadata.localVersion} → ${version} as "${username}".`,
