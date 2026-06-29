@@ -2,15 +2,15 @@ import { ensureLoggedIn } from './auth.mjs';
 import { runBatchOperation } from './batch-operation.mjs';
 import { VERSION_TYPES } from './constants.mjs';
 import { sortPackagesByDependencies } from './dependency-sort.mjs';
-import { publish as publishToNpm } from './npm.mjs';
+import { republish as republishToNpm } from './npm.mjs';
 import {
   confirmRepublish,
   confirmRepublishMany,
   enterCustomVersion,
   selectVersion,
 } from './prompts.mjs';
-import { reportSuccess } from './reporter.mjs';
-import { validatePublish } from './validators.mjs';
+import { reportSuccess, reportWarning } from './reporter.mjs';
+import { validateRepublish } from './validators.mjs';
 import { calculateVersion, updatePackageVersion } from './version.mjs';
 
 /**
@@ -32,7 +32,7 @@ async function restoreVersion(metadata) {
 }
 
 /**
- * Publishes an updated package version.
+ * Republishes an updated package version.
  *
  * @param {PackageMetadata} metadata
  * @param {string} version
@@ -40,25 +40,27 @@ async function restoreVersion(metadata) {
  * @returns {Promise<void>}
  */
 async function republishPackageInternal(metadata, version, username) {
-  if (!metadata.published) {
-    throw new Error(`"${metadata.npmPackageName}" has not been published yet.`);
-  }
+  validateRepublish({ ...metadata, localVersion: version });
 
   await updatePackageVersion(metadata.directory, version);
 
   try {
-    validatePublish({
-      ...metadata,
-      localVersion: version,
-    });
-
-    await publishToNpm(metadata.directory, version);
+    await republishToNpm(metadata.directory, version);
 
     reportSuccess(
       `Republished "${metadata.workspaceName}" (${metadata.npmPackageName}) ${metadata.localVersion} → ${version} as "${username}".`,
     );
   } catch (error) {
-    await restoreVersion(metadata);
+    try {
+      await restoreVersion(metadata);
+    } catch (restoreError) {
+      reportWarning(
+        `Failed to restore version for "${metadata.npmPackageName}": ${
+          restoreError instanceof Error ? restoreError.message : String(restoreError)
+        }`,
+      );
+    }
+
     throw error;
   }
 }
@@ -92,6 +94,7 @@ async function getNextVersion(metadata) {
  * >}
  */
 async function buildRepublishItems(packages) {
+  /** @type {{ metadata: PackageMetadata; version: string }[]} */
   const items = [];
 
   for (const metadata of packages) {
@@ -119,9 +122,9 @@ export async function republishPackage(metadata) {
 
   const nextVersion = await getNextVersion(metadata);
 
-  const confirmed = await confirmRepublish(metadata, nextVersion);
+  const isConfirmed = await confirmRepublish(metadata, nextVersion);
 
-  if (!confirmed) {
+  if (!isConfirmed) {
     return;
   }
 
@@ -135,15 +138,19 @@ export async function republishPackage(metadata) {
  * @returns {Promise<void>}
  */
 export async function republishPackages(packages) {
+  if (packages.length === 0) {
+    return;
+  }
+
   const username = await ensureLoggedIn();
 
   const packagesToRepublish = sortPackagesByDependencies(packages);
 
   const items = await buildRepublishItems(packagesToRepublish);
 
-  const confirmed = await confirmRepublishMany(items);
+  const isConfirmed = await confirmRepublishMany(items);
 
-  if (!confirmed) {
+  if (!isConfirmed) {
     return;
   }
 

@@ -22,10 +22,6 @@ import { validatePublish } from './validators.mjs';
  * @returns {Promise<void>}
  */
 async function publishPackageInternal(metadata, username) {
-  if (metadata.published) {
-    throw new Error(`"${metadata.npmPackageName}" is already published.`);
-  }
-
   validatePublish(metadata);
 
   await publishToNpm(metadata.directory, metadata.localVersion);
@@ -48,9 +44,9 @@ async function publishPackageInternal(metadata, username) {
 export async function publishNewPackage(metadata) {
   const username = await ensureLoggedIn();
 
-  const confirmed = await confirmPublish(metadata);
+  const isConfirmed = await confirmPublish(metadata);
 
-  if (!confirmed) {
+  if (!isConfirmed) {
     return;
   }
 
@@ -64,13 +60,17 @@ export async function publishNewPackage(metadata) {
  * @returns {Promise<void>}
  */
 export async function publishPackages(packages) {
+  if (packages.length === 0) {
+    return;
+  }
+
   const username = await ensureLoggedIn();
 
   const packagesToPublish = sortPackagesByDependencies(packages);
 
-  const confirmed = await confirmPublishMany(packagesToPublish);
+  const isConfirmed = await confirmPublishMany(packagesToPublish);
 
-  if (!confirmed) {
+  if (!isConfirmed) {
     return;
   }
 

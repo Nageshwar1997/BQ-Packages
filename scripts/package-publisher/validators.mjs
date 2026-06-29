@@ -10,8 +10,21 @@ import { pathExists } from './utils.mjs';
  */
 
 /* -------------------------------------------------------------------------- */
-/*                              REQUIRED FILES                                */
+/*                              PRIVATE HELPERS                               */
 /* -------------------------------------------------------------------------- */
+
+/**
+ * Validates a semantic version.
+ *
+ * @param {string | null} version
+ * @param {string} label
+ * @returns {void}
+ */
+function validateVersion(version, label) {
+  if (!version || !semver.valid(version)) {
+    throw new Error(`Invalid ${label} "${version}".`);
+  }
+}
 
 /**
  * Validates the required package files.
@@ -23,38 +36,28 @@ async function validateRequiredFiles(packageDirectory) {
   const requiredFiles = [getPackageJsonPath(packageDirectory), getReadmePath(packageDirectory)];
 
   for (const file of requiredFiles) {
-    if (await pathExists(file)) continue;
+    if (await pathExists(file)) {
+      continue;
+    }
 
     throw new Error(`Required file not found: ${file}`);
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/*                                  VERSION                                   */
-/* -------------------------------------------------------------------------- */
-
 /**
- * Validates the package version.
+ * Validates the package version before publishing.
  *
  * @param {PackageMetadata} metadata
  * @returns {void}
  */
-function validateVersion(metadata) {
-  if (!semver.valid(metadata.localVersion)) {
-    throw new Error(
-      `Invalid local version "${metadata.localVersion}" for "${metadata.npmPackageName}".`,
-    );
-  }
+function validatePublishVersion(metadata) {
+  validateVersion(metadata.localVersion, 'local version');
 
   if (!metadata.published) {
     return;
   }
 
-  if (!semver.valid(metadata.remoteVersion)) {
-    throw new Error(
-      `Invalid remote version "${metadata.remoteVersion}" for "${metadata.npmPackageName}".`,
-    );
-  }
+  validateVersion(metadata.remoteVersion, 'remote version');
 
   if (!semver.gt(metadata.localVersion, metadata.remoteVersion)) {
     throw new Error(
@@ -62,10 +65,6 @@ function validateVersion(metadata) {
     );
   }
 }
-
-/* -------------------------------------------------------------------------- */
-/*                              PUBLISH CONFIG                                */
-/* -------------------------------------------------------------------------- */
 
 /**
  * Validates the publish configuration.
@@ -88,7 +87,7 @@ function validatePublishConfig(metadata) {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Validates the required files of a workspace package.
+ * Validates a workspace package.
  *
  * @param {WorkspacePackage} pkg
  * @returns {Promise<void>}
@@ -104,6 +103,20 @@ export async function validatePackage(pkg) {
  * @returns {void}
  */
 export function validatePublish(metadata) {
-  validateVersion(metadata);
+  validatePublishVersion(metadata);
+  validatePublishConfig(metadata);
+}
+
+/**
+ * Validates whether a package can be republished.
+ *
+ * @param {PackageMetadata} metadata
+ * @returns {void}
+ */
+export function validateRepublish(metadata) {
+  if (!metadata.published) {
+    throw new Error(`"${metadata.npmPackageName}" has not been published yet.`);
+  }
+
   validatePublishConfig(metadata);
 }

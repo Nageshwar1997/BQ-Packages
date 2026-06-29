@@ -143,3 +143,14 @@ export async function logout() {
 export async function publish(directory, version) {
   await runInteractiveCommand('npm', buildPublishArguments(version), { cwd: directory });
 }
+
+/**
+ * Republishes a package to npm.
+ *
+ * @param {string} directory
+ * @param {string} version
+ * @returns {Promise<void>}
+ */
+export async function republish(directory, version) {
+  await runInteractiveCommand('npm', buildPublishArguments(version), { cwd: directory });
+}
