@@ -7,11 +7,11 @@ import { ACTIONS, VERSION_TYPES } from './constants.mjs';
  */
 
 /* -------------------------------------------------------------------------- */
-/*                                  HELPERS                                   */
+/*                              PRIVATE HELPERS                               */
 /* -------------------------------------------------------------------------- */
 
 /**
- * Returns package choices.
+ * Returns package choices sorted by workspace name.
  *
  * @param {PackageMetadata[]} packages
  * @returns {{
@@ -23,7 +23,7 @@ function getPackageChoices(packages) {
   return [...packages]
     .sort((a, b) => a.workspaceName.localeCompare(b.workspaceName))
     .map((pkg) => ({
-      name: `${pkg.workspaceName} (${pkg.npmPackageName})`,
+      name: `${pkg.workspaceName} (${pkg.npmPackageName}) v${pkg.localVersion}`,
       value: pkg,
     }));
 }
@@ -153,6 +153,40 @@ export async function selectPackages(packages) {
 }
 
 /* -------------------------------------------------------------------------- */
+/*                              PRIVATE HELPERS                               */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Prompts the user for confirmation.
+ *
+ * @param {string} message
+ * @returns {Promise<boolean>}
+ */
+async function confirm(message) {
+  const { confirmed } = await inquirer.prompt([
+    {
+      type: 'confirm',
+      name: 'confirmed',
+      message,
+      default: true,
+    },
+  ]);
+
+  return confirmed;
+}
+
+/**
+ * Builds a confirmation message.
+ *
+ * @param {string} title
+ * @param {string[]} lines
+ * @returns {string}
+ */
+function buildConfirmationMessage(title, lines) {
+  return [title, '', ...lines].join('\n');
+}
+
+/* -------------------------------------------------------------------------- */
 /*                                  VERSION                                   */
 /* -------------------------------------------------------------------------- */
 
@@ -167,7 +201,7 @@ export async function selectVersion(currentVersion) {
     {
       type: 'select',
       name: 'versionType',
-      message: `Current version: ${currentVersion}`,
+      message: `Select the next version strategy\n\nCurrent version: ${currentVersion}`,
       choices: [
         {
           name: 'Patch',
@@ -232,21 +266,13 @@ export async function enterCustomVersion(currentVersion) {
  * @param {PackageMetadata} metadata
  * @returns {Promise<boolean>}
  */
-export async function confirmPublish(metadata) {
-  const { confirmed } = await inquirer.prompt([
-    {
-      type: 'confirm',
-      name: 'confirmed',
-      message: [
-        `Publish "${metadata.npmPackageName}"?`,
-        '',
-        `Version : ${metadata.localVersion}`,
-      ].join('\n'),
-      default: true,
-    },
-  ]);
-
-  return confirmed;
+export function confirmPublish(metadata) {
+  return confirm(
+    buildConfirmationMessage(`Publish "${metadata.npmPackageName}"?`, [
+      `Workspace : ${metadata.workspaceName}`,
+      `Version   : ${metadata.localVersion}`,
+    ]),
+  );
 }
 
 /**
@@ -255,23 +281,16 @@ export async function confirmPublish(metadata) {
  * @param {PackageMetadata[]} packages
  * @returns {Promise<boolean>}
  */
-export async function confirmPublishMany(packages) {
-  const message = [
-    `Publish ${packages.length} new package${packages.length === 1 ? '' : 's'}?`,
-    '',
-    ...packages.map((pkg) => `${pkg.workspaceName} (${pkg.npmPackageName}) v${pkg.localVersion}`),
-  ].join('\n');
-
-  const { confirmed } = await inquirer.prompt([
-    {
-      type: 'confirm',
-      name: 'confirmed',
-      message,
-      default: true,
-    },
-  ]);
-
-  return confirmed;
+export function confirmPublishMany(packages) {
+  return confirm(
+    buildConfirmationMessage(
+      `Publish ${packages.length} new package${packages.length === 1 ? '' : 's'}?`,
+      packages.map(
+        (pkg) =>
+          `${pkg.workspaceName.padEnd(20)} ${pkg.localVersion.padEnd(10)} ${pkg.npmPackageName}`,
+      ),
+    ),
+  );
 }
 
 /**
@@ -281,22 +300,14 @@ export async function confirmPublishMany(packages) {
  * @param {string} version
  * @returns {Promise<boolean>}
  */
-export async function confirmRepublish(metadata, version) {
-  const { confirmed } = await inquirer.prompt([
-    {
-      type: 'confirm',
-      name: 'confirmed',
-      message: [
-        `Republish "${metadata.npmPackageName}"?`,
-        '',
-        `Current Version : ${metadata.localVersion}`,
-        `Next Version    : ${version}`,
-      ].join('\n'),
-      default: true,
-    },
-  ]);
-
-  return confirmed;
+export function confirmRepublish(metadata, version) {
+  return confirm(
+    buildConfirmationMessage(`Republish "${metadata.npmPackageName}"?`, [
+      `Workspace       : ${metadata.workspaceName}`,
+      `Current Version : ${metadata.localVersion}`,
+      `Next Version    : ${version}`,
+    ]),
+  );
 }
 
 /**
@@ -308,24 +319,14 @@ export async function confirmRepublish(metadata, version) {
  * }[]} packages
  * @returns {Promise<boolean>}
  */
-export async function confirmRepublishMany(packages) {
-  const message = [
-    `Republish ${packages.length} package${packages.length === 1 ? '' : 's'}?`,
-    '',
-    ...packages.map(
-      ({ metadata, version }) =>
-        `${metadata.workspaceName} (${metadata.npmPackageName}) ${metadata.localVersion} → ${version}`,
+export function confirmRepublishMany(packages) {
+  return confirm(
+    buildConfirmationMessage(
+      `Republish ${packages.length} package${packages.length === 1 ? '' : 's'}?`,
+      packages.map(
+        ({ metadata, version }) =>
+          `${metadata.workspaceName.padEnd(20)} ${metadata.localVersion} → ${version}`,
+      ),
     ),
-  ].join('\n');
-
-  const { confirmed } = await inquirer.prompt([
-    {
-      type: 'confirm',
-      name: 'confirmed',
-      message,
-      default: true,
-    },
-  ]);
-
-  return confirmed;
+  );
 }
