@@ -1,3 +1,4 @@
+import { heading } from './color.mjs';
 import {
   PACKAGE_STATUS,
   PACKAGE_STATUS_LABELS,
@@ -125,7 +126,7 @@ export async function showPackageStatus() {
   if (packages.length === 0) {
     reportInfo('No workspace packages found.');
 
-    reportSummary({ title: 'Summary', items: [[SUMMARY_LABELS.TOTAL, 0]] });
+    reportSummary({ title: 'Summary', items: [[heading(SUMMARY_LABELS.TOTAL), 0]] });
     return;
   }
 

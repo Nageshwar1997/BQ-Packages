@@ -1,3 +1,4 @@
+import { error, heading, success } from './color.mjs';
 import { BATCH_SUMMARY_LABELS } from './constants.mjs';
 import { reportError, reportSummary } from './reporter.mjs';
 
@@ -51,9 +52,9 @@ export async function runBatchOperation({
   reportSummary({
     title,
     items: [
-      [BATCH_SUMMARY_LABELS.TOTAL, items.length],
-      [BATCH_SUMMARY_LABELS.SUCCESSFUL, successful],
-      [BATCH_SUMMARY_LABELS.FAILED, failed],
+      [heading(BATCH_SUMMARY_LABELS.TOTAL), items.length],
+      [success(BATCH_SUMMARY_LABELS.SUCCESSFUL), successful],
+      [error(BATCH_SUMMARY_LABELS.FAILED), failed],
     ],
   });
 }
