@@ -1,3 +1,5 @@
+import { dim, error, heading, info, success, warning } from './color.mjs';
+import { REPORT_DIVIDER_WIDTH } from './constants.mjs';
 import { printTable } from './table.mjs';
 
 /* -------------------------------------------------------------------------- */
@@ -26,8 +28,8 @@ function newline() {
 export function reportSection(title) {
   newline();
 
-  console.log(title);
-  console.log('─'.repeat(title.length));
+  console.log(heading(title));
+  console.log(dim('─'.repeat(title.length)));
 }
 
 /**
@@ -36,7 +38,7 @@ export function reportSection(title) {
  * @returns {void}
  */
 export function reportDivider() {
-  console.log('─'.repeat(80));
+  console.log(dim('─'.repeat(REPORT_DIVIDER_WIDTH)));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -50,7 +52,7 @@ export function reportDivider() {
  * @returns {void}
  */
 export function reportInfo(message) {
-  console.log(message);
+  console.log(info(message));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -64,7 +66,7 @@ export function reportInfo(message) {
  * @returns {void}
  */
 export function reportSuccess(message) {
-  console.log(`✔ ${message}`);
+  console.log(success(`✔ ${message}`));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -78,7 +80,7 @@ export function reportSuccess(message) {
  * @returns {void}
  */
 export function reportWarning(message) {
-  console.warn(`⚠ ${message}`);
+  console.warn(warning(`⚠ ${message}`));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -92,7 +94,7 @@ export function reportWarning(message) {
  * @returns {void}
  */
 export function reportError(message) {
-  console.error(`✖ ${message}`);
+  console.error(error(`✖ ${message}`));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -128,9 +130,9 @@ export function reportTable(options) {
 export function reportSummary({ title, items }) {
   reportSection(title);
 
-  const width = Math.max(...items.map(([label]) => label.length));
+  const width = items.reduce((max, [label]) => Math.max(max, label.length), 0);
 
   for (const [label, value] of items) {
-    console.log(`${label.padEnd(width)} : ${value}`);
+    console.log(`${heading(label.padEnd(width))} : ${value}`);
   }
 }

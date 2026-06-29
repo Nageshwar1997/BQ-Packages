@@ -1,5 +1,7 @@
 export const APP_NAME = 'Beautinique Package Publisher';
 
+export const REPORT_DIVIDER_WIDTH = 80;
+
 export const ACTIONS = Object.freeze({
   /* -------------------------------------------------------------------------- */
   /*                               PUBLISH NEW                                  */
