@@ -1,4 +1,5 @@
 import semver from 'semver';
+import { PublishError, ValidationError } from './errors.mjs';
 import { getPackageJsonPath, getReadmePath } from './paths.mjs';
 import { pathExists } from './utils.mjs';
 
@@ -16,13 +17,13 @@ import { pathExists } from './utils.mjs';
 /**
  * Validates a semantic version.
  *
- * @param {string | null} version
+ * @param {unknown} version
  * @param {string} label
  * @returns {void}
  */
 function validateVersion(version, label) {
-  if (!version || !semver.valid(version)) {
-    throw new Error(`Invalid ${label} "${version}".`);
+  if (typeof version !== 'string' || !semver.valid(version)) {
+    throw new ValidationError(`Invalid ${label} "${version}".`);
   }
 }
 
@@ -40,7 +41,7 @@ async function validateRequiredFiles(packageDirectory) {
       continue;
     }
 
-    throw new Error(`Required file not found: ${file}`);
+    throw new ValidationError(`Required file not found: ${file}`);
   }
 }
 
@@ -50,7 +51,7 @@ async function validateRequiredFiles(packageDirectory) {
  * @param {PackageMetadata} metadata
  * @returns {void}
  */
-function validatePublishVersion(metadata) {
+function validatePublishState(metadata) {
   validateVersion(metadata.localVersion, 'local version');
 
   if (!metadata.published) {
@@ -60,7 +61,7 @@ function validatePublishVersion(metadata) {
   validateVersion(metadata.remoteVersion, 'remote version');
 
   if (!semver.gt(metadata.localVersion, metadata.remoteVersion)) {
-    throw new Error(
+    throw new PublishError(
       `"${metadata.npmPackageName}" version must be greater than the published version.`,
     );
   }
@@ -74,11 +75,13 @@ function validatePublishVersion(metadata) {
  */
 function validatePublishConfig(metadata) {
   if (!metadata.publishConfig) {
-    throw new Error(`"${metadata.npmPackageName}" is missing "publishConfig".`);
+    throw new ValidationError(`"${metadata.npmPackageName}" is missing "publishConfig".`);
   }
 
   if (metadata.publishConfig.access !== 'public') {
-    throw new Error(`"${metadata.npmPackageName}" must use "publishConfig.access": "public".`);
+    throw new ValidationError(
+      `"${metadata.npmPackageName}" must use "publishConfig.access": "public".`,
+    );
   }
 }
 
@@ -103,7 +106,7 @@ export async function validatePackage(pkg) {
  * @returns {void}
  */
 export function validatePublish(metadata) {
-  validatePublishVersion(metadata);
+  validatePublishState(metadata);
   validatePublishConfig(metadata);
 }
 
@@ -115,7 +118,7 @@ export function validatePublish(metadata) {
  */
 export function validateRepublish(metadata) {
   if (!metadata.published) {
-    throw new Error(`"${metadata.npmPackageName}" has not been published yet.`);
+    throw new PublishError(`"${metadata.npmPackageName}" has not been published yet.`);
   }
 
   validatePublishConfig(metadata);
