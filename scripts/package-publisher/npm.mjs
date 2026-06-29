@@ -35,7 +35,7 @@ export async function whoami() {
  */
 export async function getPackageInfo(packageName) {
   try {
-    const { stdout } = await runCommand('npm', ['view', packageName, 'version', '--json']);
+    const { stdout, stderr } = await runCommand('npm', ['view', packageName, 'version', '--json']);
 
     const version = JSON.parse(stdout);
 
@@ -43,11 +43,18 @@ export async function getPackageInfo(packageName) {
       published: true,
       version: Array.isArray(version) ? (version.at(-1) ?? null) : version,
     };
-  } catch {
-    return {
-      published: false,
-      version: null,
-    };
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.message.includes('E404') || error.message.includes('404'))
+    ) {
+      return {
+        published: false,
+        version: null,
+      };
+    }
+
+    throw error;
   }
 }
 
