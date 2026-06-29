@@ -1,8 +1,9 @@
 import semver from 'semver';
+
 import { VERSION_TYPES } from './constants.mjs';
+import { VersionError } from './errors.mjs';
 import { getPackageJsonPath } from './paths.mjs';
 import { readJson, writeJson } from './utils.mjs';
-import { VersionError } from './errors.mjs';
 
 /**
  * @import { PackageJson, VersionType } from './types.mjs'
@@ -59,7 +60,7 @@ function incrementVersion(version, release) {
   const nextVersion = semver.inc(version, release);
 
   if (!nextVersion) {
-    throw new VersionError(`Failed to increment version "${version}".`);
+    throw new VersionError(`Failed to increment "${version}" using "${release}" release type.`);
   }
 
   return nextVersion;
