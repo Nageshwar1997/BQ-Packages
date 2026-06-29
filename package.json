@@ -23,7 +23,7 @@
     "typecheck": "npm run typecheck --workspaces",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "clean": "node ./scripts/clean.mjs",
+    "clean": "node ./scripts/clean-builds/index.mjs",
     "create": "node ./scripts/create-package/index.mjs",
     "publish": "node ./scripts/package-publisher/index.mjs"
   },
