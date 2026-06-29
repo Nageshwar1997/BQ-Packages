@@ -13,12 +13,13 @@ import { republishAllPackages, republishPackage, republishPackages } from './rep
 /* -------------------------------------------------------------------------- */
 
 /**
- * Exits the process successfully.
+ * Exits the process.
  *
+ * @param {number} [code=EXIT_CODES.SUCCESS]
  * @returns {never}
  */
-function exit() {
-  process.exit(EXIT_CODES.SUCCESS);
+function exit(code = EXIT_CODES.SUCCESS) {
+  process.exit(code);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -125,7 +126,10 @@ async function main() {
 
       reportError(error instanceof Error ? error.message : String(error));
 
-      if (!(error instanceof Error && error.expected === true)) {
+      const isExpectedError =
+        error instanceof Error && Object.hasOwn(error, 'expected') && error.expected === true;
+
+      if (!isExpectedError) {
         exit(EXIT_CODES.FAILURE);
       }
     }
