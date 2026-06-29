@@ -8,7 +8,7 @@
 **Author:** Nageshwar Pawar  
 **Repository:** [https://github.com/Nageshwar1997/BQ-Packages](https://github.com/Nageshwar1997/BQ-Packages)  
 **Package Registry:** npm (scoped under `@beautinique`)  
-**Current Branch:** `test/v1`  
+**Current Branch:** `main`  
 **Node.js Requirement:** `>=24`  
 **npm Requirement:** `>=11`  
 **Module Type:** ESM (`"type": "module"`)  
@@ -21,8 +21,6 @@ This is a **private** TypeScript monorepo that houses reusable packages for the 
 
 ```
 BQ-Packages/
-├── .agents/
-│   └── (empty placeholder for Kilo agent configs)
 ├── .git/
 ├── .gitignore
 ├── .prettierignore
@@ -30,13 +28,9 @@ BQ-Packages/
 ├── CHANGELOG.md
 ├── CODE_OF_CONDUCT.md
 ├── CONTRIBUTING.md
-├── EDGE-CASES.md
 ├── LICENSE
-├── PACKAGE-PUBLISHER-MANUAL-PENDING.md
 ├── README.md
 ├── SECURITY.md
-├── TESTING.md
-├── TODO.md
 ├── package.json
 ├── package-lock.json
 ├── node_modules/
@@ -74,6 +68,7 @@ BQ-Packages/
 │   │       ├── readme.mjs
 │   │       ├── tsconfig.mjs
 │   │       └── tsup.mjs
+│   └── clean.mjs
 │   └── package-publisher/
 │       ├── index.mjs
 │       ├── auth.mjs
@@ -135,6 +130,7 @@ BQ-Packages/
 | `clean`        | `node ./scripts/clean.mjs`                   | Clean build artifacts (not yet implemented) |
 | `create`       | `node ./scripts/create-package/index.mjs`    | Launch interactive package generator        |
 | `publish`      | `node ./scripts/package-publisher/index.mjs` | Launch interactive package publisher        |
+| `clean`        | `node ./scripts/clean.mjs`                   | Launch interactive package publisher        |
 
 ### Key DevDependencies
 
@@ -396,18 +392,15 @@ Each template defines a `template.json` that maps the package type to its config
 
 ## 8. Documentation & Supporting Files
 
-| File                                  | Content                                                                                                                                       |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `README.md`                           | Project overview, package categories, requirements, 10-step checklist                                                                         |
-| `CONTRIBUTING.md`                     | Fork → branch → PR workflow, code style (ESLint+Prettier), commit message guidelines                                                          |
-| `CHANGELOG.md`                        | Semantic versioning, current version `1.0.0` (initial monorepo setup)                                                                         |
-| `LICENSE`                             | MIT License, Copyright 2026 Nageshwar Pawar                                                                                                   |
-| `SECURITY.md`                         | Security vulnerability reporting policy                                                                                                       |
-| `CODE_OF_CONDUCT.md`                  | Respectful collaboration expectations                                                                                                         |
-| `TESTING.md`                          | Checklist-style test plan for package publisher features (login, publish, republish, rollback, validation errors)                             |
-| `TODO.md`                             | Notes about `clean` script not yet created, future `pack(directory)` function                                                                 |
-| `EDGE-CASES.md`                       | Checklist: missing README, missing publishConfig, invalid semver, duplicates, circular deps, empty packages folder, npm unavailable, Ctrl+C   |
-| `PACKAGE-PUBLISHER-MANUAL-PENDING.md` | Detailed testing notes dated 2026-06-29 covering verified tests, fixed issues, and untested scenarios requiring real npm credentials/terminal |
+| File                 | Content                                                                                                           |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `README.md`          | Project overview, package categories, requirements, 10-step checklist                                             |
+| `CONTRIBUTING.md`    | Fork → branch → PR workflow, code style (ESLint+Prettier), commit message guidelines                              |
+| `CHANGELOG.md`       | Semantic versioning, current version `1.0.0` (initial monorepo setup)                                             |
+| `LICENSE`            | MIT License, Copyright 2026 Nageshwar Pawar                                                                       |
+| `SECURITY.md`        | Security vulnerability reporting policy                                                                           |
+| `CODE_OF_CONDUCT.md` | Respectful collaboration expectations                                                                             |
+
 
 ---
 
@@ -449,9 +442,10 @@ Ignores `node_modules`, build outputs, coverage, `*.tsbuildinfo`, logs, `.env`, 
 Root (BQ-Packages)
 ├── configs/          ← Shared toolchain configs (ESLint, TS, Tsup)
 ├── scripts/
+│   ├── clean.mjs  ← Scaffold clean dist and unnecessary files
 │   ├── create-package/  ← Scaffold new packages
 │   │   └── generators/  ← File generators (json, ts, eslint, tsup, readme)
-│   └── package-publisher/ ← npm publish/reublish CLI
+│   └── package-publisher/ ← npm publish/republish CLI
 │       ├── npm.mjs          ← npm CLI wrapper
 │       ├── version.mjs      ← semver calculation + file patching
 │       ├── metadata.mjs     ← workspace discovery + package metadata
