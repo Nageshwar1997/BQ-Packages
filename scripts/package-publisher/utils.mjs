@@ -2,6 +2,7 @@ import { exec, spawn } from 'node:child_process';
 import { constants } from 'node:fs';
 import { access, readFile, writeFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
+import { JsonError } from './errors.mjs';
 
 const execAsync = promisify(exec);
 
@@ -21,10 +22,8 @@ export async function readJson(filePath) {
 
   try {
     return JSON.parse(content);
-  } catch (error) {
-    throw new Error(`Failed to parse JSON: ${filePath}`, {
-      cause: error,
-    });
+  } catch {
+    throw new JsonError(`Failed to parse JSON: ${filePath}`);
   }
 }
 
@@ -118,9 +117,16 @@ export async function runCommand(command, args = [], options = {}) {
       stderr: stderr.trim(),
     };
   } catch (error) {
-    throw new Error(error.stderr?.trim() || error.stdout?.trim() || error.message, {
-      cause: error,
-    });
+    if (!(error instanceof Error)) {
+      throw error;
+    }
+
+    /** @type {Error & { stdout?: string; stderr?: string }} */
+    const commandError = error;
+
+    throw new Error(
+      commandError.stderr?.trim() || commandError.stdout?.trim() || commandError.message,
+    );
   }
 }
 

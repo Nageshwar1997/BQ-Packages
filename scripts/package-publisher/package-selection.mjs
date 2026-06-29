@@ -1,3 +1,4 @@
+import { ValidationError } from './errors.mjs';
 import { getPackagesMetadata } from './metadata.mjs';
 import { selectPackage, selectPackages } from './prompts.mjs';
 import { validatePackage } from './validators.mjs';
@@ -35,10 +36,22 @@ async function getFilteredPackages(filter, emptyMessage) {
   const packages = (await getPackagesMetadata()).filter(filter);
 
   if (packages.length === 0) {
-    throw new Error(emptyMessage);
+    throw new ValidationError(emptyMessage);
   }
 
   return packages;
+}
+
+/**
+ * Validates packages.
+ *
+ * @param {PackageMetadata[]} packages
+ * @returns {Promise<void>}
+ */
+async function validatePackages(packages) {
+  for (const metadata of packages) {
+    await validateMetadata(metadata);
+  }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -78,9 +91,7 @@ export async function getSelectedPackages({ filter, emptyMessage }) {
 
   const selectedPackages = await selectPackages(packages);
 
-  for (const metadata of selectedPackages) {
-    await validateMetadata(metadata);
-  }
+  await validatePackages(selectedPackages);
 
   return selectedPackages;
 }
@@ -97,9 +108,7 @@ export async function getSelectedPackages({ filter, emptyMessage }) {
 export async function getPackages({ filter, emptyMessage }) {
   const packages = await getFilteredPackages(filter, emptyMessage);
 
-  for (const metadata of packages) {
-    await validateMetadata(metadata);
-  }
+  await validatePackages(packages);
 
   return packages;
 }

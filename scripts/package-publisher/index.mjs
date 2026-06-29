@@ -1,5 +1,6 @@
 import { ensureLoggedIn, ensureLoggedOut } from './auth.mjs';
 import { ACTIONS, EXIT_CODES } from './constants.mjs';
+import { CliError } from './errors.mjs';
 import { login, logout, whoami } from './npm.mjs';
 import { getPackage, getPackages, getSelectedPackages } from './package-selection.mjs';
 import { showPackageStatus } from './package-status.mjs';
@@ -11,6 +12,16 @@ import { republishAllPackages, republishPackage, republishPackages } from './rep
 /* -------------------------------------------------------------------------- */
 /*                              PRIVATE HELPERS                               */
 /* -------------------------------------------------------------------------- */
+
+/**
+ * Returns whether the prompt was cancelled by the user.
+ *
+ * @param {unknown} error
+ * @returns {boolean}
+ */
+function isPromptExit(error) {
+  return error instanceof Error && error.name === 'ExitPromptError';
+}
 
 /**
  * Exits the process.
@@ -120,16 +131,13 @@ async function main() {
           throw new Error(`Unknown action "${action}".`);
       }
     } catch (error) {
-      if (error instanceof Error && error.name === 'ExitPromptError') {
+      if (isPromptExit(error)) {
         exit();
       }
 
       reportError(error instanceof Error ? error.message : String(error));
 
-      const isExpectedError =
-        error instanceof Error && Object.hasOwn(error, 'expected') && error.expected === true;
-
-      if (!isExpectedError) {
+      if (!(error instanceof CliError)) {
         exit(EXIT_CODES.FAILURE);
       }
     }

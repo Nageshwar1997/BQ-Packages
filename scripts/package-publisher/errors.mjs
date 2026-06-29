@@ -8,9 +8,10 @@
 export class CliError extends Error {
   /**
    * @param {string} message
+   * @param {ErrorOptions} [options]
    */
-  constructor(message) {
-    super(message);
+  constructor(message, options) {
+    super(message, options);
 
     this.name = new.target.name;
   }
@@ -39,3 +40,8 @@ export class VersionError extends CliError {}
 /* -------------------------------------------------------------------------- */
 
 export class PublishError extends CliError {}
+/* -------------------------------------------------------------------------- */
+/*                                   JSON                                     */
+/* -------------------------------------------------------------------------- */
+
+export class JsonError extends CliError {}

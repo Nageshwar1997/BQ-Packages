@@ -1,4 +1,5 @@
 import semver from 'semver';
+import { ValidationError } from './errors.mjs';
 import { runCommand, runInteractiveCommand } from './utils.mjs';
 
 /* -------------------------------------------------------------------------- */
@@ -38,7 +39,7 @@ function buildPublishArguments(version) {
     const [tag] = prerelease;
 
     if (typeof tag !== 'string') {
-      throw new Error(`Invalid prerelease tag for version "${version}".`);
+      throw new ValidationError(`Invalid prerelease tag for version "${version}".`);
     }
 
     args.push('--tag', tag);
@@ -88,7 +89,7 @@ export async function getPackageInfo(packageName) {
     const version = Array.isArray(parsed) ? (parsed.at(-1) ?? null) : parsed;
 
     if (typeof version !== 'string' || !semver.valid(version)) {
-      throw new Error(`Invalid version returned by npm for "${packageName}".`);
+      throw new ValidationError(`Invalid version returned by npm for "${packageName}".`);
     }
 
     return {
@@ -140,8 +141,19 @@ export async function logout() {
  * @param {string} version
  * @returns {Promise<void>}
  */
-export async function publish(directory, version) {
+async function publishPackage(directory, version) {
   await runInteractiveCommand('npm', buildPublishArguments(version), { cwd: directory });
+}
+
+/**
+ * Publishes a package to npm.
+ *
+ * @param {string} directory
+ * @param {string} version
+ * @returns {Promise<void>}
+ */
+export function publish(directory, version) {
+  return publishPackage(directory, version);
 }
 
 /**
@@ -151,6 +163,6 @@ export async function publish(directory, version) {
  * @param {string} version
  * @returns {Promise<void>}
  */
-export async function republish(directory, version) {
-  await runInteractiveCommand('npm', buildPublishArguments(version), { cwd: directory });
+export function republish(directory, version) {
+  return publishPackage(directory, version);
 }
