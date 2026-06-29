@@ -2,6 +2,7 @@ import semver from 'semver';
 import { VERSION_TYPES } from './constants.mjs';
 import { getPackageJsonPath } from './paths.mjs';
 import { readJson, writeJson } from './utils.mjs';
+import { VersionError } from './errors.mjs';
 
 /**
  * @import { PackageJson, VersionType } from './types.mjs'
@@ -30,7 +31,7 @@ async function readPackageJson(packageDirectory) {
  */
 function validateVersion(version, label) {
   if (typeof version !== 'string' || !semver.valid(version)) {
-    throw new Error(`Invalid ${label} "${version}".`);
+    throw new VersionError(`Invalid ${label} "${version}".`);
   }
 }
 
@@ -43,7 +44,7 @@ function validateVersion(version, label) {
  */
 function validateVersionIncrease(currentVersion, nextVersion) {
   if (!semver.gt(nextVersion, currentVersion)) {
-    throw new Error(`Version "${nextVersion}" must be greater than "${currentVersion}".`);
+    throw new VersionError(`Version "${nextVersion}" must be greater than "${currentVersion}".`);
   }
 }
 
@@ -58,7 +59,7 @@ function incrementVersion(version, release) {
   const nextVersion = semver.inc(version, release);
 
   if (!nextVersion) {
-    throw new Error(`Failed to increment version "${version}".`);
+    throw new VersionError(`Failed to increment version "${version}".`);
   }
 
   return nextVersion;
@@ -91,7 +92,7 @@ export function calculateVersion(currentVersion, versionType, customVersion) {
 
     case VERSION_TYPES.CUSTOM: {
       if (!customVersion) {
-        throw new Error('Custom version is required.');
+        throw new VersionError('Custom version is required.');
       }
 
       validateVersion(customVersion, 'custom version');
@@ -101,7 +102,7 @@ export function calculateVersion(currentVersion, versionType, customVersion) {
     }
 
     default:
-      throw new Error(`Unsupported version type "${versionType}".`);
+      throw new VersionError(`Unsupported version type "${versionType}".`);
   }
 }
 
