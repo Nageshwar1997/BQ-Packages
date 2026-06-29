@@ -28,7 +28,7 @@ import { calculateVersion, updatePackageVersion } from './version.mjs';
  * @returns {Promise<void>}
  */
 async function restoreVersion(metadata) {
-  await updatePackageVersion(metadata.directory, metadata.localVersion);
+  await updatePackageVersion(metadata.directory, metadata.localVersion, metadata.npmPackageName);
 }
 
 /**
@@ -42,7 +42,7 @@ async function restoreVersion(metadata) {
 async function republishPackageInternal(metadata, version, username) {
   validateRepublish({ ...metadata, localVersion: version });
 
-  await updatePackageVersion(metadata.directory, version);
+  await updatePackageVersion(metadata.directory, version, metadata.npmPackageName);
 
   try {
     await republishToNpm(metadata.directory, version);
@@ -79,7 +79,12 @@ async function getNextVersion(metadata) {
       ? await enterCustomVersion(metadata.localVersion)
       : undefined;
 
-  return calculateVersion(metadata.localVersion, versionType, customVersion);
+  return calculateVersion(
+    metadata.localVersion,
+    versionType,
+    customVersion,
+    metadata.npmPackageName,
+  );
 }
 
 /**

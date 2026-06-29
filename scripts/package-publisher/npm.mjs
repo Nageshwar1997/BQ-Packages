@@ -1,6 +1,6 @@
 import semver from 'semver';
 import { ValidationError } from './errors.mjs';
-import { runCommand, runInteractiveCommand } from './utils.mjs';
+import { parseData, runCommand, runInteractiveCommand } from './utils.mjs';
 
 /* -------------------------------------------------------------------------- */
 /*                              ERROR HELPERS                                 */
@@ -84,7 +84,7 @@ export async function getPackageInfo(packageName) {
   try {
     const { stdout } = await runCommand('npm', ['view', packageName, 'version', '--json']);
 
-    const parsed = JSON.parse(stdout);
+    const parsed = parseData(stdout);
 
     const version = Array.isArray(parsed) ? (parsed.at(-1) ?? null) : parsed;
 

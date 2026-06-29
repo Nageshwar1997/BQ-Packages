@@ -2,6 +2,7 @@ import semver from 'semver';
 import { PublishError, ValidationError } from './errors.mjs';
 import { getPackageJsonPath, getReadmePath } from './paths.mjs';
 import { pathExists } from './utils.mjs';
+import { validateVersion } from './version.mjs';
 
 /**
  * @import {
@@ -13,19 +14,6 @@ import { pathExists } from './utils.mjs';
 /* -------------------------------------------------------------------------- */
 /*                              PRIVATE HELPERS                               */
 /* -------------------------------------------------------------------------- */
-
-/**
- * Validates a semantic version.
- *
- * @param {unknown} version
- * @param {string} label
- * @returns {void}
- */
-function validateVersion(version, label) {
-  if (typeof version !== 'string' || !semver.valid(version)) {
-    throw new ValidationError(`Invalid ${label} "${version}".`);
-  }
-}
 
 /**
  * Validates the required package files.
@@ -51,19 +39,31 @@ async function validateRequiredFiles(packageDirectory) {
  * @param {PackageMetadata} metadata
  * @returns {void}
  */
-function validatePublishState(metadata) {
-  validateVersion(metadata.localVersion, 'local version');
+function validatePublishVersion(metadata) {
+  validateVersion(metadata.localVersion, 'local version', metadata.npmPackageName);
 
   if (!metadata.published) {
     return;
   }
 
-  validateVersion(metadata.remoteVersion, 'remote version');
+  validateVersion(metadata.remoteVersion, 'remote version', metadata.npmPackageName);
 
   if (!semver.gt(metadata.localVersion, metadata.remoteVersion)) {
     throw new PublishError(
       `"${metadata.npmPackageName}" version must be greater than the published version.`,
     );
+  }
+}
+
+/**
+ * Validates whether a package has already been published.
+ *
+ * @param {PackageMetadata} metadata
+ * @returns {void}
+ */
+function validatePublished(metadata) {
+  if (!metadata.published) {
+    throw new PublishError(`"${metadata.npmPackageName}" has not been published yet.`);
   }
 }
 
@@ -106,7 +106,7 @@ export async function validatePackage(pkg) {
  * @returns {void}
  */
 export function validatePublish(metadata) {
-  validatePublishState(metadata);
+  validatePublishVersion(metadata);
   validatePublishConfig(metadata);
 }
 
@@ -117,9 +117,7 @@ export function validatePublish(metadata) {
  * @returns {void}
  */
 export function validateRepublish(metadata) {
-  if (!metadata.published) {
-    throw new PublishError(`"${metadata.npmPackageName}" has not been published yet.`);
-  }
-
+  validatePublished(metadata);
+  validatePublishVersion(metadata);
   validatePublishConfig(metadata);
 }

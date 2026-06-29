@@ -5,6 +5,7 @@ import { getPackageInfo } from './npm.mjs';
 import { findPackages } from './package.mjs';
 import { getPackageJsonPath } from './paths.mjs';
 import { readJson } from './utils.mjs';
+import { validateVersion } from './version.mjs';
 
 /**
  * @import {
@@ -90,7 +91,13 @@ function getDependencies(packageJson) {
 export async function getPackageMetadata(pkg) {
   const packageJson = await readJson(getPackageJsonPath(pkg.directory));
 
+  validateVersion(packageJson.version, 'local version', packageJson.name);
+
   const packageInfo = await getPackageInfo(packageJson.name);
+
+  if (packageInfo.published) {
+    validateVersion(packageInfo.version, 'remote version', packageJson.name);
+  }
 
   const metadata = {
     packageType: pkg.packageType,

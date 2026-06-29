@@ -18,10 +18,10 @@ const execAsync = promisify(exec);
  * @returns {Promise<T>}
  */
 export async function readJson(filePath) {
-  const content = await readFile(filePath, 'utf8');
+  const content = await readFileByPath(filePath);
 
   try {
-    return JSON.parse(content);
+    return parseData(content);
   } catch {
     throw new JsonError(`Failed to parse JSON: ${filePath}`);
   }
@@ -32,10 +32,20 @@ export async function readJson(filePath) {
  *
  * @param {string} filePath
  * @param {unknown} data
+ * @param {{
+ *   indent?: string | number;
+ *   trailingNewline?: boolean;
+ * }} [options={}]
  * @returns {Promise<void>}
  */
-export async function writeJson(filePath, data) {
-  await writeFile(filePath, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
+export async function writeJson(filePath, data, options = {}) {
+  const { indent = 2, trailingNewline = true } = options;
+
+  await writeFile(
+    filePath,
+    `${JSON.stringify(data, null, indent)}${trailingNewline ? '\n' : ''}`,
+    'utf8',
+  );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -60,6 +70,30 @@ export async function pathExists(filePath) {
 /* -------------------------------------------------------------------------- */
 /*                              PRIVATE HELPERS                               */
 /* -------------------------------------------------------------------------- */
+
+/**
+ * Reads a file by path.
+ *
+ * @param {string} filePath
+ * @returns {Promise<string>}
+ */
+export async function readFileByPath(filePath) {
+  return await readFile(filePath, 'utf8');
+}
+
+/**
+ * Parses JSON data.
+ *
+ * @param {string} data
+ * @returns {Promise<unknown>}
+ */
+export function parseData(data) {
+  try {
+    return JSON.parse(data);
+  } catch {
+    throw new JsonError(`Failed to parse JSON: ${data}`);
+  }
+}
 
 /**
  * Escapes a shell argument.
