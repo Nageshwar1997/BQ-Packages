@@ -21,6 +21,49 @@ async function readPackageJson(packageDirectory) {
   return readJson(getPackageJsonPath(packageDirectory));
 }
 
+/**
+ * Validates a semantic version.
+ *
+ * @param {unknown} version
+ * @param {string} label
+ * @returns {void}
+ */
+function validateVersion(version, label) {
+  if (typeof version !== 'string' || !semver.valid(version)) {
+    throw new Error(`Invalid ${label} "${version}".`);
+  }
+}
+
+/**
+ * Ensures the next version is greater than the current version.
+ *
+ * @param {string} currentVersion
+ * @param {string} nextVersion
+ * @returns {void}
+ */
+function validateVersionIncrease(currentVersion, nextVersion) {
+  if (!semver.gt(nextVersion, currentVersion)) {
+    throw new Error(`Version "${nextVersion}" must be greater than "${currentVersion}".`);
+  }
+}
+
+/**
+ * Returns the incremented version.
+ *
+ * @param {string} version
+ * @param {Exclude<VersionType, "custom">} release
+ * @returns {string}
+ */
+function incrementVersion(version, release) {
+  const nextVersion = semver.inc(version, release);
+
+  if (!nextVersion) {
+    throw new Error(`Failed to increment version "${version}".`);
+  }
+
+  return nextVersion;
+}
+
 /* -------------------------------------------------------------------------- */
 /*                              VERSION HELPERS                               */
 /* -------------------------------------------------------------------------- */
@@ -34,28 +77,25 @@ async function readPackageJson(packageDirectory) {
  * @returns {string}
  */
 export function calculateVersion(currentVersion, versionType, customVersion) {
-  if (!semver.valid(currentVersion)) {
-    throw new Error(`Invalid version "${currentVersion}".`);
-  }
+  validateVersion(currentVersion, 'version');
 
   switch (versionType) {
     case VERSION_TYPES.PATCH:
-      return semver.inc(currentVersion, 'patch');
+      return incrementVersion(currentVersion, 'patch');
 
     case VERSION_TYPES.MINOR:
-      return semver.inc(currentVersion, 'minor');
+      return incrementVersion(currentVersion, 'minor');
 
     case VERSION_TYPES.MAJOR:
-      return semver.inc(currentVersion, 'major');
+      return incrementVersion(currentVersion, 'major');
 
     case VERSION_TYPES.CUSTOM: {
       if (!customVersion) {
         throw new Error('Custom version is required.');
       }
 
-      if (!semver.valid(customVersion)) {
-        throw new Error(`Invalid custom version "${customVersion}".`);
-      }
+      validateVersion(customVersion, 'custom version');
+      validateVersionIncrease(currentVersion, customVersion);
 
       return customVersion;
     }
@@ -76,9 +116,11 @@ export function calculateVersion(currentVersion, versionType, customVersion) {
  * @returns {Promise<string>}
  */
 export async function getPackageVersion(packageDirectory) {
-  const packageJson = await readPackageJson(packageDirectory);
+  const { version } = await readPackageJson(packageDirectory);
 
-  return packageJson.version;
+  validateVersion(version, 'package version');
+
+  return version;
 }
 
 /**
@@ -89,9 +131,7 @@ export async function getPackageVersion(packageDirectory) {
  * @returns {Promise<void>}
  */
 export async function updatePackageVersion(packageDirectory, version) {
-  if (!semver.valid(version)) {
-    throw new Error(`Invalid version "${version}".`);
-  }
+  validateVersion(version, 'version');
 
   const packageJsonPath = getPackageJsonPath(packageDirectory);
 
