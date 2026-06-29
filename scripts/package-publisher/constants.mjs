@@ -46,6 +46,22 @@ export const PACKAGE_STATUS = Object.freeze({
   OUTDATED: 'outdated',
 });
 
+export const PACKAGE_STATUS_LABELS = Object.freeze({
+  [PACKAGE_STATUS.UNPUBLISHED]: 'Unpublished',
+  [PACKAGE_STATUS.SYNCED]: 'Synced',
+  [PACKAGE_STATUS.UPDATE_AVAILABLE]: 'Update Available',
+  [PACKAGE_STATUS.OUTDATED]: 'Outdated',
+});
+
+export const SUMMARY_LABELS = Object.freeze({
+  TOTAL: 'Total Packages',
+  PUBLISHED: 'Published',
+  UNPUBLISHED: 'Unpublished',
+  SYNCED: 'Synced',
+  UPDATE_AVAILABLE: 'Update Available',
+  OUTDATED: 'Outdated',
+});
+
 export const DEPENDENCY_TYPES = Object.freeze({
   DEPENDENCY: 'dependency',
   DEV_DEPENDENCY: 'devDependency',

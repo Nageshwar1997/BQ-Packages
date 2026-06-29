@@ -1,6 +1,11 @@
-import { PACKAGE_STATUS } from './constants.mjs';
+import {
+  PACKAGE_STATUS,
+  PACKAGE_STATUS_LABELS,
+  SUMMARY_LABELS,
+  TABLE_ALIGNMENTS,
+} from './constants.mjs';
 import { getPackagesMetadata } from './metadata.mjs';
-import { reportSection, reportSummary, reportTable } from './reporter.mjs';
+import { reportInfo, reportSection, reportSummary, reportTable } from './reporter.mjs';
 
 /**
  * @import { PackageMetadata } from './types.mjs'
@@ -11,21 +16,49 @@ import { reportSection, reportSummary, reportTable } from './reporter.mjs';
 /* -------------------------------------------------------------------------- */
 
 /**
+ * Returns a human-readable package version.
+ *
+ * @param {string | null | undefined} version
+ * @returns {string}
+ */
+function formatVersion(version) {
+  return version ?? '-';
+}
+
+/**
+ * Returns packages sorted by workspace name.
+ *
+ * @param {PackageMetadata[]} packages
+ * @returns {PackageMetadata[]}
+ */
+function sortPackages(packages) {
+  return [...packages].sort((a, b) => a.workspaceName.localeCompare(b.workspaceName));
+}
+
+/**
+ * Returns a human-readable package status.
+ *
+ * @param {PackageMetadata['status']} status
+ * @returns {string}
+ */
+function formatStatus(status) {
+  return PACKAGE_STATUS_LABELS[status] ?? status;
+}
+
+/**
  * Creates table rows.
  *
  * @param {PackageMetadata[]} packages
  * @returns {Record<string, unknown>[]}
  */
 function createRows(packages) {
-  return [...packages]
-    .sort((a, b) => a.workspaceName.localeCompare(b.workspaceName))
-    .map((pkg) => ({
-      workspace: pkg.workspaceName,
-      package: pkg.npmPackageName,
-      local: pkg.localVersion,
-      remote: pkg.remoteVersion ?? '-',
-      status: pkg.status,
-    }));
+  return packages.map((pkg) => ({
+    workspace: pkg.workspaceName,
+    package: pkg.npmPackageName,
+    local: formatVersion(pkg.localVersion),
+    remote: formatVersion(pkg.remoteVersion),
+    status: formatStatus(pkg.status),
+  }));
 }
 
 /**
@@ -35,16 +68,43 @@ function createRows(packages) {
  * @returns {readonly (readonly [string, number])[]}
  */
 function createSummary(packages) {
+  let published = 0;
+  let unpublished = 0;
+  let synced = 0;
+  let updateAvailable = 0;
+  let outdated = 0;
+
+  for (const pkg of packages) {
+    if (pkg.published) {
+      published++;
+    }
+
+    switch (pkg.status) {
+      case PACKAGE_STATUS.UNPUBLISHED:
+        unpublished++;
+        break;
+
+      case PACKAGE_STATUS.SYNCED:
+        synced++;
+        break;
+
+      case PACKAGE_STATUS.UPDATE_AVAILABLE:
+        updateAvailable++;
+        break;
+
+      case PACKAGE_STATUS.OUTDATED:
+        outdated++;
+        break;
+    }
+  }
+
   return [
-    ['Total Packages', packages.length],
-    ['Published', packages.filter((pkg) => pkg.published).length],
-    ['Unpublished', packages.filter((pkg) => pkg.status === PACKAGE_STATUS.UNPUBLISHED).length],
-    ['Synced', packages.filter((pkg) => pkg.status === PACKAGE_STATUS.SYNCED).length],
-    [
-      'Update Available',
-      packages.filter((pkg) => pkg.status === PACKAGE_STATUS.UPDATE_AVAILABLE).length,
-    ],
-    ['Outdated', packages.filter((pkg) => pkg.status === PACKAGE_STATUS.OUTDATED).length],
+    [SUMMARY_LABELS.TOTAL, packages.length],
+    [SUMMARY_LABELS.PUBLISHED, published],
+    [SUMMARY_LABELS.UNPUBLISHED, unpublished],
+    [SUMMARY_LABELS.SYNCED, synced],
+    [SUMMARY_LABELS.UPDATE_AVAILABLE, updateAvailable],
+    [SUMMARY_LABELS.OUTDATED, outdated],
   ];
 }
 
@@ -58,16 +118,23 @@ function createSummary(packages) {
  * @returns {Promise<void>}
  */
 export async function showPackageStatus() {
-  const packages = await getPackagesMetadata();
+  const packages = sortPackages(await getPackagesMetadata());
 
   reportSection('Package Status');
+
+  if (packages.length === 0) {
+    reportInfo('No workspace packages found.');
+
+    reportSummary({ title: 'Summary', items: [[SUMMARY_LABELS.TOTAL, 0]] });
+    return;
+  }
 
   reportTable({
     columns: [
       { key: 'workspace', title: 'Workspace' },
       { key: 'package', title: 'NPM Package' },
-      { key: 'local', title: 'Local' },
-      { key: 'remote', title: 'Remote' },
+      { key: 'local', title: 'Local', align: TABLE_ALIGNMENTS.CENTER },
+      { key: 'remote', title: 'Remote', align: TABLE_ALIGNMENTS.CENTER },
       { key: 'status', title: 'Status' },
     ],
     rows: createRows(packages),
