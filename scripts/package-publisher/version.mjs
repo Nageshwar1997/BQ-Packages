@@ -3,7 +3,7 @@ import semver from 'semver';
 import { VERSION_TYPES } from './constants.mjs';
 import { JsonError, VersionError } from './errors.mjs';
 import { getPackageJsonPath } from './paths.mjs';
-import { parseData, readFileByPath } from './utils.mjs';
+import { parseData, readFileByPath, writeJson } from './utils.mjs';
 
 /**
  * @import { PackageJson, VersionType } from './types.mjs'

@@ -194,14 +194,20 @@ function buildConfirmationMessage(title, lines) {
  * Prompts the user to select a version strategy.
  *
  * @param {string} currentVersion
+ * @param {string} packageName
  * @returns {Promise<VersionType>}
  */
-export async function selectVersion(currentVersion) {
+export async function selectVersion(currentVersion, packageName) {
   const { versionType } = await inquirer.prompt([
     {
       type: 'select',
       name: 'versionType',
-      message: `Select the next version strategy\n\nCurrent version: ${currentVersion}`,
+      message: [
+        'Select the next version strategy',
+        '',
+        `Package : ${packageName}`,
+        `Version : ${currentVersion}`,
+      ].join('\n'),
       choices: [
         {
           name: 'Patch',

@@ -72,7 +72,7 @@ async function republishPackageInternal(metadata, version, username) {
  * @returns {Promise<string>}
  */
 async function getNextVersion(metadata) {
-  const versionType = await selectVersion(metadata.localVersion);
+  const versionType = await selectVersion(metadata.localVersion, metadata.npmPackageName);
 
   const customVersion =
     versionType === VERSION_TYPES.CUSTOM
