@@ -1,3 +1,4 @@
+import { dim, heading } from './color.mjs';
 import { TABLE_ALIGNMENTS } from './constants.mjs';
 
 /**
@@ -75,10 +76,12 @@ function formatValues(columns, widths, values) {
  * @returns {string}
  */
 function formatHeader(columns, widths) {
-  return formatValues(
-    columns,
-    widths,
-    Object.fromEntries(columns.map((column) => [column.key, column.title])),
+  return heading(
+    formatValues(
+      columns,
+      widths,
+      Object.fromEntries(columns.map((column) => [column.key, column.title])),
+    ),
   );
 }
 
@@ -89,7 +92,7 @@ function formatHeader(columns, widths) {
  * @returns {string}
  */
 function formatSeparator(widths) {
-  return widths.map((width) => '─'.repeat(width)).join(COLUMN_SEPARATOR);
+  return dim(widths.map((width) => '─'.repeat(width)).join(COLUMN_SEPARATOR));
 }
 
 /* -------------------------------------------------------------------------- */

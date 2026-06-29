@@ -64,6 +64,12 @@ export const SUMMARY_LABELS = Object.freeze({
   OUTDATED: 'Outdated',
 });
 
+export const BATCH_SUMMARY_LABELS = Object.freeze({
+  TOTAL: 'Total',
+  SUCCESSFUL: 'Successful',
+  FAILED: 'Failed',
+});
+
 export const DEPENDENCY_TYPES = Object.freeze({
   DEPENDENCY: 'dependency',
   DEV_DEPENDENCY: 'devDependency',

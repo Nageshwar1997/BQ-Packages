@@ -1,3 +1,4 @@
+import { BATCH_SUMMARY_LABELS } from './constants.mjs';
 import { reportError, reportSummary } from './reporter.mjs';
 
 /* -------------------------------------------------------------------------- */
@@ -24,6 +25,10 @@ export async function runBatchOperation({
   getItemName = () => 'Item',
   continueOnError = true,
 }) {
+  if (!items?.length) {
+    return;
+  }
+
   let successful = 0;
   let failed = 0;
 
@@ -46,9 +51,9 @@ export async function runBatchOperation({
   reportSummary({
     title,
     items: [
-      ['Total', items.length],
-      ['Successful', successful],
-      ['Failed', failed],
+      [BATCH_SUMMARY_LABELS.TOTAL, items.length],
+      [BATCH_SUMMARY_LABELS.SUCCESSFUL, successful],
+      [BATCH_SUMMARY_LABELS.FAILED, failed],
     ],
   });
 }
