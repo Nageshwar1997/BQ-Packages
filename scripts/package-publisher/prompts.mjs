@@ -1,5 +1,6 @@
 import inquirer from 'inquirer';
 import semver from 'semver';
+import { dim, heading, info, success, warning } from './color.mjs';
 import { ACTIONS, VERSION_TYPES } from './constants.mjs';
 
 /**
@@ -203,10 +204,10 @@ export async function selectVersion(currentVersion, packageName) {
       type: 'select',
       name: 'versionType',
       message: [
-        'Select the next version strategy',
+        heading(info('Select the next version strategy')),
         '',
-        `Package : ${packageName}`,
-        `Version : ${currentVersion}`,
+        `${dim('Package :')} ${success(packageName)}`,
+        `${dim('Version :')} ${warning(currentVersion)}`,
       ].join('\n'),
       choices: [
         {
