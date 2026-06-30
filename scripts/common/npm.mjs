@@ -1,6 +1,7 @@
 import semver from 'semver';
-import { ValidationError } from '../common/errors.mjs';
-import { parseData, runCommand, runInteractiveCommand } from '../common/utils.mjs';
+import { ValidationError } from './errors.mjs';
+import { parseData, runCommand, runInteractiveCommand } from './utils.mjs';
+
 /* -------------------------------------------------------------------------- */
 /*                              ERROR HELPERS                                 */
 /* -------------------------------------------------------------------------- */
@@ -151,7 +152,7 @@ async function publishPackage(directory, version) {
  * @param {string} version
  * @returns {Promise<void>}
  */
-export function publish(directory, version) {
+export function publishToNpm(directory, version) {
   return publishPackage(directory, version);
 }
 
@@ -162,6 +163,6 @@ export function publish(directory, version) {
  * @param {string} version
  * @returns {Promise<void>}
  */
-export function republish(directory, version) {
+export function republishToNpm(directory, version) {
   return publishPackage(directory, version);
 }

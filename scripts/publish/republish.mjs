@@ -1,10 +1,10 @@
+import { republishToNpm } from '../common/npm.mjs';
 import { parseData, readFileByPath, writeJson } from '../common/utils.mjs';
 import { ensureLoggedIn } from './auth.mjs';
 import { runBatchOperation } from './batch-operation.mjs';
 import { VERSION_TYPES } from './constants.mjs';
 import { sortPackagesByDependencies } from './dependency-sort.mjs';
 import { updateInternalDependencyVersions } from './dependency-version.mjs';
-import { republish as republishToNpm } from './npm.mjs';
 import { getPackageJsonPath } from './paths.mjs';
 import {
   confirmRepublish,
