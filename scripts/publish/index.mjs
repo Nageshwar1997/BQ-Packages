@@ -80,7 +80,7 @@ async function main() {
           break;
         }
 
-        case PUBLISH_ACTIONS.PACKAGE_STATUS:
+        case PUBLISH_ACTIONS.STATUS:
           await showPackageStatus();
           break;
 

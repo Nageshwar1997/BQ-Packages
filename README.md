@@ -250,7 +250,7 @@ This is a **full interactive CLI** (`node ./scripts/package-publisher/index.mjs`
 | Republish Package        | `REPUBLISH_PACKAGE`        | Republish a single published package with version bump |
 | Republish Packages       | `REPUBLISH_PACKAGES`       | Republish selected published packages                  |
 | Republish All Packages   | `REPUBLISH_ALL_PACKAGES`   | Republish all published packages                       |
-| Package Status           | `PACKAGE_STATUS`           | View status table of all packages                      |
+| Package Status           | `PACKAGE_STATUS_MAP`           | View status table of all packages                      |
 | Login                    | `LOGIN`                    | npm login                                              |
 | Logout                   | `LOGOUT`                   | npm logout                                             |
 | Exit                     | `EXIT`                     | Exit CLI                                               |

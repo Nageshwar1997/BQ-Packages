@@ -63,7 +63,7 @@ export async function selectAction(username) {
 
         {
           name: 'Package Status',
-          value: PUBLISH_ACTIONS.PACKAGE_STATUS,
+          value: PUBLISH_ACTIONS.STATUS,
         },
 
         ...(username

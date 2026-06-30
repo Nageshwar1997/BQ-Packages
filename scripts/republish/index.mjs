@@ -79,7 +79,7 @@ async function main() {
           break;
         }
 
-        case REPUBLISH_ACTIONS.PACKAGE_STATUS:
+        case REPUBLISH_ACTIONS.STATUS:
           await showPackageStatus();
           break;
 

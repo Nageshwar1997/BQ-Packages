@@ -14,7 +14,7 @@ export const BUILD_ARTIFACTS = new Set(['dist', '.tsbuildinfo']);
 export const EXIT_CODES = Object.freeze({ SUCCESS: 0, FAILURE: 1 });
 
 export const COMMON_ACTIONS = Object.freeze({
-  PACKAGE_STATUS: 'package-status',
+  STATUS: 'status',
   LOGIN: 'login',
   LOGOUT: 'logout',
   EXIT: 'exit',
@@ -44,7 +44,6 @@ export const BATCH_SUMMARY_LABELS = Object.freeze({
   FAILED: 'Failed',
 });
 
-
 export const SUMMARY_LABELS = Object.freeze({
   TOTAL: 'Total Packages',
   PUBLISHED: 'Published',
@@ -52,4 +51,18 @@ export const SUMMARY_LABELS = Object.freeze({
   SYNCED: 'Synced',
   UPDATE_AVAILABLE: 'Update Available',
   OUTDATED: 'Outdated',
+});
+
+export const PACKAGE_STATUS_MAP = Object.freeze({
+  UNPUBLISHED: 'unpublished',
+  SYNCED: 'synced',
+  UPDATE_AVAILABLE: 'update-available',
+  OUTDATED: 'outdated',
+});
+
+export const PACKAGE_STATUS_LABELS = Object.freeze({
+  [PACKAGE_STATUS_MAP.UNPUBLISHED]: 'Unpublished',
+  [PACKAGE_STATUS_MAP.SYNCED]: 'Synced',
+  [PACKAGE_STATUS_MAP.UPDATE_AVAILABLE]: 'Update Available',
+  [PACKAGE_STATUS_MAP.OUTDATED]: 'Outdated',
 });

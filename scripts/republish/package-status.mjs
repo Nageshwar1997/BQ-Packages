@@ -1,6 +1,10 @@
 import { heading } from '../common/colors.mjs';
-import { SUMMARY_LABELS, TABLE_ALIGNMENTS } from '../common/constants.mjs';
-import { PACKAGE_STATUS, PACKAGE_STATUS_LABELS } from './constants.mjs';
+import {
+  PACKAGE_STATUS_LABELS,
+  PACKAGE_STATUS_MAP,
+  SUMMARY_LABELS,
+  TABLE_ALIGNMENTS,
+} from '../common/constants.mjs';
 import { getPackagesMetadata } from './metadata.mjs';
 import { reportInfo, reportSection, reportSummary, reportTable } from './reporter.mjs';
 
@@ -77,19 +81,19 @@ function createSummary(packages) {
     }
 
     switch (pkg.status) {
-      case PACKAGE_STATUS.UNPUBLISHED:
+      case PACKAGE_STATUS_MAP.UNPUBLISHED:
         unpublished++;
         break;
 
-      case PACKAGE_STATUS.SYNCED:
+      case PACKAGE_STATUS_MAP.SYNCED:
         synced++;
         break;
 
-      case PACKAGE_STATUS.UPDATE_AVAILABLE:
+      case PACKAGE_STATUS_MAP.UPDATE_AVAILABLE:
         updateAvailable++;
         break;
 
-      case PACKAGE_STATUS.OUTDATED:
+      case PACKAGE_STATUS_MAP.OUTDATED:
         outdated++;
         break;
     }

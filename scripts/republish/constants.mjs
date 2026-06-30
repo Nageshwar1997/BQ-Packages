@@ -17,17 +17,3 @@ export const VERSION_TYPES = Object.freeze({
   MAJOR: 'major',
   CUSTOM: 'custom',
 });
-
-export const PACKAGE_STATUS = Object.freeze({
-  UNPUBLISHED: 'unpublished',
-  SYNCED: 'synced',
-  UPDATE_AVAILABLE: 'update-available',
-  OUTDATED: 'outdated',
-});
-
-export const PACKAGE_STATUS_LABELS = Object.freeze({
-  [PACKAGE_STATUS.UNPUBLISHED]: 'Unpublished',
-  [PACKAGE_STATUS.SYNCED]: 'Synced',
-  [PACKAGE_STATUS.UPDATE_AVAILABLE]: 'Update Available',
-  [PACKAGE_STATUS.OUTDATED]: 'Outdated',
-});

@@ -1,10 +1,9 @@
 import semver from 'semver';
-import { DEPENDENCY_SCOPES, DEPENDENCY_TYPES } from '../common/constants.mjs';
+import { DEPENDENCY_SCOPES, DEPENDENCY_TYPES, PACKAGE_STATUS_MAP } from '../common/constants.mjs';
 import { getPackageInfo } from '../common/npm.mjs';
 import { getPackageJsonPath } from '../common/paths.mjs';
 import { readJson } from '../common/utils.mjs';
 import { PACKAGE_SCOPE } from '../package/common/constants.mjs';
-import { PACKAGE_STATUS } from './constants.mjs';
 import { findPackages } from './package.mjs';
 import { validateVersion } from './version.mjs';
 /**
@@ -145,16 +144,16 @@ export async function getPackagesMetadata() {
  */
 function getPackageStatus({ published, localVersion, remoteVersion }) {
   if (!published) {
-    return PACKAGE_STATUS.UNPUBLISHED;
+    return PACKAGE_STATUS_MAP.UNPUBLISHED;
   }
 
   if (semver.eq(localVersion, remoteVersion)) {
-    return PACKAGE_STATUS.SYNCED;
+    return PACKAGE_STATUS_MAP.SYNCED;
   }
 
   if (semver.gt(localVersion, remoteVersion)) {
-    return PACKAGE_STATUS.UPDATE_AVAILABLE;
+    return PACKAGE_STATUS_MAP.UPDATE_AVAILABLE;
   }
 
-  return PACKAGE_STATUS.OUTDATED;
+  return PACKAGE_STATUS_MAP.OUTDATED;
 }

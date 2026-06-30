@@ -1,7 +1,6 @@
 /**
  * @import {
  *   REPUBLISH_ACTIONS,
- *   PACKAGE_STATUS,
  *   TABLE_ALIGNMENTS,
  *   VERSION_TYPES,
  * } from './constants.mjs'
@@ -11,6 +10,7 @@
  * @import {
  *   DEPENDENCY_SCOPES,
  *   DEPENDENCY_TYPES,
+ *   PACKAGE_STATUS_MAP,
  *   TABLE_ALIGNMENTS,
  * } from '../common/constants.mjs'
  */
@@ -81,7 +81,7 @@
  *   published: boolean;
  *   publishConfig: PublishConfig | null;
  *   dependencies: Dependency[];
- *   status: (typeof PACKAGE_STATUS)[keyof typeof PACKAGE_STATUS];
+ *   status: (typeof PACKAGE_STATUS_MAP)[keyof typeof PACKAGE_STATUS_MAP];
  * }} PackageMetadata
  */
 
