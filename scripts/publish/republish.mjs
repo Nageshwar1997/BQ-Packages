@@ -1,11 +1,11 @@
 import { ensureLoggedIn } from '../common/auth.mjs';
 import { republishToNpm } from '../common/npm.mjs';
+import { getPackageJsonPath } from '../common/paths.mjs';
 import { parseData, readFileByPath, writeJson } from '../common/utils.mjs';
 import { runBatchOperation } from './batch-operation.mjs';
 import { VERSION_TYPES } from './constants.mjs';
 import { sortPackagesByDependencies } from './dependency-sort.mjs';
 import { updateInternalDependencyVersions } from './dependency-version.mjs';
-import { getPackageJsonPath } from './paths.mjs';
 import {
   confirmRepublish,
   confirmRepublishMany,

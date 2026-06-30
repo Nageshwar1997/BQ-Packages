@@ -1,6 +1,7 @@
 import path from 'node:path';
 
 import { PACKAGE_SCOPE } from '../common/constants.mjs';
+import { ROOT_DIRECTORY } from '../common/paths.mjs';
 
 /**
  * @import { CreatePackageMetadata, BuildPackageMetadataOptions } from './types.mjs'
@@ -22,7 +23,7 @@ export function buildPackageMetadata(options) {
     template,
     packageName,
     scopedPackageName: `${PACKAGE_SCOPE}/${templateConfig.packagePrefix}-${packageName}`,
-    packageDirectory: path.join(process.cwd(), templateConfig.directory, packageName),
+    packageDirectory: path.join(ROOT_DIRECTORY, templateConfig.directory, packageName),
     description,
     keywords,
     packagePrefix: templateConfig.packagePrefix,

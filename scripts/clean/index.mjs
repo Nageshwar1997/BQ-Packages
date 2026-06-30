@@ -2,6 +2,7 @@ import { readdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { BUILD_ARTIFACTS, EXIT_CODES } from '../common/constants.mjs';
+import { ROOT_DIRECTORY } from '../common/paths.mjs';
 import { reportInfo, reportSuccess } from '../common/reporter.mjs';
 
 async function clean(directory) {
@@ -25,7 +26,7 @@ async function clean(directory) {
   );
 }
 
-await clean(process.cwd());
+await clean(ROOT_DIRECTORY);
 
 reportSuccess('✨ Builds cleaned.');
 

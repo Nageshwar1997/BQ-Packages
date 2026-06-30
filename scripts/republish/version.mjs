@@ -1,9 +1,9 @@
 import semver from 'semver';
 
 import { JsonError, ValidationError, VersionError } from '../common/errors.mjs';
+import { getPackageJsonPath } from '../common/paths.mjs';
 import { parseData, readFileByPath, writeJson } from '../common/utils.mjs';
 import { VERSION_TYPES } from './constants.mjs';
-import { getPackageJsonPath } from './paths.mjs';
 
 /**
  * @import { PackageJson, VersionType } from './types.mjs'

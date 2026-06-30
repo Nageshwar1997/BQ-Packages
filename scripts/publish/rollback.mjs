@@ -1,5 +1,5 @@
+import { getPackageJsonPath } from '../common/paths.mjs';
 import { parseData, readFileByPath, writeJson } from '../common/utils.mjs';
-import { getPackageJsonPath } from './paths.mjs';
 
 /**
  * @import { PackageMetadata, PackageJson } from './types.mjs'

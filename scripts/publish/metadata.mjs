@@ -4,7 +4,7 @@ import { readJson } from '../common/utils.mjs';
 import { PACKAGE_SCOPE } from '../package/common/constants.mjs';
 import { DEPENDENCY_SCOPES, DEPENDENCY_TYPES, PACKAGE_STATUS } from './constants.mjs';
 import { findPackages } from './package.mjs';
-import { getPackageJsonPath } from './paths.mjs';
+import { getPackageJsonPath } from '../common/paths.mjs';
 import { validateVersion } from './version.mjs';
 /**
  * @import {

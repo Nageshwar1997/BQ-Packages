@@ -1,6 +1,7 @@
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
-import { PACKAGES_DIRECTORY } from './paths.mjs';
+
+import { PACKAGES_DIRECTORY } from '../common/paths.mjs';
 
 /**
  * @import { WorkspacePackage } from './types.mjs'

@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { ROOT_DIRECTORY } from '../common/paths.mjs';
 import { parseData } from '../common/utils.mjs';
 
 /**
@@ -17,7 +18,7 @@ import { parseData } from '../common/utils.mjs';
  * @returns {Promise<PackageTemplateConfig>}
  */
 export async function loadTemplate(template) {
-  const templatePath = path.resolve(process.cwd(), 'templates', template, 'template.json');
+  const templatePath = path.resolve(ROOT_DIRECTORY, 'templates', template, 'template.json');
 
   const templateContent = await readFile(templatePath, 'utf8');
 
