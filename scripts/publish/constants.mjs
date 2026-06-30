@@ -1,7 +1,5 @@
 import { COMMON_ACTIONS } from '../common/constants.mjs';
 
-
-
 export const PUBLISH_ACTIONS = Object.freeze({
   PUBLISH_NEW_PACKAGE: 'publish-new-package',
   PUBLISH_NEW_PACKAGES: 'publish-new-packages',

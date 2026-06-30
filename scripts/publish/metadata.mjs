@@ -11,8 +11,11 @@ import { validateVersion } from './version.mjs';
  *   Dependency,
  *   PackageJson,
  *   PackageMetadata,
- *   WorkspacePackage,
  * } from './types.mjs'
+ */
+
+/**
+ * @import { WorkspacePackage } from '../common/types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */

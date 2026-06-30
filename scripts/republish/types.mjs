@@ -15,6 +15,10 @@
  * } from '../common/constants.mjs'
  */
 
+/**
+ * @import { WorkspacePackage } from '../common/types.mjs'
+ */
+
 /* -------------------------------------------------------------------------- */
 /*                                  COMMON                                    */
 /* -------------------------------------------------------------------------- */
@@ -39,18 +43,6 @@
  */
 
 /* -------------------------------------------------------------------------- */
-/*                              WORKSPACE PACKAGE                             */
-/* -------------------------------------------------------------------------- */
-
-/**
- * @typedef {{
- *   packageType: string;
- *   workspaceName: string;
- *   directory: string;
- * }} WorkspacePackage
- */
-
-/* -------------------------------------------------------------------------- */
 /*                               PACKAGE.JSON                                 */
 /* -------------------------------------------------------------------------- */
 
@@ -72,17 +64,14 @@
 
 /**
  * @typedef {{
- *   packageType: string;
- *   workspaceName: string;
  *   npmPackageName: string;
- *   directory: string;
  *   localVersion: string;
  *   remoteVersion: string | null;
  *   published: boolean;
  *   publishConfig: PublishConfig | null;
  *   dependencies: Dependency[];
  *   status: (typeof PACKAGE_STATUS_MAP)[keyof typeof PACKAGE_STATUS_MAP];
- * }} PackageMetadata
+ * } & WorkspacePackage} PackageMetadata
  */
 
 /* -------------------------------------------------------------------------- */

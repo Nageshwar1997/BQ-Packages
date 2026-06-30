@@ -7,8 +7,11 @@ import { validateVersion } from './version.mjs';
 /**
  * @import {
  *   PackageMetadata,
- *   WorkspacePackage,
  * } from './types.mjs'
+ */
+
+/**
+ * @import { WorkspacePackage } from '../common/types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
