@@ -1,6 +1,7 @@
 import { ensureLoggedIn } from '../common/auth.mjs';
 import { republishToNpm } from '../common/npm.mjs';
 import { getPackageJsonPath } from '../common/paths.mjs';
+import { reportSuccess, reportWarning } from '../common/reporter.mjs';
 import { parseData, readFileByPath, writeJson } from '../common/utils.mjs';
 import { runBatchOperation } from './batch-operation.mjs';
 import { VERSION_TYPES } from './constants.mjs';
@@ -17,7 +18,6 @@ import {
   getReleasePlanEntries,
   getReleasePlanPackages,
 } from './release-plan.mjs';
-import { reportSuccess, reportWarning } from './reporter.mjs';
 import { createSnapshot, restoreSnapshot } from './rollback.mjs';
 import { validateRepublish } from './validators.mjs';
 /**

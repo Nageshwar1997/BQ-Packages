@@ -118,3 +118,26 @@ export function reportError(message) {
 export function reportClear() {
   console.clear();
 }
+
+/* -------------------------------------------------------------------------- */
+/*                                  SUMMARY                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Prints a summary.
+ *
+ * @param {{
+ *   title: string;
+ *   items: readonly (readonly [string, string | number])[];
+ * }} summary
+ * @returns {void}
+ */
+export function reportSummary({ title, items }) {
+  reportSection(title);
+
+  const width = items.reduce((max, [label]) => Math.max(max, label.length), 0);
+
+  for (const [label, value] of items) {
+    console.log(`${heading(label.padEnd(width))} : ${value}`);
+  }
+}
