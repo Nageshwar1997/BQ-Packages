@@ -43,3 +43,13 @@ export const BATCH_SUMMARY_LABELS = Object.freeze({
   SUCCESSFUL: 'Successful',
   FAILED: 'Failed',
 });
+
+
+export const SUMMARY_LABELS = Object.freeze({
+  TOTAL: 'Total Packages',
+  PUBLISHED: 'Published',
+  UNPUBLISHED: 'Unpublished',
+  SYNCED: 'Synced',
+  UPDATE_AVAILABLE: 'Update Available',
+  OUTDATED: 'Outdated',
+});

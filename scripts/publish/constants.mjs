@@ -32,14 +32,6 @@ export const PACKAGE_STATUS_LABELS = Object.freeze({
   [PACKAGE_STATUS.OUTDATED]: 'Outdated',
 });
 
-export const SUMMARY_LABELS = Object.freeze({
-  TOTAL: 'Total Packages',
-  PUBLISHED: 'Published',
-  UNPUBLISHED: 'Unpublished',
-  SYNCED: 'Synced',
-  UPDATE_AVAILABLE: 'Update Available',
-  OUTDATED: 'Outdated',
-});
 
 
 
