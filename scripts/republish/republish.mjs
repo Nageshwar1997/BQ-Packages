@@ -1,4 +1,4 @@
-import { parseData } from '../common/utils.mjs';
+import { parseData, readFileByPath, writeJson } from '../common/utils.mjs';
 import { ensureLoggedIn } from './auth.mjs';
 import { runBatchOperation } from './batch-operation.mjs';
 import { VERSION_TYPES } from './constants.mjs';
@@ -19,7 +19,6 @@ import {
 } from './release-plan.mjs';
 import { reportSuccess, reportWarning } from './reporter.mjs';
 import { createSnapshot, restoreSnapshot } from './rollback.mjs';
-import { readFileByPath, writeJson } from './utils.mjs';
 import { validateRepublish } from './validators.mjs';
 
 /**

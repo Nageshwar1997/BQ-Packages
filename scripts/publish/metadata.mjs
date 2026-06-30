@@ -4,8 +4,8 @@ import { DEPENDENCY_SCOPES, DEPENDENCY_TYPES, PACKAGE_STATUS } from './constants
 import { getPackageInfo } from './npm.mjs';
 import { findPackages } from './package.mjs';
 import { getPackageJsonPath } from './paths.mjs';
-import { readJson } from './utils.mjs';
 import { validateVersion } from './version.mjs';
+import { readJson } from '../common/utils.mjs';
 
 /**
  * @import {
