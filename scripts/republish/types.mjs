@@ -1,15 +1,16 @@
 /**
  * @import {
  *   REPUBLISH_ACTIONS,
- *   DEPENDENCY_SCOPES,
  *   DEPENDENCY_TYPES,
  *   PACKAGE_STATUS,
  *   TABLE_ALIGNMENTS,
  *   VERSION_TYPES,
  * } from './constants.mjs'
  */
+
 /**
  * @import {
+ *   DEPENDENCY_SCOPES,
  *   TABLE_ALIGNMENTS,
  * } from '../common/constants.mjs'
  */

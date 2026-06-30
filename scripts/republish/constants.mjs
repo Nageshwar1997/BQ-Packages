@@ -53,8 +53,3 @@ export const DEPENDENCY_TYPES = Object.freeze({
   PEER_DEPENDENCY: 'peerDependency',
   OPTIONAL_DEPENDENCY: 'optionalDependency',
 });
-
-export const DEPENDENCY_SCOPES = Object.freeze({
-  INTERNAL: 'internal',
-  EXTERNAL: 'external',
-});

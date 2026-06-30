@@ -1,4 +1,4 @@
-import { DEPENDENCY_SCOPES } from './constants.mjs';
+import { DEPENDENCY_SCOPES } from '../common/constants.mjs';
 
 /**
  * @import { PackageMetadata } from './types.mjs'

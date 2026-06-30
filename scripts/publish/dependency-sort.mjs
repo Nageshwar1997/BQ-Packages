@@ -1,8 +1,8 @@
-import { DEPENDENCY_SCOPES } from './constants.mjs';
-
 /**
  * @import { PackageMetadata } from './types.mjs'
  */
+
+import { DEPENDENCY_SCOPES } from '../common/constants.mjs';
 
 /**
  * @typedef {'visiting' | 'visited'} VisitState
