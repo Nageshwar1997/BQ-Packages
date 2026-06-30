@@ -1,8 +1,8 @@
 import inquirer from 'inquirer';
-import semver from 'semver';
-import { description, error, heading, info, success, warning } from '../common/colors.mjs';
+import { description, heading, info, success, warning } from '../common/colors.mjs';
+import { buildConfirmationMessage, confirm, getPackageChoices } from '../common/prompts.mjs';
 import { getCommonChoices } from '../common/utils.mjs';
-import { PUBLISH_CHOICES, VERSION_TYPES } from './constants.mjs';
+import { PUBLISH_CHOICES } from './constants.mjs';
 
 /**
  * @import { PublishAction, VersionType } from './types.mjs'
@@ -16,23 +16,7 @@ import { PUBLISH_CHOICES, VERSION_TYPES } from './constants.mjs';
 /*                              PRIVATE HELPERS                               */
 /* -------------------------------------------------------------------------- */
 
-/**
- * Returns package choices sorted by workspace name.
- *
- * @param {PublishPackageMetadata[]} packages
- * @returns {{
- *   name: string;
- *   value: PublishPackageMetadata;
- * }[]}
- */
-function getPackageChoices(packages) {
-  return [...packages]
-    .sort((a, b) => a.workspaceName.localeCompare(b.workspaceName))
-    .map((pkg) => ({
-      name: `${pkg.workspaceName} (${pkg.npmPackageName}) v${pkg.localVersion}`,
-      value: pkg,
-    }));
-}
+
 
 /* -------------------------------------------------------------------------- */
 /*                                  ACTION                                    */
@@ -103,120 +87,6 @@ export async function selectPackages(packages) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                              PRIVATE HELPERS                               */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Prompts the user for confirmation.
- *
- * @param {string} message
- * @returns {Promise<boolean>}
- */
-async function confirm(message) {
-  const { confirmed } = await inquirer.prompt([
-    {
-      type: 'confirm',
-      name: 'confirmed',
-      message,
-      default: true,
-    },
-  ]);
-
-  return confirmed;
-}
-
-/**
- * Builds a confirmation message.
- *
- * @param {string} title
- * @param {string[]} lines
- * @returns {string}
- */
-function buildConfirmationMessage(title, lines) {
-  return [title, '', ...lines].join('\n');
-}
-
-/* -------------------------------------------------------------------------- */
-/*                                  VERSION                                   */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Prompts the user to select a version strategy.
- *
- * @param {string} currentVersion
- * @param {string} packageName
- * @returns {Promise<VersionType>}
- */
-export async function selectVersion(currentVersion, packageName) {
-  const { versionType } = await inquirer.prompt([
-    {
-      type: 'select',
-      name: 'versionType',
-      message: [
-        heading('Select the next version strategy'),
-        '',
-        `${description('Package :')} ${success(packageName)}`,
-        `${description('Version :')} ${warning(currentVersion)}`,
-      ].join('\n'),
-      choices: [
-        {
-          name: 'Patch',
-          value: VERSION_TYPES.PATCH,
-        },
-        {
-          name: 'Minor',
-          value: VERSION_TYPES.MINOR,
-        },
-        {
-          name: 'Major',
-          value: VERSION_TYPES.MAJOR,
-        },
-        {
-          name: 'Custom',
-          value: VERSION_TYPES.CUSTOM,
-        },
-      ],
-    },
-  ]);
-
-  return versionType;
-}
-
-/**
- * Prompts the user for a custom version.
- *
- * @param {string} currentVersion
- * @returns {Promise<string>}
- */
-export async function enterCustomVersion(currentVersion) {
-  const { version } = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'version',
-      message: [
-        heading('Enter custom version'),
-        '',
-        `${description('Current :')} ${warning(currentVersion)}`,
-      ].join('\n'),
-      default: currentVersion,
-      validate(value) {
-        if (!semver.valid(value)) {
-          return error('Enter a valid semantic version.');
-        }
-
-        if (!semver.gt(value, currentVersion)) {
-          return error('Version must be greater than the current version.');
-        }
-
-        return true;
-      },
-    },
-  ]);
-
-  return version;
-}
-
-/* -------------------------------------------------------------------------- */
 /*                                  CONFIRM                                   */
 /* -------------------------------------------------------------------------- */
 
@@ -250,46 +120,6 @@ export function confirmPublishMany(packages) {
       packages.map(
         (pkg) =>
           `${info(pkg.workspaceName.padEnd(20))} ${warning(pkg.localVersion.padEnd(10))} ${description(pkg.npmPackageName)}`,
-      ),
-    ),
-  );
-}
-
-/**
- * Prompts the user to confirm republishing.
- *
- * @param {PublishPackageMetadata} metadata
- * @param {string} version
- * @returns {Promise<boolean>}
- */
-export function confirmRepublish(metadata, version) {
-  return confirm(
-    buildConfirmationMessage(heading(`Republish "${success(metadata.npmPackageName)}"?`), [
-      `${description('Workspace       :')} ${info(metadata.workspaceName)}`,
-      `${description('Current Version :')} ${warning(metadata.localVersion)}`,
-      `${description('Next Version    :')} ${success(version)}`,
-    ]),
-  );
-}
-
-/**
- * Prompts the user to confirm republishing multiple packages.
- *
- * @param {{
- *   metadata: PublishPackageMetadata;
- *   version: string;
- * }[]} packages
- * @returns {Promise<boolean>}
- */
-export function confirmRepublishMany(packages) {
-  return confirm(
-    buildConfirmationMessage(
-      heading(
-        `Republish ${success(String(packages.length))} package${packages.length === 1 ? '' : 's'}?`,
-      ),
-      packages.map(
-        ({ metadata, version }) =>
-          `${info(metadata.workspaceName.padEnd(20))} ${warning(metadata.localVersion)} ${description('→')} ${success(version)}`,
       ),
     ),
   );

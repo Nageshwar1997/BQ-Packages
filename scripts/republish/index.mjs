@@ -3,6 +3,7 @@ import { EXIT_CODES } from '../common/constants.mjs';
 import { CliError } from '../common/errors.mjs';
 import { login, logout, whoami } from '../common/npm.mjs';
 import { reportError } from '../common/reporter.mjs';
+import { exit } from '../common/utils.mjs';
 import { REPUBLISH_ACTIONS } from './constants.mjs';
 import { getPackage, getPackages, getSelectedPackages } from './package-selection.mjs';
 import { showPackageStatus } from './package-status.mjs';
@@ -20,16 +21,6 @@ import { republishAllPackages, republishPackage, republishPackages } from './rep
  */
 function isPromptExit(error) {
   return error instanceof Error && error.name === 'ExitPromptError';
-}
-
-/**
- * Exits the process.
- *
- * @param {number} [code=EXIT_CODES.SUCCESS]
- * @returns {never}
- */
-function exit(code = EXIT_CODES.SUCCESS) {
-  process.exit(code);
 }
 
 /* -------------------------------------------------------------------------- */

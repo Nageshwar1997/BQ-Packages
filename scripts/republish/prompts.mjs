@@ -1,6 +1,7 @@
 import inquirer from 'inquirer';
 import semver from 'semver';
 import { description, error, heading, info, success, warning } from '../common/colors.mjs';
+import { buildConfirmationMessage, confirm, getPackageChoices } from '../common/prompts.mjs';
 import { getCommonChoices } from '../common/utils.mjs';
 import { REPUBLISH_CHOICES, VERSION_TYPES } from './constants.mjs';
 
@@ -8,28 +9,6 @@ import { REPUBLISH_CHOICES, VERSION_TYPES } from './constants.mjs';
  * @import { RepublishAction, VersionType } from './types.mjs'
  * @import { PublishPackageMetadata } from '../common/types.mjs'
  */
-
-/* -------------------------------------------------------------------------- */
-/*                              PRIVATE HELPERS                               */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Returns package choices sorted by workspace name.
- *
- * @param {PublishPackageMetadata[]} packages
- * @returns {{
- *   name: string;
- *   value: PublishPackageMetadata;
- * }[]}
- */
-function getPackageChoices(packages) {
-  return [...packages]
-    .sort((a, b) => a.workspaceName.localeCompare(b.workspaceName))
-    .map((pkg) => ({
-      name: `${pkg.workspaceName} (${pkg.npmPackageName}) v${pkg.localVersion}`,
-      value: pkg,
-    }));
-}
 
 /* -------------------------------------------------------------------------- */
 /*                                  ACTION                                    */
@@ -97,40 +76,6 @@ export async function selectPackages(packages) {
   ]);
 
   return selectedPackages;
-}
-
-/* -------------------------------------------------------------------------- */
-/*                              PRIVATE HELPERS                               */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Prompts the user for confirmation.
- *
- * @param {string} message
- * @returns {Promise<boolean>}
- */
-async function confirm(message) {
-  const { confirmed } = await inquirer.prompt([
-    {
-      type: 'confirm',
-      name: 'confirmed',
-      message,
-      default: true,
-    },
-  ]);
-
-  return confirmed;
-}
-
-/**
- * Builds a confirmation message.
- *
- * @param {string} title
- * @param {string[]} lines
- * @returns {string}
- */
-function buildConfirmationMessage(title, lines) {
-  return [title, '', ...lines].join('\n');
 }
 
 /* -------------------------------------------------------------------------- */
@@ -216,41 +161,6 @@ export async function enterCustomVersion(currentVersion) {
 /* -------------------------------------------------------------------------- */
 /*                                  CONFIRM                                   */
 /* -------------------------------------------------------------------------- */
-
-/**
- * Prompts the user to confirm publishing.
- *
- * @param {PublishPackageMetadata} metadata
- * @returns {Promise<boolean>}
- */
-export function confirmPublish(metadata) {
-  return confirm(
-    buildConfirmationMessage(heading(`Publish "${success(metadata.npmPackageName)}"?`), [
-      `${description('Workspace :')} ${info(metadata.workspaceName)}`,
-      `${description('Version   :')} ${warning(metadata.localVersion)}`,
-    ]),
-  );
-}
-
-/**
- * Prompts the user to confirm publishing multiple packages.
- *
- * @param {PublishPackageMetadata[]} packages
- * @returns {Promise<boolean>}
- */
-export function confirmPublishMany(packages) {
-  return confirm(
-    buildConfirmationMessage(
-      heading(
-        `Publish ${success(String(packages.length))} new package${packages.length === 1 ? '' : 's'}?`,
-      ),
-      packages.map(
-        (pkg) =>
-          `${info(pkg.workspaceName.padEnd(20))} ${warning(pkg.localVersion.padEnd(10))} ${description(pkg.npmPackageName)}`,
-      ),
-    ),
-  );
-}
 
 /**
  * Prompts the user to confirm republishing.

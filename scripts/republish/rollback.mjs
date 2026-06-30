@@ -4,20 +4,10 @@ import { parseData } from '../common/utils.mjs';
 
 /**
  * @import { PackageJson, PublishPackageMetadata } from '../common/types.mjs'
+ * @import { PackageSnapshot, PackageSnapshotMap } from './types.mjs'
  */
 
-/**
- * @typedef {{
- *   metadata: PublishPackageMetadata;
- *   packageJson: PackageJson;
- *   indent: string | number;
- *   trailingNewline: boolean;
- * }} PackageSnapshot
- */
 
-/**
- * @typedef {Map<string, PackageSnapshot>} PackageSnapshotMap
- */
 
 /* -------------------------------------------------------------------------- */
 /*                              PRIVATE HELPERS                               */

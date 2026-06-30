@@ -4,6 +4,7 @@ import { constants } from 'node:fs';
 import { access, readFile, writeFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
 import { JsonError } from '../common/errors.mjs';
+import { EXIT_CODES } from './constants.mjs';
 
 /**
  * @import { ExecOptions, SpawnOptions } from 'node:child_process'
@@ -222,4 +223,14 @@ export function getCommonChoices(username) {
     new inquirer.Separator(),
     { name: 'Exit', value: PUBLISH_ACTIONS.EXIT },
   ];
+}
+
+/**
+ * Exits the process.
+ *
+ * @param {number} [code=EXIT_CODES.SUCCESS]
+ * @returns {never}
+ */
+export function exit(code = EXIT_CODES.SUCCESS) {
+  process.exit(code);
 }
