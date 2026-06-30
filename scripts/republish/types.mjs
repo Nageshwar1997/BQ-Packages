@@ -15,20 +15,6 @@
  * } from '../common/constants.mjs'
  */
 
-/**
- * @import { WorkspacePackage } from '../common/types.mjs'
- */
-
-/* -------------------------------------------------------------------------- */
-/*                                  COMMON                                    */
-/* -------------------------------------------------------------------------- */
-
-/**
- * @typedef {{
- *   access?: 'public';
- * }} PublishConfig
- */
-
 /* -------------------------------------------------------------------------- */
 /*                               DEPENDENCIES                                 */
 /* -------------------------------------------------------------------------- */
@@ -41,24 +27,6 @@
  *   scope: (typeof DEPENDENCY_SCOPES)[keyof typeof DEPENDENCY_SCOPES];
  * }} Dependency
  */
-
-/* -------------------------------------------------------------------------- */
-/*                               PACKAGE.JSON                                 */
-/* -------------------------------------------------------------------------- */
-
-/**
- * @typedef {{
- *   name: string;
- *   version: string;
- *   dependencies?: Record<string, string>;
- *   devDependencies?: Record<string, string>;
- *   peerDependencies?: Record<string, string>;
- *   optionalDependencies?: Record<string, string>;
- *   publishConfig?: PublishConfig;
- * }} PackageJson
- */
-
-
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */

@@ -2,8 +2,7 @@ import { getPackageJsonPath } from '../common/paths.mjs';
 import { parseData, readFileByPath, writeJson } from '../common/utils.mjs';
 
 /**
- * @import { PackageJson } from './types.mjs'
- * @import { PublishPackageMetadata } from '../common/types.mjs'
+ * @import { PackageJson, PublishPackageMetadata } from '../common/types.mjs'
  */
 
 /**

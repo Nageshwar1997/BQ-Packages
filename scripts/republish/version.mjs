@@ -1,8 +1,9 @@
 import semver from 'semver';
 
-import { JsonError, ValidationError, VersionError } from '../common/errors.mjs';
+import { JsonError, VersionError } from '../common/errors.mjs';
 import { getPackageJsonPath } from '../common/paths.mjs';
 import { parseData, readFileByPath, writeJson } from '../common/utils.mjs';
+import { validateVersion } from '../common/version.mjs';
 import { VERSION_TYPES } from './constants.mjs';
 
 /**
@@ -77,20 +78,6 @@ async function readPackageJsonWithContent(packageJsonPath) {
 /* -------------------------------------------------------------------------- */
 /*                              VERSION HELPERS                               */
 /* -------------------------------------------------------------------------- */
-
-/**
- * Validates a semantic version value returned from a package source.
- *
- * @param {unknown} version
- * @param {string} label
- * @param {string} packageName
- * @returns {void}
- */
-export function validateVersion(version, label, packageName) {
-  if (typeof version !== 'string' || !semver.valid(version)) {
-    throw new ValidationError(`Invalid ${label} "${version}" for "${packageName}".`);
-  }
-}
 
 /**
  * Calculates the next package version.

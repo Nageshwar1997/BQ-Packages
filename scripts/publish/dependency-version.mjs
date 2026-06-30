@@ -3,7 +3,7 @@ import semver from 'semver';
 import { PACKAGE_SCOPE } from '../common/constants.mjs';
 
 /**
- * @import { PackageJson } from './types.mjs'
+ * @import { PackageJson } from '../common/types.mjs'
  * @import { ReleasePlan } from './release-plan.mjs'
  */
 
