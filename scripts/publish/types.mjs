@@ -1,6 +1,6 @@
 /**
  * @import {
- *   ACTIONS,
+ *   PUBLISH_ACTIONS,
  *   DEPENDENCY_SCOPES,
  *   DEPENDENCY_TYPES,
  *   PACKAGE_STATUS,
@@ -88,7 +88,7 @@
  */
 
 /**
- * @typedef {(typeof ACTIONS)[keyof typeof ACTIONS]} Action
+ * @typedef {(typeof PUBLISH_ACTIONS)[keyof typeof PUBLISH_ACTIONS]} PublishAction
  */
 
 /**
