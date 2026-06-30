@@ -1,5 +1,5 @@
 import semver from 'semver';
-import { PACKAGE_SCOPE } from '../create-package/constants.mjs';
+import { PACKAGE_SCOPE } from '../package/common/constants.mjs';
 import { DEPENDENCY_SCOPES, DEPENDENCY_TYPES, PACKAGE_STATUS } from './constants.mjs';
 import { getPackageInfo } from './npm.mjs';
 import { findPackages } from './package.mjs';
