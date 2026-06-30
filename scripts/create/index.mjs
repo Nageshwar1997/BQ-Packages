@@ -1,6 +1,8 @@
-import { bold, cyan, dim, gray, green, magenta, white } from '../common/colors.mjs';
+import { bold, cyan, gray, green, magenta, white } from '../common/colors.mjs';
+import { EXIT_CODES } from '../common/constants.mjs';
 import {
   report,
+  reportClear,
   reportError,
   reportInfo,
   reportSection,
@@ -27,7 +29,7 @@ import { loadTemplate } from './template.mjs';
  * Starts the package generator.
  */
 async function main() {
-  console.clear();
+  reportClear();
 
   reportInfo('✨ Beautinique Package Generator\n');
 
@@ -41,7 +43,7 @@ async function main() {
   report(`${bold(cyan('Template'))}     : ${magenta(template)}`);
   report(`${bold(cyan('Package Name'))} : ${green(packageName)}`);
   report(`${bold(cyan('Description'))}  : ${white(description)}`);
-  report(`${bold(cyan('Keywords'))}     : ${gray(keywords.join(', '))}`);;
+  report(`${bold(cyan('Keywords'))}     : ${gray(keywords.join(', '))}`);
 
   const confirmed = await promptConfirmation();
 
@@ -63,9 +65,9 @@ async function main() {
   const packageExists = await checkPackageExists(metadata);
 
   if (packageExists) {
-    console.error(`\n❌ Package "${metadata.scopedPackageName}" already exists.`);
+    reportError(`Package "${metadata.scopedPackageName}" already exists.`);
 
-    process.exit(1);
+    process.exit(EXIT_CODES.FAILURE);
   }
 
   await createPackageDirectory(metadata);

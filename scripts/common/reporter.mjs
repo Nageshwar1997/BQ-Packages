@@ -10,25 +10,12 @@ import { dim, error, heading, info, success, warning } from './colors.mjs';
  * @returns {void}
  */
 function newline() {
-  console.log('');
+  report('');
 }
 
 /* -------------------------------------------------------------------------- */
 /*                                  LAYOUT                                    */
 /* -------------------------------------------------------------------------- */
-
-/**
- * Prints a section heading.
- *
- * @param {string} title
- * @returns {void}
- */
-export function reportSection(title) {
-  newline();
-
-  console.log(heading(title?.trim() ?? ''));
-  console.log(dim('─'.repeat(title.length)));
-}
 
 /**
  * Prints content.
@@ -41,12 +28,25 @@ export function report(content) {
 }
 
 /**
+ * Prints a section heading.
+ *
+ * @param {string} title
+ * @returns {void}
+ */
+export function reportSection(title) {
+  newline();
+
+  report(heading(title?.trim() ?? ''));
+  report(dim('─'.repeat(title.length)));
+}
+
+/**
  * Prints a divider.
  *
  * @returns {void}
  */
 export function reportDivider() {
-  console.log(dim('─'.repeat(REPORT_DIVIDER_WIDTH)));
+  report(dim('─'.repeat(REPORT_DIVIDER_WIDTH)));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -60,7 +60,7 @@ export function reportDivider() {
  * @returns {void}
  */
 export function reportInfo(message) {
-  console.log(info(message));
+  report(info(message));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -74,7 +74,7 @@ export function reportInfo(message) {
  * @returns {void}
  */
 export function reportSuccess(message) {
-  console.log(success(`✔ ${message}`));
+  report(success(`✔ ${message}`));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -103,4 +103,17 @@ export function reportWarning(message) {
  */
 export function reportError(message) {
   console.error(error(`✖ ${message}`));
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                   CLEAR                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Prints an error message.
+ *
+ * @returns {void}
+ */
+export function reportClear() {
+  console.clear();
 }
