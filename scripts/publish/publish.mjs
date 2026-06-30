@@ -1,8 +1,8 @@
 import { ensureLoggedIn } from '../common/auth.mjs';
+import { sortPackagesByDependencies } from '../common/dependency-sort.mjs';
 import { publishToNpm } from '../common/npm.mjs';
 import { reportSuccess } from '../common/reporter.mjs';
 import { runBatchOperation } from './batch-operation.mjs';
-import { sortPackagesByDependencies } from './dependency-sort.mjs';
 import { confirmPublish, confirmPublishMany } from './prompts.mjs';
 import { validatePublish } from './validators.mjs';
 /**

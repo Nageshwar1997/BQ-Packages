@@ -1,7 +1,7 @@
-import { DEPENDENCY_SCOPES } from '../common/constants.mjs';
+import { DEPENDENCY_SCOPES } from './constants.mjs';
 
 /**
- * @import { PublishPackageMetadata } from '../common/types.mjs'
+ * @import { PublishPackageMetadata } from './types.mjs'
  */
 
 /**
