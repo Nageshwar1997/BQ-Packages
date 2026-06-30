@@ -1,3 +1,5 @@
+import inquirer from 'inquirer';
+import { heading } from './colors.mjs';
 /**
  * @import { PublishPackageMetadata } from './types.mjs'
  */
@@ -26,7 +28,7 @@ export function buildConfirmationMessage(title, lines) {
  *   value: PublishPackageMetadata;
  * }[]}
  */
-export function getPackageChoices(packages) {
+function getPackageChoices(packages) {
   return [...packages]
     .sort((a, b) => a.workspaceName.localeCompare(b.workspaceName))
     .map((pkg) => ({
@@ -52,4 +54,49 @@ export async function confirm(message) {
   ]);
 
   return confirmed;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                  PACKAGE                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Prompts the user to select a package.
+ *
+ * @param {PublishPackageMetadata[]} packages
+ * @returns {Promise<PublishPackageMetadata>}
+ */
+export async function selectPackage(packages) {
+  const { pkg } = await inquirer.prompt([
+    {
+      type: 'select',
+      name: 'pkg',
+      message: heading('Select a package:'),
+      choices: getPackageChoices(packages),
+    },
+  ]);
+
+  return pkg;
+}
+
+/**
+ * Prompts the user to select multiple packages.
+ *
+ * @param {PublishPackageMetadata[]} packages
+ * @returns {Promise<PublishPackageMetadata[]>}
+ */
+export async function selectPackages(packages) {
+  const { packages: selectedPackages } = await inquirer.prompt([
+    {
+      type: 'checkbox',
+      name: 'packages',
+      message: heading('Select packages:'),
+      choices: getPackageChoices(packages),
+      validate(value) {
+        return value.length > 0 || 'Select at least one package.';
+      },
+    },
+  ]);
+
+  return selectedPackages;
 }

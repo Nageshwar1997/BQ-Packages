@@ -4,7 +4,7 @@ import { validatePackage } from '../common/validators.mjs';
 import { selectPackage, selectPackages } from './prompts.mjs';
 
 /**
- * @import { PublishPackageMetadata } from '../common/types.mjs'
+ * @import { PublishPackageMetadata } from './types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */

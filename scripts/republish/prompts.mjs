@@ -1,7 +1,7 @@
 import inquirer from 'inquirer';
 import semver from 'semver';
 import { description, error, heading, info, success, warning } from '../common/colors.mjs';
-import { buildConfirmationMessage, confirm, getPackageChoices } from '../common/prompts.mjs';
+import { buildConfirmationMessage, confirm } from '../common/prompts.mjs';
 import { getCommonChoices } from '../common/utils.mjs';
 import { REPUBLISH_CHOICES, VERSION_TYPES } from './constants.mjs';
 
@@ -25,57 +25,12 @@ export async function selectRepublishAction(username) {
     {
       type: 'select',
       name: 'action',
-      message: heading('What would you like to do?'),
+      message: heading('What would you like to republish?'),
       choices: [...REPUBLISH_CHOICES, ...getCommonChoices(username)],
     },
   ]);
 
   return action;
-}
-
-/* -------------------------------------------------------------------------- */
-/*                                  PACKAGE                                   */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Prompts the user to select a package.
- *
- * @param {PublishPackageMetadata[]} packages
- * @returns {Promise<PublishPackageMetadata>}
- */
-export async function selectPackage(packages) {
-  const { pkg } = await inquirer.prompt([
-    {
-      type: 'select',
-      name: 'pkg',
-      message: heading('Select a package:'),
-      choices: getPackageChoices(packages),
-    },
-  ]);
-
-  return pkg;
-}
-
-/**
- * Prompts the user to select multiple packages.
- *
- * @param {PublishPackageMetadata[]} packages
- * @returns {Promise<PublishPackageMetadata[]>}
- */
-export async function selectPackages(packages) {
-  const { packages: selectedPackages } = await inquirer.prompt([
-    {
-      type: 'checkbox',
-      name: 'packages',
-      message: heading('Select packages:'),
-      choices: getPackageChoices(packages),
-      validate(value) {
-        return value.length > 0 || 'Select at least one package.';
-      },
-    },
-  ]);
-
-  return selectedPackages;
 }
 
 /* -------------------------------------------------------------------------- */
