@@ -25,7 +25,8 @@
     "format:check": "prettier . --check",
     "clean": "node ./scripts/clean-builds/index.mjs",
     "create": "node ./scripts/create/index.mjs",
-    "publish": "node ./scripts/package-publisher/index.mjs"
+    "publish": "node ./scripts/publish/index.mjs",
+    "republish": "node ./scripts/republish/index.mjs"
   },
   "engines": {
     "node": ">=24"
