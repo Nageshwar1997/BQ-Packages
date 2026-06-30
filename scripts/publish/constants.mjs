@@ -1,8 +1,6 @@
 import { COMMON_ACTIONS } from '../common/constants.mjs';
 
-export const APP_NAME = 'Beautinique Package Publisher';
 
-export const REPORT_DIVIDER_WIDTH = 80;
 
 export const PUBLISH_ACTIONS = Object.freeze({
   PUBLISH_NEW_PACKAGE: 'publish-new-package',

@@ -1,5 +1,5 @@
 import { dim, error, heading, info, success, warning } from '../common/colors.mjs';
-import { REPORT_DIVIDER_WIDTH } from './constants.mjs';
+import { REPORT_DIVIDER_WIDTH } from '../common/constants.mjs';
 import { printTable } from './table.mjs';
 
 /* -------------------------------------------------------------------------- */

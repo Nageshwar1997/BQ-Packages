@@ -1,4 +1,5 @@
 import { dim, error, heading, info, success, warning } from './colors.mjs';
+import { REPORT_DIVIDER_WIDTH } from './constants.mjs';
 
 /* -------------------------------------------------------------------------- */
 /*                              PRIVATE HELPERS                               */

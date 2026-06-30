@@ -66,3 +66,5 @@ export const PACKAGE_STATUS_LABELS = Object.freeze({
   [PACKAGE_STATUS_MAP.UPDATE_AVAILABLE]: 'Update Available',
   [PACKAGE_STATUS_MAP.OUTDATED]: 'Outdated',
 });
+
+export const REPORT_DIVIDER_WIDTH = 80;
