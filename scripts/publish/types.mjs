@@ -1,7 +1,6 @@
 /**
  * @import {
  *   PUBLISH_ACTIONS,
- *   DEPENDENCY_TYPES,
  *   PACKAGE_STATUS,
  *   VERSION_TYPES,
  * } from './constants.mjs'
@@ -10,6 +9,7 @@
 /**
  * @import {
  *   DEPENDENCY_SCOPES,
+ *   DEPENDENCY_TYPES,
  *   TABLE_ALIGNMENTS,
  * } from '../common/constants.mjs'
  */

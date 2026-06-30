@@ -30,3 +30,11 @@ export const DEPENDENCY_SCOPES = Object.freeze({
   INTERNAL: 'internal',
   EXTERNAL: 'external',
 });
+
+
+export const DEPENDENCY_TYPES = Object.freeze({
+  DEPENDENCY: 'dependency',
+  DEV_DEPENDENCY: 'devDependency',
+  PEER_DEPENDENCY: 'peerDependency',
+  OPTIONAL_DEPENDENCY: 'optionalDependency',
+});

@@ -46,10 +46,3 @@ export const BATCH_SUMMARY_LABELS = Object.freeze({
   SUCCESSFUL: 'Successful',
   FAILED: 'Failed',
 });
-
-export const DEPENDENCY_TYPES = Object.freeze({
-  DEPENDENCY: 'dependency',
-  DEV_DEPENDENCY: 'devDependency',
-  PEER_DEPENDENCY: 'peerDependency',
-  OPTIONAL_DEPENDENCY: 'optionalDependency',
-});
