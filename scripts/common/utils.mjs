@@ -5,6 +5,10 @@ import { promisify } from 'node:util';
 
 import { JsonError } from '../common/errors.mjs';
 
+/**
+ * @import { ExecOptions, SpawnOptions } from 'node:child_process'
+ */
+
 const execAsync = promisify(exec);
 
 /* -------------------------------------------------------------------------- */
@@ -134,7 +138,7 @@ export async function pathExists(filePath) {
  *
  * @param {string} command
  * @param {string[]} [args=[]]
- * @param {import('node:child_process').ExecOptions} [options={}]
+ * @param {ExecOptions} [options={}]
  * @returns {Promise<{
  *   stdout: string;
  *   stderr: string;
@@ -174,7 +178,7 @@ export async function runCommand(command, args = [], options = {}) {
  *
  * @param {string} command
  * @param {string[]} [args=[]]
- * @param {import('node:child_process').SpawnOptions} [options={}]
+ * @param {SpawnOptions} [options={}]
  * @returns {Promise<void>}
  */
 export function runInteractiveCommand(command, args = [], options = {}) {
