@@ -1,5 +1,5 @@
-import { AuthenticationError } from '../common/errors.mjs';
-import { whoami } from '../common/npm.mjs';
+import { AuthenticationError } from './errors.mjs';
+import { whoami } from './npm.mjs';
 
 /* -------------------------------------------------------------------------- */
 /*                              AUTHENTICATION                                */

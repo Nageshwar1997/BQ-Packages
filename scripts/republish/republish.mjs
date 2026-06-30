@@ -1,6 +1,6 @@
+import { ensureLoggedIn } from '../common/auth.mjs';
 import { republishToNpm } from '../common/npm.mjs';
 import { parseData, readFileByPath, writeJson } from '../common/utils.mjs';
-import { ensureLoggedIn } from './auth.mjs';
 import { runBatchOperation } from './batch-operation.mjs';
 import { VERSION_TYPES } from './constants.mjs';
 import { sortPackagesByDependencies } from './dependency-sort.mjs';
@@ -20,7 +20,6 @@ import {
 import { reportSuccess, reportWarning } from './reporter.mjs';
 import { createSnapshot, restoreSnapshot } from './rollback.mjs';
 import { validateRepublish } from './validators.mjs';
-
 /**
  * @import { PackageMetadata } from './types.mjs'
  * @import { ReleasePlan, ReleasePlanEntry } from './release-plan.mjs'

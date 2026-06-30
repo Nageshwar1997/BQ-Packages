@@ -1,14 +1,13 @@
+import { ensureLoggedIn, ensureLoggedOut } from '../common/auth.mjs';
 import { EXIT_CODES } from '../common/constants.mjs';
 import { CliError } from '../common/errors.mjs';
 import { login, logout, whoami } from '../common/npm.mjs';
-import { ensureLoggedIn, ensureLoggedOut } from './auth.mjs';
 import { REPUBLISH_ACTIONS } from './constants.mjs';
 import { getPackage, getPackages, getSelectedPackages } from './package-selection.mjs';
 import { showPackageStatus } from './package-status.mjs';
 import { selectAction } from './prompts.mjs';
 import { reportError } from './reporter.mjs';
 import { republishAllPackages, republishPackage, republishPackages } from './republish.mjs';
-
 /* -------------------------------------------------------------------------- */
 /*                              PRIVATE HELPERS                               */
 /* -------------------------------------------------------------------------- */

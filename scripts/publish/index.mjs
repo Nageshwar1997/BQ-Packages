@@ -1,7 +1,7 @@
 import { EXIT_CODES } from '../common/constants.mjs';
 import { CliError } from '../common/errors.mjs';
 import { login, logout, whoami } from '../common/npm.mjs';
-import { ensureLoggedIn, ensureLoggedOut } from './auth.mjs';
+import { ensureLoggedIn, ensureLoggedOut } from '../common/auth.mjs';
 import { PUBLISH_ACTIONS } from './constants.mjs';
 import { getPackage, getPackages, getSelectedPackages } from './package-selection.mjs';
 import { showPackageStatus } from './package-status.mjs';
