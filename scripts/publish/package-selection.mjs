@@ -1,7 +1,7 @@
 import { ValidationError } from '../common/errors.mjs';
 import { getPackagesMetadata } from '../common/metadata.mjs';
+import { validatePackage } from '../common/validators.mjs';
 import { selectPackage, selectPackages } from './prompts.mjs';
-import { validatePackage } from './validators.mjs';
 
 /**
  * @import { PublishPackageMetadata } from '../common/types.mjs'
