@@ -31,10 +31,15 @@ export const DEPENDENCY_SCOPES = Object.freeze({
   EXTERNAL: 'external',
 });
 
-
 export const DEPENDENCY_TYPES = Object.freeze({
   DEPENDENCY: 'dependency',
   DEV_DEPENDENCY: 'devDependency',
   PEER_DEPENDENCY: 'peerDependency',
   OPTIONAL_DEPENDENCY: 'optionalDependency',
+});
+
+export const BATCH_SUMMARY_LABELS = Object.freeze({
+  TOTAL: 'Total',
+  SUCCESSFUL: 'Successful',
+  FAILED: 'Failed',
 });

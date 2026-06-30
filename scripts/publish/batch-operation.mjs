@@ -1,5 +1,5 @@
 import { error, heading, success } from '../common/colors.mjs';
-import { BATCH_SUMMARY_LABELS } from './constants.mjs';
+import { BATCH_SUMMARY_LABELS } from '../common/constants.mjs';
 import { reportError, reportSummary } from './reporter.mjs';
 
 /* -------------------------------------------------------------------------- */

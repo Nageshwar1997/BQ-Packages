@@ -41,10 +41,6 @@ export const SUMMARY_LABELS = Object.freeze({
   OUTDATED: 'Outdated',
 });
 
-export const BATCH_SUMMARY_LABELS = Object.freeze({
-  TOTAL: 'Total',
-  SUCCESSFUL: 'Successful',
-  FAILED: 'Failed',
-});
+
 
 
