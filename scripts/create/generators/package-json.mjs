@@ -20,6 +20,10 @@ import {
   PACKAGE_VERSION,
 } from '../constants.mjs';
 
+/**
+ * @import { PackageMetadata } from '../types.mjs'
+ */
+
 /* -------------------------------------------------------------------------- */
 /*                               PACKAGE JSON                                 */
 /* -------------------------------------------------------------------------- */
@@ -27,7 +31,7 @@ import {
 /**
  * Generates the package.json file.
  *
- * @param {object} metadata
+ * @param {PackageMetadata} metadata
  * @returns {Promise<void>}
  */
 export async function generatePackageJson(metadata) {

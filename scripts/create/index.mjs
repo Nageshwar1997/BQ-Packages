@@ -62,7 +62,7 @@ async function main() {
     templateConfig,
   });
 
-  const packageExists = await checkPackageExists(metadata);
+  const packageExists = await checkPackageExists(metadata.packageDirectory);
 
   if (packageExists) {
     reportError(`Package "${metadata.scopedPackageName}" already exists.`);
@@ -70,8 +70,8 @@ async function main() {
     process.exit(EXIT_CODES.FAILURE);
   }
 
-  await createPackageDirectory(metadata);
-  await copyBaseTemplate(metadata);
+  await createPackageDirectory(metadata.packageDirectory);
+  await copyBaseTemplate(metadata.packageDirectory);
   await generatePackage(metadata);
 
   reportSuccess(`Package "${metadata.scopedPackageName}" created successfully.`);

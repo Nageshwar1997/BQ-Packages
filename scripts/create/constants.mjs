@@ -147,3 +147,27 @@ export const PACKAGE_NODE_ENGINE = '>=24';
  * Whether the package has side effects.
  */
 export const PACKAGE_SIDE_EFFECTS = false;
+
+export const PACKAGE_TEMPLATES = Object.freeze({
+  SHARED: 'shared',
+  BACKEND: 'backend',
+  FRONTEND: 'frontend',
+});
+
+export const TEMPLATE_CHOICES = Object.freeze([
+  {
+    name: 'Shared',
+    value: PACKAGE_TEMPLATES.SHARED,
+    description: `Create a ${PACKAGE_TEMPLATES.SHARED} package`,
+  },
+  {
+    name: 'Backend',
+    value: PACKAGE_TEMPLATES.BACKEND,
+    description: `Create a ${PACKAGE_TEMPLATES.BACKEND} package`,
+  },
+  {
+    name: 'Frontend',
+    value: PACKAGE_TEMPLATES.FRONTEND,
+    description: `Create a ${PACKAGE_TEMPLATES.FRONTEND} package`,
+  },
+]);

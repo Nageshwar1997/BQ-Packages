@@ -9,6 +9,10 @@ import {
   PACKAGE_REPOSITORY,
 } from '../constants.mjs';
 
+/**
+ * @import { PackageMetadata } from '../types.mjs'
+ */
+
 /* -------------------------------------------------------------------------- */
 /*                                   README                                   */
 /* -------------------------------------------------------------------------- */
@@ -16,7 +20,7 @@ import {
 /**
  * Generates the README.md file.
  *
- * @param {object} metadata
+ * @param {PackageMetadata} metadata
  * @returns {Promise<void>}
  */
 export async function generateReadme(metadata) {

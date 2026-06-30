@@ -8,11 +8,11 @@ import path from 'node:path';
 /**
  * Copies the base template into the package directory.
  *
- * @param {object} metadata
+ * @param {string} templatePath
  * @returns {Promise<void>}
  */
-export async function copyBaseTemplate(metadata) {
+export async function copyBaseTemplate(templatePath) {
   const sourceDirectory = path.join(process.cwd(), 'templates', 'base');
 
-  await cp(sourceDirectory, metadata.packageDirectory, { recursive: true });
+  await cp(sourceDirectory, templatePath, { recursive: true });
 }

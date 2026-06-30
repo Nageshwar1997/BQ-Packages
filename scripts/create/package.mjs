@@ -8,12 +8,12 @@ import { access, mkdir } from 'node:fs/promises';
 /**
  * Checks whether a package already exists.
  *
- * @param {object} metadata
+ * @param {string} pkgDirPath
  * @returns {Promise<boolean>}
  */
-export async function checkPackageExists(metadata) {
+export async function checkPackageExists(pkgDirPath) {
   try {
-    await access(metadata.packageDirectory, constants.F_OK);
+    await access(pkgDirPath, constants.F_OK);
 
     return true;
   } catch {
@@ -24,9 +24,9 @@ export async function checkPackageExists(metadata) {
 /**
  * Creates the package directory.
  *
- * @param {object} metadata
+ * @param {string} pkgDirPath
  * @returns {Promise<void>}
  */
-export async function createPackageDirectory(metadata) {
-  await mkdir(metadata.packageDirectory, { recursive: true });
+export async function createPackageDirectory(pkgDirPath) {
+  await mkdir(pkgDirPath, { recursive: true });
 }

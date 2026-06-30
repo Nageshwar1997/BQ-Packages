@@ -3,6 +3,10 @@ import path from 'node:path';
 
 import { SHARED_CONFIGS_DIRECTORY } from '../constants.mjs';
 
+/**
+ * @import { PackageMetadata } from '../types.mjs'
+ */
+
 /* -------------------------------------------------------------------------- */
 /*                                    TSUP                                    */
 /* -------------------------------------------------------------------------- */
@@ -10,7 +14,7 @@ import { SHARED_CONFIGS_DIRECTORY } from '../constants.mjs';
 /**
  * Generates the tsup.config.ts file.
  *
- * @param {object} metadata
+ * @param {PackageMetadata} metadata
  * @returns {Promise<void>}
  */
 export async function generateTsup(metadata) {

@@ -1,7 +1,12 @@
 import inquirer from 'inquirer';
 
+import { TEMPLATE_CHOICES } from './constants.mjs';
 import { normalizeKeywords, normalizeText } from './utils.mjs';
 import { validateDescription, validateKeywords, validatePackageName } from './validators.mjs';
+
+/**
+ * @import { PackageTemplate } from './types.mjs'
+ */
 
 /* -------------------------------------------------------------------------- */
 /*                                   PROMPTS                                  */
@@ -10,19 +15,16 @@ import { validateDescription, validateKeywords, validatePackageName } from './va
 /**
  * Prompts the user to select a package template.
  *
- * @returns {Promise<"shared" | "backend" | "frontend">}
+ * @returns {Promise<PackageTemplate>}
  */
+
 export async function promptTemplate() {
   const { template } = await inquirer.prompt([
     {
       type: 'select',
       name: 'template',
       message: 'Select a package template',
-      choices: [
-        { name: 'Shared', value: 'shared', description: 'Create a shared package' },
-        { name: 'Backend', value: 'backend', description: 'Create a backend package' },
-        { name: 'Frontend', value: 'frontend', description: 'Create a frontend package' },
-      ],
+      choices: TEMPLATE_CHOICES,
     },
   ]);
 

@@ -1,6 +1,10 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
+/**
+ * @import { PackageTemplate, PackageTemplateConfig } from './types.mjs'
+ */
+
 /* -------------------------------------------------------------------------- */
 /*                                  TEMPLATE                                  */
 /* -------------------------------------------------------------------------- */
@@ -8,8 +12,8 @@ import path from 'node:path';
 /**
  * Loads a package template configuration.
  *
- * @param {"shared" | "backend" | "frontend"} template
- * @returns {Promise<object>}
+ * @param {PackageTemplate} template
+ * @returns {Promise<PackageTemplateConfig>}
  */
 export async function loadTemplate(template) {
   const templatePath = path.resolve(process.cwd(), 'templates', template, 'template.json');
