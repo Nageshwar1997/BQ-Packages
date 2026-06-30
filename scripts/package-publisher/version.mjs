@@ -1,7 +1,7 @@
 import semver from 'semver';
 
 import { VERSION_TYPES } from './constants.mjs';
-import { JsonError, VersionError } from './errors.mjs';
+import { JsonError, ValidationError, VersionError } from './errors.mjs';
 import { getPackageJsonPath } from './paths.mjs';
 import { parseData, readFileByPath, writeJson } from './utils.mjs';
 

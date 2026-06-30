@@ -45,5 +45,8 @@
   },
   "engines": {
     "node": ">=24"
+  },
+  "dependencies": {
+    "@beautinique/shared-test": "^2.0.0"
   }
 }

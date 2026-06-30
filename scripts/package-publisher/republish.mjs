@@ -2,7 +2,9 @@ import { ensureLoggedIn } from './auth.mjs';
 import { runBatchOperation } from './batch-operation.mjs';
 import { VERSION_TYPES } from './constants.mjs';
 import { sortPackagesByDependencies } from './dependency-sort.mjs';
+import { updateInternalDependencyVersions } from './dependency-version.mjs';
 import { republish as republishToNpm } from './npm.mjs';
+import { getPackageJsonPath } from './paths.mjs';
 import {
   confirmRepublish,
   confirmRepublishMany,
@@ -10,11 +12,18 @@ import {
   selectVersion,
 } from './prompts.mjs';
 import { reportSuccess, reportWarning } from './reporter.mjs';
+import {
+  createReleasePlan,
+  getReleasePlanEntries,
+  getReleasePlanPackages,
+} from './release-plan.mjs';
+import { createSnapshot, restoreSnapshot } from './rollback.mjs';
+import { parseData, readFileByPath, writeJson } from './utils.mjs';
 import { validateRepublish } from './validators.mjs';
-import { calculateVersion, updatePackageVersion } from './version.mjs';
 
 /**
  * @import { PackageMetadata } from './types.mjs'
+ * @import { ReleasePlan, ReleasePlanEntry } from './release-plan.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -22,13 +31,15 @@ import { calculateVersion, updatePackageVersion } from './version.mjs';
 /* -------------------------------------------------------------------------- */
 
 /**
- * Restores the previous package version.
+ * Returns the indentation used by a JSON document.
  *
- * @param {PackageMetadata} metadata
- * @returns {Promise<void>}
+ * @param {string} content
+ * @returns {string | number}
  */
-async function restoreVersion(metadata) {
-  await updatePackageVersion(metadata.directory, metadata.localVersion, metadata.npmPackageName);
+function detectJsonIndent(content) {
+  const match = content.match(/\n([ \t]+)"/);
+
+  return match?.[1] ?? 2;
 }
 
 /**
@@ -42,36 +53,20 @@ async function restoreVersion(metadata) {
 async function republishPackageInternal(metadata, version, username) {
   validateRepublish({ ...metadata, localVersion: version });
 
-  await updatePackageVersion(metadata.directory, version, metadata.npmPackageName);
+  await republishToNpm(metadata.directory, version);
 
-  try {
-    await republishToNpm(metadata.directory, version);
-
-    reportSuccess(
-      `Republished "${metadata.workspaceName}" (${metadata.npmPackageName}) ${metadata.localVersion} → ${version} as "${username}".`,
-    );
-  } catch (error) {
-    try {
-      await restoreVersion(metadata);
-    } catch (restoreError) {
-      reportWarning(
-        `Failed to restore version for "${metadata.npmPackageName}": ${
-          restoreError instanceof Error ? restoreError.message : String(restoreError)
-        }`,
-      );
-    }
-
-    throw error;
-  }
+  reportSuccess(
+    `Republished "${metadata.workspaceName}" (${metadata.npmPackageName}) ${metadata.localVersion} → ${version} as "${username}".`,
+  );
 }
 
 /**
- * Returns the next package version.
+ * Returns the package release strategy.
  *
  * @param {PackageMetadata} metadata
- * @returns {Promise<string>}
+ * @returns {Promise<{ releaseType: import('./types.mjs').VersionType; customVersion?: string }>}
  */
-async function getNextVersion(metadata) {
+async function getReleaseStrategy(metadata) {
   const versionType = await selectVersion(metadata.localVersion, metadata.npmPackageName);
 
   const customVersion =
@@ -79,37 +74,112 @@ async function getNextVersion(metadata) {
       ? await enterCustomVersion(metadata.localVersion)
       : undefined;
 
-  return calculateVersion(
-    metadata.localVersion,
-    versionType,
+  return {
+    releaseType: versionType,
     customVersion,
-    metadata.npmPackageName,
-  );
+  };
 }
 
 /**
- * Builds republish items.
+ * Builds a release plan for selected packages.
  *
  * @param {PackageMetadata[]} packages
- * @returns {Promise<
- *   {
- *     metadata: PackageMetadata;
- *     version: string;
- *   }[]
- * >}
+ * @returns {Promise<ReleasePlan>}
  */
-async function buildRepublishItems(packages) {
-  /** @type {{ metadata: PackageMetadata; version: string }[]} */
-  const items = [];
+async function buildReleasePlan(packages) {
+  /** @type {Map<string, { releaseType: import('./types.mjs').VersionType; customVersion?: string }>} */
+  const strategies = new Map();
 
   for (const metadata of packages) {
-    items.push({
-      metadata,
-      version: await getNextVersion(metadata),
-    });
+    strategies.set(metadata.npmPackageName, await getReleaseStrategy(metadata));
   }
 
-  return items;
+  return createReleasePlan(packages, strategies);
+}
+
+/**
+ * Converts release plan entries into republish batch items.
+ *
+ * @param {ReleasePlanEntry[]} entries
+ * @returns {{ metadata: PackageMetadata; version: string }[]}
+ */
+function toRepublishItems(entries) {
+  return entries.map((entry) => ({
+    metadata: entry.metadata,
+    version: entry.nextVersion,
+  }));
+}
+
+/**
+ * Returns release plan entries in dependency order.
+ *
+ * @param {ReleasePlan} releasePlan
+ * @returns {ReleasePlanEntry[]}
+ */
+function getSortedReleasePlanEntries(releasePlan) {
+  return sortPackagesByDependencies(getReleasePlanPackages(releasePlan)).map((metadata) => {
+    const entry = releasePlan.get(metadata.npmPackageName);
+
+    if (!entry) {
+      throw new Error(`Missing release plan entry for "${metadata.npmPackageName}".`);
+    }
+
+    return entry;
+  });
+}
+
+/**
+ * Updates one package.json from the release plan and writes it once.
+ *
+ * @param {ReleasePlanEntry} entry
+ * @param {ReleasePlan} releasePlan
+ * @returns {Promise<void>}
+ */
+async function updatePackageJsonForRelease(entry, releasePlan) {
+  const packageJsonPath = getPackageJsonPath(entry.metadata.directory);
+  const content = await readFileByPath(packageJsonPath);
+  const packageJson = parseData(content);
+
+  packageJson.version = entry.nextVersion;
+  updateInternalDependencyVersions(packageJson, releasePlan);
+
+  await writeJson(packageJsonPath, packageJson, {
+    indent: detectJsonIndent(content),
+    trailingNewline: content.endsWith('\n'),
+  });
+}
+
+/**
+ * Updates every selected package.json using the release plan.
+ *
+ * @param {ReleasePlan} releasePlan
+ * @returns {Promise<void>}
+ */
+async function updatePackageJsonForReleasePlan(releasePlan) {
+  for (const entry of getReleasePlanEntries(releasePlan)) {
+    await updatePackageJsonForRelease(entry, releasePlan);
+  }
+}
+
+/**
+ * Restores a package snapshot and preserves the original publish error.
+ *
+ * @param {Awaited<ReturnType<typeof createSnapshot>>} snapshot
+ * @param {unknown} publishError
+ * @returns {Promise<never>}
+ */
+async function rollbackAndThrow(snapshot, publishError) {
+  try {
+    await restoreSnapshot(snapshot);
+  } catch (restoreError) {
+    reportWarning(
+      `Failed to restore package.json snapshot: ${
+        restoreError instanceof Error ? restoreError.message : String(restoreError)
+      }`,
+    );
+  }
+
+  throw publishError;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -125,7 +195,9 @@ async function buildRepublishItems(packages) {
 export async function republishPackage(metadata) {
   const username = await ensureLoggedIn();
 
-  const nextVersion = await getNextVersion(metadata);
+  const releasePlan = await buildReleasePlan([metadata]);
+  const [releaseEntry] = getReleasePlanEntries(releasePlan);
+  const nextVersion = releaseEntry.nextVersion;
 
   const isConfirmed = await confirmRepublish(metadata, nextVersion);
 
@@ -133,7 +205,14 @@ export async function republishPackage(metadata) {
     return;
   }
 
-  await republishPackageInternal(metadata, nextVersion, username);
+  const snapshot = await createSnapshot(getReleasePlanPackages(releasePlan));
+
+  try {
+    await updatePackageJsonForReleasePlan(releasePlan);
+    await republishPackageInternal(metadata, nextVersion, username);
+  } catch (error) {
+    await rollbackAndThrow(snapshot, error);
+  }
 }
 
 /**
@@ -149,9 +228,9 @@ export async function republishPackages(packages) {
 
   const username = await ensureLoggedIn();
 
-  const packagesToRepublish = sortPackagesByDependencies(packages);
+  const releasePlan = await buildReleasePlan(packages);
 
-  const items = await buildRepublishItems(packagesToRepublish);
+  const items = toRepublishItems(getSortedReleasePlanEntries(releasePlan));
 
   const isConfirmed = await confirmRepublishMany(items);
 
@@ -159,12 +238,21 @@ export async function republishPackages(packages) {
     return;
   }
 
-  await runBatchOperation({
-    title: 'Republish Summary',
-    items,
-    operation: ({ metadata, version }) => republishPackageInternal(metadata, version, username),
-    getItemName: ({ metadata }) => `${metadata.workspaceName} (${metadata.npmPackageName})`,
-  });
+  const snapshot = await createSnapshot(getReleasePlanPackages(releasePlan));
+
+  try {
+    await updatePackageJsonForReleasePlan(releasePlan);
+
+    await runBatchOperation({
+      title: 'Republish Summary',
+      items,
+      operation: ({ metadata, version }) => republishPackageInternal(metadata, version, username),
+      getItemName: ({ metadata }) => `${metadata.workspaceName} (${metadata.npmPackageName})`,
+      continueOnError: false,
+    });
+  } catch (error) {
+    await rollbackAndThrow(snapshot, error);
+  }
 }
 
 /**

@@ -32,6 +32,7 @@ export async function runBatchOperation({
 
   let successful = 0;
   let failed = 0;
+  let firstError = null;
 
   for (const item of items) {
     try {
@@ -39,6 +40,7 @@ export async function runBatchOperation({
       successful++;
     } catch (error) {
       failed++;
+      firstError ??= error;
 
       reportError(`Failed: ${getItemName(item)}`);
       reportError(error instanceof Error ? error.message : String(error));
@@ -57,4 +59,8 @@ export async function runBatchOperation({
       [error(BATCH_SUMMARY_LABELS.FAILED), failed],
     ],
   });
+
+  if (!continueOnError && firstError) {
+    throw firstError;
+  }
 }
