@@ -19,3 +19,10 @@ export const COMMON_ACTIONS = Object.freeze({
   LOGOUT: 'logout',
   EXIT: 'exit',
 });
+
+
+export const TABLE_ALIGNMENTS = Object.freeze({
+  LEFT: 'left',
+  CENTER: 'center',
+  RIGHT: 'right',
+});

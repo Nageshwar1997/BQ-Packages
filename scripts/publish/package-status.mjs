@@ -1,10 +1,6 @@
 import { heading } from '../common/colors.mjs';
-import {
-  PACKAGE_STATUS,
-  PACKAGE_STATUS_LABELS,
-  SUMMARY_LABELS,
-  TABLE_ALIGNMENTS,
-} from './constants.mjs';
+import { TABLE_ALIGNMENTS } from '../common/constants.mjs';
+import { PACKAGE_STATUS, PACKAGE_STATUS_LABELS, SUMMARY_LABELS } from './constants.mjs';
 import { getPackagesMetadata } from './metadata.mjs';
 import { reportInfo, reportSection, reportSummary, reportTable } from './reporter.mjs';
 

@@ -8,6 +8,11 @@
  *   VERSION_TYPES,
  * } from './constants.mjs'
  */
+/**
+ * @import {
+ *   TABLE_ALIGNMENTS,
+ * } from '../common/constants.mjs'
+ */
 
 /* -------------------------------------------------------------------------- */
 /*                                  COMMON                                    */

@@ -1,5 +1,5 @@
 import { heading, info, muted } from '../common/colors.mjs';
-import { TABLE_ALIGNMENTS } from './constants.mjs';
+import { TABLE_ALIGNMENTS } from '../common/constants.mjs';
 
 /**
  * @import { TableAlignment, TableColumn } from './types.mjs'
