@@ -1,15 +1,15 @@
-import { heading } from '../common/colors.mjs';
+import { heading } from './colors.mjs';
 import {
   PACKAGE_STATUS_LABELS,
   PACKAGE_STATUS_MAP,
   SUMMARY_LABELS,
   TABLE_ALIGNMENTS,
-} from '../common/constants.mjs';
-import { getPackagesMetadata } from '../common/metadata.mjs';
-import { reportInfo, reportSection, reportSummary, reportTable } from '../common/reporter.mjs';
+} from './constants.mjs';
+import { getPackagesMetadata } from './metadata.mjs';
+import { reportInfo, reportSection, reportSummary, reportTable } from './reporter.mjs';
 
 /**
- * @import { PublishPackageMetadata } from '../common/types.mjs'
+ * @import { PublishPackageMetadata } from './types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
