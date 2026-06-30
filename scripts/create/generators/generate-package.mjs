@@ -1,4 +1,5 @@
 import { rm } from 'node:fs/promises';
+
 import { generateEslint } from './eslint.mjs';
 import { generatePackageJson } from './package-json.mjs';
 import { generateReadme } from './readme.mjs';

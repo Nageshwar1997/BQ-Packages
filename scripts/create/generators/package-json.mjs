@@ -1,5 +1,6 @@
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
+
 import {
   PACKAGE_AUTHOR,
   PACKAGE_BUGS_URL,

@@ -1,5 +1,6 @@
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
+
 import { SHARED_CONFIGS_DIRECTORY } from '../constants.mjs';
 
 /* -------------------------------------------------------------------------- */

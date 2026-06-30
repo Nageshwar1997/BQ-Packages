@@ -1,4 +1,5 @@
 import inquirer from 'inquirer';
+
 import { normalizeKeywords, normalizeText } from './utils.mjs';
 import { validateDescription, validateKeywords, validatePackageName } from './validators.mjs';
 
@@ -84,12 +85,7 @@ export async function promptKeywords() {
  */
 export async function promptConfirmation() {
   const { confirmed } = await inquirer.prompt([
-    {
-      type: 'confirm',
-      name: 'confirmed',
-      message: 'Create package?',
-      default: true,
-    },
+    { type: 'confirm', name: 'confirmed', message: 'Create package?', default: true },
   ]);
 
   return confirmed;

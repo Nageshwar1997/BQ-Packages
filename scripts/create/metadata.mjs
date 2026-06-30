@@ -1,5 +1,6 @@
 import path from 'node:path';
-import { PACKAGE_SCOPE } from '../package/common/constants.mjs';
+
+import { PACKAGE_SCOPE } from '../common/constants.mjs';
 
 /* -------------------------------------------------------------------------- */
 /*                                  METADATA                                  */
