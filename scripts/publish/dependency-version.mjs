@@ -1,6 +1,6 @@
 import semver from 'semver';
 
-import { PACKAGE_SCOPE } from '../package/common/constants.mjs';
+import { PACKAGE_SCOPE } from '../common/constants.mjs';
 
 /**
  * @import { PackageJson } from './types.mjs'
