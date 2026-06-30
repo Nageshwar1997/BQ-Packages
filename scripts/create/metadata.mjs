@@ -1,8 +1,10 @@
+import path from 'node:path';
+
+import { PACKAGE_SCOPE } from '../common/constants.mjs';
+
 /**
  * @import { PackageMetadata, BuildPackageMetadataOptions } from './types.mjs'
  */
-
-import { PACKAGE_SCOPE } from '../common/constants.mjs';
 
 /* -------------------------------------------------------------------------- */
 /*                                  METADATA                                  */
