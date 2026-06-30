@@ -142,7 +142,6 @@ BQ-Packages/
 | `typescript-eslint` | `^8.62.0` | TypeScript ESLint rules      |
 | `prettier`          | `^3.8.5`  | Code formatting              |
 | `inquirer`          | `^14.0.2` | Interactive CLI prompts      |
-| `@inquirer/prompts` | `^8.5.2`  | Modern prompt library        |
 | `semver`            | `^7.8.5`  | Semantic versioning          |
 | `picocolors`        | `^1.1.1`  | Terminal colors              |
 
@@ -206,7 +205,7 @@ This is an **interactive CLI** (`node ./scripts/create-package/index.mjs`) that 
 | File                              | Lines | Purpose                                                                                                                                                                                        |
 | --------------------------------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `constants.mjs`                   | 154   | All constants: regex, validation bounds, metadata (scope, version, license, author, repo URLs, publish access, node engine), build outputs (main, module, types), scripts, shared configs path |
-| `prompts.mjs`                     | 63    | Uses `@inquirer/prompts`: select, input, confirm                                                                                                                                               |
+| `prompts.mjs`                     | 63    | Uses `inquirer`: select, input, confirm                                                                                                                                               |
 | `validators.mjs`                  | 143   | Validates package name, description (length + alphanumeric), keywords (count + length)                                                                                                         |
 | `utils.mjs`                       | 39    | `normalizeText` (trim, collapse spaces), `normalizeKeywords` (split, lowercase, dedupe)                                                                                                        |
 | `metadata.mjs`                    | 45    | Builds metadata object: scopedPackageName, packageDirectory, description, keywords, config                                                                                                     |
@@ -392,14 +391,14 @@ Each template defines a `template.json` that maps the package type to its config
 
 ## 8. Documentation & Supporting Files
 
-| File                 | Content                                                                                                           |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `README.md`          | Project overview, package categories, requirements, 10-step checklist                                             |
-| `CONTRIBUTING.md`    | Fork → branch → PR workflow, code style (ESLint+Prettier), commit message guidelines                              |
-| `CHANGELOG.md`       | Semantic versioning, current version `1.0.0` (initial monorepo setup)                                             |
-| `LICENSE`            | MIT License, Copyright 2026 Nageshwar Pawar                                                                       |
-| `SECURITY.md`        | Security vulnerability reporting policy                                                                           |
-| `CODE_OF_CONDUCT.md` | Respectful collaboration expectations                                                                             |
+| File                 | Content                                                                              |
+| -------------------- | ------------------------------------------------------------------------------------ |
+| `README.md`          | Project overview, package categories, requirements, 10-step checklist                |
+| `CONTRIBUTING.md`    | Fork → branch → PR workflow, code style (ESLint+Prettier), commit message guidelines |
+| `CHANGELOG.md`       | Semantic versioning, current version `1.0.0` (initial monorepo setup)                |
+| `LICENSE`            | MIT License, Copyright 2026 Nageshwar Pawar                                          |
+| `SECURITY.md`        | Security vulnerability reporting policy                                              |
+| `CODE_OF_CONDUCT.md` | Respectful collaboration expectations                                                |
 
 
 ---

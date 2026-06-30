@@ -1,4 +1,4 @@
-import { confirm, input, select } from '@inquirer/prompts';
+import inquirer from 'inquirer';
 import { normalizeKeywords, normalizeText } from './utils.mjs';
 import { validateDescription, validateKeywords, validatePackageName } from './validators.mjs';
 
@@ -12,14 +12,20 @@ import { validateDescription, validateKeywords, validatePackageName } from './va
  * @returns {Promise<"shared" | "backend" | "frontend">}
  */
 export async function promptTemplate() {
-  return select({
-    message: 'Select a package template',
-    choices: [
-      { name: 'Shared', value: 'shared', description: 'Create a shared package' },
-      { name: 'Backend', value: 'backend', description: 'Create a backend package' },
-      { name: 'Frontend', value: 'frontend', description: 'Create a frontend package' },
-    ],
-  });
+  const { template } = await inquirer.prompt([
+    {
+      type: 'select',
+      name: 'template',
+      message: 'Select a package template',
+      choices: [
+        { name: 'Shared', value: 'shared', description: 'Create a shared package' },
+        { name: 'Backend', value: 'backend', description: 'Create a backend package' },
+        { name: 'Frontend', value: 'frontend', description: 'Create a frontend package' },
+      ],
+    },
+  ]);
+
+  return template;
 }
 
 /**
@@ -28,7 +34,11 @@ export async function promptTemplate() {
  * @returns {Promise<string>}
  */
 export async function promptPackageName() {
-  return normalizeText(await input({ message: 'Package name', validate: validatePackageName }));
+  const { packageName } = await inquirer.prompt([
+    { type: 'input', name: 'packageName', message: 'Package name', validate: validatePackageName },
+  ]);
+
+  return normalizeText(packageName);
 }
 
 /**
@@ -37,9 +47,16 @@ export async function promptPackageName() {
  * @returns {Promise<string>}
  */
 export async function promptDescription() {
-  return normalizeText(
-    await input({ message: 'Package description', validate: validateDescription }),
-  );
+  const { description } = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'description',
+      message: 'Package description',
+      validate: validateDescription,
+    },
+  ]);
+
+  return normalizeText(description);
 }
 
 /**
@@ -48,9 +65,16 @@ export async function promptDescription() {
  * @returns {Promise<string[]>}
  */
 export async function promptKeywords() {
-  return normalizeKeywords(
-    await input({ message: 'Package keywords (comma separated)', validate: validateKeywords }),
-  );
+  const { keywords } = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'keywords',
+      message: 'Package keywords (comma separated)',
+      validate: validateKeywords,
+    },
+  ]);
+
+  return normalizeKeywords(keywords);
 }
 
 /**
@@ -59,5 +83,14 @@ export async function promptKeywords() {
  * @returns {Promise<boolean>}
  */
 export async function promptConfirmation() {
-  return confirm({ message: 'Create package?', default: true });
+  const { confirmed } = await inquirer.prompt([
+    {
+      type: 'confirm',
+      name: 'confirmed',
+      message: 'Create package?',
+      default: true,
+    },
+  ]);
+
+  return confirmed;
 }
