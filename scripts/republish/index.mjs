@@ -6,7 +6,7 @@ import { reportError } from '../common/reporter.mjs';
 import { REPUBLISH_ACTIONS } from './constants.mjs';
 import { getPackage, getPackages, getSelectedPackages } from './package-selection.mjs';
 import { showPackageStatus } from './package-status.mjs';
-import { selectAction } from './prompts.mjs';
+import { selectRepublishAction } from './prompts.mjs';
 import { republishAllPackages, republishPackage, republishPackages } from './republish.mjs';
 /* -------------------------------------------------------------------------- */
 /*                              PRIVATE HELPERS                               */
@@ -46,7 +46,7 @@ async function main() {
     try {
       const username = await whoami();
 
-      const action = await selectAction(username);
+      const action = await selectRepublishAction(username);
 
       switch (action) {
         case REPUBLISH_ACTIONS.REPUBLISH_PACKAGE: {

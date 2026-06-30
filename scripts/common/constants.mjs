@@ -1,3 +1,4 @@
+import inquirer from 'inquirer';
 /**
  * Package scope used for all generated packages.
  */
@@ -68,3 +69,5 @@ export const PACKAGE_STATUS_LABELS = Object.freeze({
 });
 
 export const REPORT_DIVIDER_WIDTH = 80;
+
+

@@ -1,8 +1,8 @@
+import inquirer from 'inquirer';
 import { exec, spawn } from 'node:child_process';
 import { constants } from 'node:fs';
 import { access, readFile, writeFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
-
 import { JsonError } from '../common/errors.mjs';
 
 /**
@@ -205,4 +205,21 @@ export function runInteractiveCommand(command, args = [], options = {}) {
       );
     });
   });
+}
+/**
+ * Gets common choices.
+ * @param {string | null} username
+ * @returns
+ */
+
+export function getCommonChoices(username) {
+  return [
+    new inquirer.Separator(),
+    { name: 'Package Status', value: PUBLISH_ACTIONS.STATUS },
+    ...(username
+      ? [{ name: `Logout (${username})`, value: PUBLISH_ACTIONS.LOGOUT }]
+      : [{ name: 'Login', value: PUBLISH_ACTIONS.LOGIN }]),
+    new inquirer.Separator(),
+    { name: 'Exit', value: PUBLISH_ACTIONS.EXIT },
+  ];
 }

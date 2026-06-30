@@ -13,3 +13,18 @@ export const VERSION_TYPES = Object.freeze({
   MAJOR: 'major',
   CUSTOM: 'custom',
 });
+
+export const REPUBLISH_CHOICES = [
+  {
+    name: 'Republish Package',
+    value: REPUBLISH_ACTIONS.REPUBLISH_PACKAGE,
+  },
+  {
+    name: 'Republish Packages',
+    value: REPUBLISH_ACTIONS.REPUBLISH_PACKAGES,
+  },
+  {
+    name: 'Republish All Packages',
+    value: REPUBLISH_ACTIONS.REPUBLISH_ALL_PACKAGES,
+  },
+];

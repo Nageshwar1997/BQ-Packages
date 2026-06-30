@@ -1,7 +1,8 @@
 import inquirer from 'inquirer';
 import semver from 'semver';
 import { description, error, heading, info, success, warning } from '../common/colors.mjs';
-import { REPUBLISH_ACTIONS, VERSION_TYPES } from './constants.mjs';
+import { getCommonChoices } from '../common/utils.mjs';
+import { REPUBLISH_CHOICES, VERSION_TYPES } from './constants.mjs';
 
 /**
  * @import { RepublishAction, VersionType } from './types.mjs'
@@ -40,54 +41,13 @@ function getPackageChoices(packages) {
  * @param {string | null} username
  * @returns {Promise<RepublishAction>}
  */
-export async function selectAction(username) {
+export async function selectRepublishAction(username) {
   const { action } = await inquirer.prompt([
     {
       type: 'select',
       name: 'action',
       message: heading('What would you like to do?'),
-      choices: [
-        {
-          name: 'Republish Package',
-          value: REPUBLISH_ACTIONS.REPUBLISH_PACKAGE,
-        },
-        {
-          name: 'Republish Packages',
-          value: REPUBLISH_ACTIONS.REPUBLISH_PACKAGES,
-        },
-        {
-          name: 'Republish All Packages',
-          value: REPUBLISH_ACTIONS.REPUBLISH_ALL_PACKAGES,
-        },
-
-        new inquirer.Separator(),
-
-        {
-          name: 'Package Status',
-          value: REPUBLISH_ACTIONS.STATUS,
-        },
-
-        ...(username
-          ? [
-              {
-                name: `Logout (${username})`,
-                value: REPUBLISH_ACTIONS.LOGOUT,
-              },
-            ]
-          : [
-              {
-                name: 'Login',
-                value: REPUBLISH_ACTIONS.LOGIN,
-              },
-            ]),
-
-        new inquirer.Separator(),
-
-        {
-          name: 'Exit',
-          value: REPUBLISH_ACTIONS.EXIT,
-        },
-      ],
+      choices: [...REPUBLISH_CHOICES, ...getCommonChoices(username)],
     },
   ]);
 

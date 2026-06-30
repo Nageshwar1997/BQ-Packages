@@ -6,7 +6,7 @@ import { reportError } from '../common/reporter.mjs';
 import { PUBLISH_ACTIONS } from './constants.mjs';
 import { getPackage, getPackages, getSelectedPackages } from './package-selection.mjs';
 import { showPackageStatus } from './package-status.mjs';
-import { selectAction } from './prompts.mjs';
+import { selectPublishAction } from './prompts.mjs';
 import { publishAllPackages, publishNewPackage, publishPackages } from './publish.mjs';
 
 /* -------------------------------------------------------------------------- */
@@ -47,7 +47,7 @@ async function main() {
     try {
       const username = await whoami();
 
-      const action = await selectAction(username);
+      const action = await selectPublishAction(username);
 
       switch (action) {
         case PUBLISH_ACTIONS.PUBLISH_NEW_PACKAGE: {

@@ -13,3 +13,18 @@ export const VERSION_TYPES = Object.freeze({
   MAJOR: 'major',
   CUSTOM: 'custom',
 });
+
+export const PUBLISH_CHOICES = Object.freeze([
+  {
+    name: 'Publish New Package',
+    value: PUBLISH_ACTIONS.PUBLISH_NEW_PACKAGE,
+  },
+  {
+    name: 'Publish New Packages',
+    value: PUBLISH_ACTIONS.PUBLISH_NEW_PACKAGES,
+  },
+  {
+    name: 'Publish All New Packages',
+    value: PUBLISH_ACTIONS.PUBLISH_ALL_NEW_PACKAGES,
+  },
+]);
