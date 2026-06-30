@@ -1,3 +1,12 @@
+/**
+ * @import {
+ *   DEPENDENCY_SCOPES,
+ *   DEPENDENCY_TYPES,
+ *   PACKAGE_STATUS_MAP,
+ *   TABLE_ALIGNMENTS,
+ * } from './constants.mjs'
+ */
+
 /* -------------------------------------------------------------------------- */
 /*                                  COMMON                                    */
 /* -------------------------------------------------------------------------- */
@@ -12,6 +21,27 @@
  *   workspaceName: string;
  *   directory: string;
  * }} WorkspacePackage
+ */
+
+/* -------------------------------------------------------------------------- */
+/*                                   TABLE                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * @typedef {(typeof TABLE_ALIGNMENTS)[keyof typeof TABLE_ALIGNMENTS]} TableAlignment
+ */
+
+/* -------------------------------------------------------------------------- */
+/*                               DEPENDENCIES                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * @typedef {{
+ *   name: string;
+ *   version: string;
+ *   type: (typeof DEPENDENCY_TYPES)[keyof typeof DEPENDENCY_TYPES];
+ *   scope: (typeof DEPENDENCY_SCOPES)[keyof typeof DEPENDENCY_SCOPES];
+ * }} Dependency
  */
 
 /* -------------------------------------------------------------------------- */

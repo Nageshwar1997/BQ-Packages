@@ -10,14 +10,9 @@ import { findPackages } from '../common/package.mjs';
 import { getPackageJsonPath } from '../common/paths.mjs';
 import { readJson } from '../common/utils.mjs';
 import { validateVersion } from '../common/version.mjs';
-/**
- * @import {
- *   Dependency,
- * } from './types.mjs'
- */
 
 /**
- * @import { PackageJson, PublishPackageMetadata, WorkspacePackage } from '../common/types.mjs'
+ * @import { Dependency, PackageJson, PublishPackageMetadata, WorkspacePackage } from '../common/types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */

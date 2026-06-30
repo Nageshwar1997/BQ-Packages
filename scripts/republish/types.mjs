@@ -1,7 +1,6 @@
 /**
  * @import {
  *   REPUBLISH_ACTIONS,
- *   TABLE_ALIGNMENTS,
  *   VERSION_TYPES,
  * } from './constants.mjs'
  */
@@ -15,18 +14,7 @@
  * } from '../common/constants.mjs'
  */
 
-/* -------------------------------------------------------------------------- */
-/*                               DEPENDENCIES                                 */
-/* -------------------------------------------------------------------------- */
 
-/**
- * @typedef {{
- *   name: string;
- *   version: string;
- *   type: (typeof DEPENDENCY_TYPES)[keyof typeof DEPENDENCY_TYPES];
- *   scope: (typeof DEPENDENCY_SCOPES)[keyof typeof DEPENDENCY_SCOPES];
- * }} Dependency
- */
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */

@@ -2,7 +2,8 @@ import { heading, info, muted } from '../common/colors.mjs';
 import { TABLE_ALIGNMENTS } from '../common/constants.mjs';
 
 /**
- * @import { TableAlignment, TableColumn } from './types.mjs'
+ * @import { TableColumn } from './types.mjs'
+ * @import { TableAlignment } from '../common/types.mjs'
  */
 
 const COLUMN_SEPARATOR = '  ';
