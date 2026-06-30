@@ -2,8 +2,10 @@ import { readdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { BUILD_ARTIFACTS, EXIT_CODES } from '../common/constants.mjs';
+import { reportInfo, reportSuccess } from '../common/reporter.mjs';
 
 async function clean(directory) {
+  reportInfo(`Cleaning ${directory}`);
   const entries = await readdir(directory, { withFileTypes: true });
 
   await Promise.all(
@@ -25,6 +27,6 @@ async function clean(directory) {
 
 await clean(process.cwd());
 
-console.log('✨ Builds cleaned.');
+reportSuccess('✨ Builds cleaned.');
 
 process.exit(EXIT_CODES.SUCCESS);

@@ -1,3 +1,11 @@
+import { bold, cyan, dim, gray, green, magenta, white } from '../common/colors.mjs';
+import {
+  report,
+  reportError,
+  reportInfo,
+  reportSection,
+  reportSuccess,
+} from '../common/reporter.mjs';
 import { copyBaseTemplate } from './generators/copy-template.mjs';
 import { generatePackage } from './generators/generate-package.mjs';
 import { buildPackageMetadata } from './metadata.mjs';
@@ -21,24 +29,24 @@ import { loadTemplate } from './template.mjs';
 async function main() {
   console.clear();
 
-  console.log('✨ Beautinique Package Generator\n');
+  reportInfo('✨ Beautinique Package Generator\n');
 
   const template = await promptTemplate();
   const packageName = await promptPackageName();
   const description = await promptDescription();
   const keywords = await promptKeywords();
 
-  console.log('\nPackage Details');
-  console.log('───────────────');
-  console.log(`Template     : ${template}`);
-  console.log(`Package Name : ${packageName}`);
-  console.log(`Description  : ${description}`);
-  console.log(`Keywords     : ${keywords.join(', ')}`);
+  reportSection('Package Details');
+
+  report(`${bold(cyan('Template'))}     : ${magenta(template)}`);
+  report(`${bold(cyan('Package Name'))} : ${green(packageName)}`);
+  report(`${bold(cyan('Description'))}  : ${white(description)}`);
+  report(`${bold(cyan('Keywords'))}     : ${gray(keywords.join(', '))}`);;
 
   const confirmed = await promptConfirmation();
 
   if (!confirmed) {
-    console.log('\n❌ Package creation cancelled.');
+    reportError('Package creation cancelled.');
     return;
   }
 
@@ -64,7 +72,7 @@ async function main() {
   await copyBaseTemplate(metadata);
   await generatePackage(metadata);
 
-  console.log(`\n✅ Package "${metadata.scopedPackageName}" created successfully.`);
+  reportSuccess(`Package "${metadata.scopedPackageName}" created successfully.`);
 }
 
 await main();
