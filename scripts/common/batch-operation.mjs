@@ -1,6 +1,6 @@
-import { error, heading, success } from '../common/colors.mjs';
-import { BATCH_SUMMARY_LABELS } from '../common/constants.mjs';
-import { reportError, reportSummary } from '../common/reporter.mjs';
+import { error, heading, success } from './colors.mjs';
+import { BATCH_SUMMARY_LABELS } from './constants.mjs';
+import { reportError, reportSummary } from './reporter.mjs';
 
 /* -------------------------------------------------------------------------- */
 /*                               PUBLIC API                                   */
