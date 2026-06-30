@@ -1,29 +1,18 @@
 import { readFileByPath, writeJson } from '../common//utils.mjs';
 import { getPackageJsonPath } from '../common/paths.mjs';
 import { parseData } from '../common/utils.mjs';
+import { detectJsonIndent } from './utils.mjs';
 
 /**
  * @import { PackageJson, PublishPackageMetadata } from '../common/types.mjs'
  * @import { PackageSnapshot, PackageSnapshotMap } from './types.mjs'
  */
 
-
-
 /* -------------------------------------------------------------------------- */
 /*                              PRIVATE HELPERS                               */
 /* -------------------------------------------------------------------------- */
 
-/**
- * Returns the indentation used by a JSON document.
- *
- * @param {string} content
- * @returns {string | number}
- */
-function detectJsonIndent(content) {
-  const match = content.match(/\n([ \t]+)"/);
 
-  return match?.[1] ?? 2;
-}
 
 /**
  * Clones parsed JSON data so future mutations cannot affect the snapshot.

@@ -7,13 +7,6 @@ export const PUBLISH_ACTIONS = Object.freeze({
   ...COMMON_ACTIONS,
 });
 
-export const VERSION_TYPES = Object.freeze({
-  PATCH: 'patch',
-  MINOR: 'minor',
-  MAJOR: 'major',
-  CUSTOM: 'custom',
-});
-
 export const PUBLISH_CHOICES = Object.freeze([
   {
     name: 'Publish New Package',

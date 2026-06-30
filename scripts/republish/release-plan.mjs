@@ -19,7 +19,7 @@ import { calculateVersion } from './version.mjs';
  */
 
 /* -------------------------------------------------------------------------- */
-/*                               PUBLIC API                                   */
+/*                              PRIVATE API                                   */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -27,7 +27,7 @@ import { calculateVersion } from './version.mjs';
  *
  * @returns {ReleasePlan}
  */
-export function createEmptyReleasePlan() {
+function createEmptyReleasePlan() {
   return new Map();
 }
 
@@ -38,11 +38,15 @@ export function createEmptyReleasePlan() {
  * @param {ReleasePlanEntry} entry
  * @returns {ReleasePlan}
  */
-export function addReleasePlanEntry(releasePlan, entry) {
+function addReleasePlanEntry(releasePlan, entry) {
   releasePlan.set(entry.metadata.npmPackageName, entry);
 
   return releasePlan;
 }
+
+/* -------------------------------------------------------------------------- */
+/*                               PUBLIC API                                   */
+/* -------------------------------------------------------------------------- */
 
 /**
  * Generates a release plan from selected packages and release strategies.

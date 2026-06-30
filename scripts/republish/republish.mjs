@@ -19,6 +19,7 @@ import {
   getReleasePlanPackages,
 } from './release-plan.mjs';
 import { createSnapshot, restoreSnapshot } from './rollback.mjs';
+import { detectJsonIndent } from './utils.mjs';
 import { validateRepublish } from './validators.mjs';
 /**
  * @import { PublishPackageMetadata } from '../common/types.mjs'
@@ -28,18 +29,6 @@ import { validateRepublish } from './validators.mjs';
 /* -------------------------------------------------------------------------- */
 /*                             PRIVATE HELPERS                                */
 /* -------------------------------------------------------------------------- */
-
-/**
- * Returns the indentation used by a JSON document.
- *
- * @param {string} content
- * @returns {string | number}
- */
-function detectJsonIndent(content) {
-  const match = content.match(/\n([ \t]+)"/);
-
-  return match?.[1] ?? 2;
-}
 
 /**
  * Republishes an updated package version.

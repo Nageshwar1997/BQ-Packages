@@ -3,7 +3,7 @@ import semver from 'semver';
 import { description, error, heading, info, success, warning } from '../common/colors.mjs';
 import { buildConfirmationMessage, confirm } from '../common/prompts.mjs';
 import { getCommonChoices } from '../common/utils.mjs';
-import { REPUBLISH_CHOICES, VERSION_TYPES } from './constants.mjs';
+import { REPUBLISH_CHOICES, VERSION_TYPES_CHOICES } from './constants.mjs';
 
 /**
  * @import { RepublishAction, VersionType } from './types.mjs'
@@ -55,24 +55,7 @@ export async function selectVersion(currentVersion, packageName) {
         `${description('Package :')} ${success(packageName)}`,
         `${description('Version :')} ${warning(currentVersion)}`,
       ].join('\n'),
-      choices: [
-        {
-          name: 'Patch',
-          value: VERSION_TYPES.PATCH,
-        },
-        {
-          name: 'Minor',
-          value: VERSION_TYPES.MINOR,
-        },
-        {
-          name: 'Major',
-          value: VERSION_TYPES.MAJOR,
-        },
-        {
-          name: 'Custom',
-          value: VERSION_TYPES.CUSTOM,
-        },
-      ],
+      choices: VERSION_TYPES_CHOICES,
     },
   ]);
 

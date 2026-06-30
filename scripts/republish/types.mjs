@@ -1,13 +1,15 @@
 /**
- * @import {
- *   REPUBLISH_ACTIONS,
- *   VERSION_TYPES,
- * } from './constants.mjs'
+ * @import { REPUBLISH_ACTIONS, VERSION_TYPES } from './constants.mjs'
+ * @import { PackageJson, PublishPackageMetadata } from '../common/types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
 /* -------------------------------------------------------------------------- */
+
+/**
+ * @typedef {'^' | '~' | ''} SemverPrefix
+ */
 
 /**
  * @typedef {(typeof VERSION_TYPES)[keyof typeof VERSION_TYPES]} VersionType

@@ -1,23 +1,12 @@
 import semver from 'semver';
 
 import { PACKAGE_SCOPE } from '../common/constants.mjs';
+import { DEPENDENCY_FIELDS, UNSUPPORTED_DEPENDENCY_VALUE_PREFIXES } from './constants.mjs';
 
 /**
  * @import { PackageJson } from '../common/types.mjs'
+ * @import { SemverPrefix } from './types.mjs'
  * @import { ReleasePlan } from './release-plan.mjs'
- */
-
-const DEPENDENCY_FIELDS = [
-  'dependencies',
-  'devDependencies',
-  'peerDependencies',
-  'optionalDependencies',
-];
-
-const UNSUPPORTED_DEPENDENCY_VALUE_PREFIXES = ['workspace:', 'file:', 'link:', 'github:'];
-
-/**
- * @typedef {'^' | '~' | ''} SemverPrefix
  */
 
 /* -------------------------------------------------------------------------- */

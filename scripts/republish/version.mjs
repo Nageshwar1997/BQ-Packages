@@ -5,6 +5,7 @@ import { getPackageJsonPath } from '../common/paths.mjs';
 import { parseData, readFileByPath, writeJson } from '../common/utils.mjs';
 import { validateVersion } from '../common/version.mjs';
 import { VERSION_TYPES } from './constants.mjs';
+import { detectJsonIndent } from './utils.mjs';
 
 /**
  * @import { PackageJson, VersionType } from './types.mjs'
@@ -42,18 +43,6 @@ function incrementVersion(version, release) {
   }
 
   return nextVersion;
-}
-
-/**
- * Returns the indentation used by a JSON document.
- *
- * @param {string} content
- * @returns {string | number}
- */
-function detectJsonIndent(content) {
-  const match = content.match(/\n([ \t]+)"/);
-
-  return match?.[1] ?? 2;
 }
 
 /**
