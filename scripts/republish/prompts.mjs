@@ -1,6 +1,6 @@
 import inquirer from 'inquirer';
 import semver from 'semver';
-import { dim, error, heading, info, success, warning } from './color.mjs';
+import { description, dim, error, heading, info, success, warning } from '../common/colors.mjs';
 import { REPUBLISH_ACTIONS, VERSION_TYPES } from './constants.mjs';
 
 /**
@@ -191,8 +191,8 @@ export async function selectVersion(currentVersion, packageName) {
       message: [
         heading('Select the next version strategy'),
         '',
-        `${dim('Package :')} ${success(packageName)}`,
-        `${dim('Version :')} ${warning(currentVersion)}`,
+        `${description('Package :')} ${success(packageName)}`,
+        `${description('Version :')} ${warning(currentVersion)}`,
       ].join('\n'),
       choices: [
         {
@@ -232,7 +232,7 @@ export async function enterCustomVersion(currentVersion) {
       message: [
         heading('Enter custom version'),
         '',
-        `${dim('Current :')} ${warning(currentVersion)}`,
+        `${description('Current :')} ${warning(currentVersion)}`,
       ].join('\n'),
       default: currentVersion,
       validate(value) {
@@ -265,8 +265,8 @@ export async function enterCustomVersion(currentVersion) {
 export function confirmPublish(metadata) {
   return confirm(
     buildConfirmationMessage(heading(`Publish "${success(metadata.npmPackageName)}"?`), [
-      `${dim('Workspace :')} ${info(metadata.workspaceName)}`,
-      `${dim('Version   :')} ${warning(metadata.localVersion)}`,
+      `${description('Workspace :')} ${info(metadata.workspaceName)}`,
+      `${description('Version   :')} ${warning(metadata.localVersion)}`,
     ]),
   );
 }
@@ -285,7 +285,7 @@ export function confirmPublishMany(packages) {
       ),
       packages.map(
         (pkg) =>
-          `${info(pkg.workspaceName.padEnd(20))} ${warning(pkg.localVersion.padEnd(10))} ${dim(pkg.npmPackageName)}`,
+          `${info(pkg.workspaceName.padEnd(20))} ${warning(pkg.localVersion.padEnd(10))} ${description(pkg.npmPackageName)}`,
       ),
     ),
   );
@@ -301,9 +301,9 @@ export function confirmPublishMany(packages) {
 export function confirmRepublish(metadata, version) {
   return confirm(
     buildConfirmationMessage(heading(`Republish "${success(metadata.npmPackageName)}"?`), [
-      `${dim('Workspace       :')} ${info(metadata.workspaceName)}`,
-      `${dim('Current Version :')} ${warning(metadata.localVersion)}`,
-      `${dim('Next Version    :')} ${success(version)}`,
+      `${description('Workspace       :')} ${info(metadata.workspaceName)}`,
+      `${description('Current Version :')} ${warning(metadata.localVersion)}`,
+      `${description('Next Version    :')} ${success(version)}`,
     ]),
   );
 }
@@ -325,7 +325,7 @@ export function confirmRepublishMany(packages) {
       ),
       packages.map(
         ({ metadata, version }) =>
-          `${info(metadata.workspaceName.padEnd(20))} ${warning(metadata.localVersion)} ${dim('→')} ${success(version)}`,
+          `${info(metadata.workspaceName.padEnd(20))} ${warning(metadata.localVersion)} ${description('→')} ${success(version)}`,
       ),
     ),
   );

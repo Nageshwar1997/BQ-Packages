@@ -1,4 +1,4 @@
-import { heading, info, muted } from './color.mjs';
+import { heading, info, muted } from '../common/colors.mjs';
 import { TABLE_ALIGNMENTS } from './constants.mjs';
 
 /**

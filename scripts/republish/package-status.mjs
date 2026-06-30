@@ -1,4 +1,4 @@
-import { heading } from './color.mjs';
+import { heading } from '../common/colors.mjs';
 import {
   PACKAGE_STATUS,
   PACKAGE_STATUS_LABELS,
