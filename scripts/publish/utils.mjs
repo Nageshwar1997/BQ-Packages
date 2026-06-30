@@ -3,6 +3,7 @@ import { constants } from 'node:fs';
 import { access, readFile, writeFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
 import { JsonError } from '../common/errors.mjs';
+import { parseData } from '../common/utils.mjs';
 
 const execAsync = promisify(exec);
 
@@ -79,20 +80,6 @@ export async function pathExists(filePath) {
  */
 export async function readFileByPath(filePath) {
   return await readFile(filePath, 'utf8');
-}
-
-/**
- * Parses JSON data.
- *
- * @param {string} data
- * @returns {Promise<unknown>}
- */
-export function parseData(data) {
-  try {
-    return JSON.parse(data);
-  } catch {
-    throw new JsonError(`Failed to parse JSON: ${data}`);
-  }
 }
 
 /**
