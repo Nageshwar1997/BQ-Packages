@@ -1,5 +1,10 @@
 import { dim, error, heading, info, success, warning } from './colors.mjs';
 import { REPORT_DIVIDER_WIDTH } from './constants.mjs';
+import { printTable } from './table.mjs';
+
+/**
+ * @import { TableColumn } from './types.mjs'
+ */
 
 /* -------------------------------------------------------------------------- */
 /*                              PRIVATE HELPERS                               */
@@ -140,4 +145,21 @@ export function reportSummary({ title, items }) {
   for (const [label, value] of items) {
     console.log(`${heading(label.padEnd(width))} : ${value}`);
   }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                   TABLE                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Prints a table.
+ *
+ * @param {{
+ *   columns: TableColumn[];
+ *   rows: Record<string, unknown>[];
+ * }} options
+ * @returns {void}
+ */
+export function reportTable(options) {
+  printTable(options);
 }
