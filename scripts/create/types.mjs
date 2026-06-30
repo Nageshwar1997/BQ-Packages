@@ -35,9 +35,9 @@ import { PACKAGE_TEMPLATES } from './constants.mjs';
  */
 
 /**
- * Package metadata.
+ * Create Package metadata.
  *
- * @typedef {object} PackageMetadata
+ * @typedef {object} CreatePackageMetadata
  * @property {PackageTemplate} template
  * @property {string} packageName
  * @property {string} scopedPackageName

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { PACKAGE_SCOPE } from '../common/constants.mjs';
 
 /**
- * @import { PackageMetadata, BuildPackageMetadataOptions } from './types.mjs'
+ * @import { CreatePackageMetadata, BuildPackageMetadataOptions } from './types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -14,7 +14,7 @@ import { PACKAGE_SCOPE } from '../common/constants.mjs';
  * Builds package metadata.
  *
  * @param {BuildPackageMetadataOptions} options
- * @returns {PackageMetadata}
+ * @returns {CreatePackageMetadata}
  */
 export function buildPackageMetadata(options) {
   const { description, keywords, packageName, template, templateConfig } = options;

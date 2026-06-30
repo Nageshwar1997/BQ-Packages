@@ -10,7 +10,7 @@ import {
 } from '../constants.mjs';
 
 /**
- * @import { PackageMetadata } from '../types.mjs'
+ * @import { CreatePackageMetadata } from '../types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -20,7 +20,7 @@ import {
 /**
  * Generates the README.md file.
  *
- * @param {PackageMetadata} metadata
+ * @param {CreatePackageMetadata} metadata
  * @returns {Promise<void>}
  */
 export async function generateReadme(metadata) {

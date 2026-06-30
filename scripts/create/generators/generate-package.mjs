@@ -7,7 +7,7 @@ import { generateTsconfig } from './tsconfig.mjs';
 import { generateTsup } from './tsup.mjs';
 
 /**
- * @import { PackageMetadata } from '../types.mjs'
+ * @import { CreatePackageMetadata } from '../types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -17,7 +17,7 @@ import { generateTsup } from './tsup.mjs';
 /**
  * Generates all package files.
  *
- * @param {PackageMetadata} metadata
+ * @param {CreatePackageMetadata} metadata
  * @returns {Promise<void>}
  */
 export async function generatePackage(metadata) {

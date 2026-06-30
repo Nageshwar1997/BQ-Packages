@@ -4,7 +4,7 @@ import path from 'node:path';
 import { SHARED_CONFIGS_DIRECTORY } from '../constants.mjs';
 
 /**
- * @import { PackageMetadata } from '../types.mjs'
+ * @import { CreatePackageMetadata } from '../types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -14,7 +14,7 @@ import { SHARED_CONFIGS_DIRECTORY } from '../constants.mjs';
 /**
  * Generates the tsconfig.json file.
  *
- * @param {PackageMetadata} metadata
+ * @param {CreatePackageMetadata} metadata
  * @returns {Promise<void>}
  */
 export async function generateTsconfig(metadata) {
