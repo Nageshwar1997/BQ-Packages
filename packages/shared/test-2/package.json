@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/shared-test-2",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "description": "test-2 description",
   "keywords": [
     "test",
@@ -47,6 +47,15 @@
     "node": ">=24"
   },
   "dependencies": {
-    "@beautinique/shared-test": "^2.0.1"
+    "@beautinique/shared-test": "^3.0.0"
+  },
+  "devDependencies": {
+    "@beautinique/shared-test": "~3.0.0"
+  },
+  "peerDependencies": {
+    "@beautinique/shared-test": "3.0.0"
+  },
+  "optionalDependencies": {
+    "@beautinique/shared-test": "^3.0.0"
   }
 }
