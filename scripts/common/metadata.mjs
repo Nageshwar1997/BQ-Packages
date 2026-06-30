@@ -1,3 +1,4 @@
+import path from 'node:path';
 import semver from 'semver';
 
 import {
@@ -5,15 +6,16 @@ import {
   DEPENDENCY_TYPES,
   PACKAGE_SCOPE,
   PACKAGE_STATUS_MAP,
-} from '../common/constants.mjs';
-import { getPackageInfo } from '../common/npm.mjs';
-import { findPackages } from '../common/package.mjs';
-import { getPackageJsonPath } from '../common/paths.mjs';
-import { readJson } from '../common/utils.mjs';
-import { validateVersion } from '../common/version.mjs';
+} from './constants.mjs';
+import { getPackageInfo } from './npm.mjs';
+import { findPackages } from './package.mjs';
+import { getPackageJsonPath, ROOT_DIRECTORY } from './paths.mjs';
+import { readJson } from './utils.mjs';
+import { validateVersion } from './version.mjs';
 
 /**
- * @import { Dependency, PackageJson, PublishPackageMetadata, WorkspacePackage } from '../common/types.mjs'
+ * @import { Dependency, PackageJson, PublishPackageMetadata, WorkspacePackage } from './types.mjs'
+ * @import { CreatePackageMetadata, BuildPackageMetadataOptions } from '../create/types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -79,7 +81,7 @@ function getDependencies(packageJson) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                              PACKAGE METADATA                              */
+/*                              PRIVATE HELPERS                               */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -88,7 +90,7 @@ function getDependencies(packageJson) {
  * @param {WorkspacePackage} pkg
  * @returns {Promise<PublishPackageMetadata>}
  */
-export async function getPackageMetadata(pkg) {
+async function getPackageMetadata(pkg) {
   const packageJson = await readJson(getPackageJsonPath(pkg.directory));
 
   validateVersion(packageJson.version, 'local version', packageJson.name);
@@ -122,17 +124,6 @@ export async function getPackageMetadata(pkg) {
   };
 }
 
-/**
- * Returns metadata for all workspace packages.
- *
- * @returns {Promise<PublishPackageMetadata[]>}
- */
-export async function getPackagesMetadata() {
-  const packages = await findPackages();
-
-  return Promise.all(packages.map(getPackageMetadata));
-}
-
 /* -------------------------------------------------------------------------- */
 /*                                  STATUS                                    */
 /* -------------------------------------------------------------------------- */
@@ -157,4 +148,44 @@ function getPackageStatus({ published, localVersion, remoteVersion }) {
   }
 
   return PACKAGE_STATUS_MAP.OUTDATED;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                             PUBLISH/REPUBLISH PACKAGE METADATA                              */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Returns metadata for all workspace packages.
+ *
+ * @returns {Promise<PublishPackageMetadata[]>}
+ */
+export async function getPackagesMetadata() {
+  const packages = await findPackages();
+
+  return Promise.all(packages.map(getPackageMetadata));
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           CREATE PACKAGE METADATA                          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Builds package metadata.
+ *
+ * @param {BuildPackageMetadataOptions} options
+ * @returns {CreatePackageMetadata}
+ */
+export function buildPackageMetadata(options) {
+  const { description, keywords, packageName, template, templateConfig } = options;
+  return {
+    template,
+    packageName,
+    scopedPackageName: `${PACKAGE_SCOPE}/${templateConfig.packagePrefix}-${packageName}`,
+    packageDirectory: path.join(ROOT_DIRECTORY, templateConfig.directory, packageName),
+    description,
+    keywords,
+    packagePrefix: templateConfig.packagePrefix,
+    directory: templateConfig.directory,
+    config: templateConfig.config,
+  };
 }

@@ -1,5 +1,6 @@
 import { bold, cyan, gray, green, magenta, white } from '../common/colors.mjs';
 import { EXIT_CODES } from '../common/constants.mjs';
+import { buildPackageMetadata } from '../common/metadata.mjs';
 import {
   report,
   reportClear,
@@ -10,7 +11,6 @@ import {
 } from '../common/reporter.mjs';
 import { copyBaseTemplate } from './generators/copy-template.mjs';
 import { generatePackage } from './generators/generate-package.mjs';
-import { buildPackageMetadata } from './metadata.mjs';
 import { checkPackageExists, createPackageDirectory } from './package.mjs';
 import {
   promptConfirmation,

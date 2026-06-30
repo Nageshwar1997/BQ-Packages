@@ -1,5 +1,5 @@
 import { ValidationError } from '../common/errors.mjs';
-import { getPackagesMetadata } from './metadata.mjs';
+import { getPackagesMetadata } from '../common/metadata.mjs';
 import { selectPackage, selectPackages } from './prompts.mjs';
 import { validatePackage } from './validators.mjs';
 

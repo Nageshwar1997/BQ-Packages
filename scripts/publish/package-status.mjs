@@ -5,8 +5,8 @@ import {
   SUMMARY_LABELS,
   TABLE_ALIGNMENTS,
 } from '../common/constants.mjs';
+import { getPackagesMetadata } from '../common/metadata.mjs';
 import { reportInfo, reportSection, reportSummary, reportTable } from '../common/reporter.mjs';
-import { getPackagesMetadata } from './metadata.mjs';
 
 /**
  * @import { PublishPackageMetadata } from '../common/types.mjs'
