@@ -1,7 +1,7 @@
 import { readdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 
-const BUILD_ARTIFACTS = new Set(['dist', '.tsbuildinfo']);
+import { BUILD_ARTIFACTS, EXIT_CODES } from '../common/constants.mjs';
 
 async function clean(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -27,4 +27,4 @@ await clean(process.cwd());
 
 console.log('✨ Builds cleaned.');
 
-// process.exit(0);
+process.exit(EXIT_CODES.SUCCESS);

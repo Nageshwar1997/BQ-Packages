@@ -1,5 +1,6 @@
+import { EXIT_CODES } from '../common/constants.mjs';
 import { ensureLoggedIn, ensureLoggedOut } from './auth.mjs';
-import { ACTIONS, EXIT_CODES } from './constants.mjs';
+import { ACTIONS } from './constants.mjs';
 import { CliError } from './errors.mjs';
 import { login, logout, whoami } from './npm.mjs';
 import { getPackage, getPackages, getSelectedPackages } from './package-selection.mjs';

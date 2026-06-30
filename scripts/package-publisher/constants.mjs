@@ -36,10 +36,7 @@ export const VERSION_TYPES = Object.freeze({
   CUSTOM: 'custom',
 });
 
-export const EXIT_CODES = Object.freeze({
-  SUCCESS: 0,
-  FAILURE: 1,
-});
+
 
 export const PACKAGE_STATUS = Object.freeze({
   UNPUBLISHED: 'unpublished',
