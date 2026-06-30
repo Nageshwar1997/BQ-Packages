@@ -5,8 +5,8 @@ import { getPackageInfo } from '../common/npm.mjs';
 import { getPackageJsonPath } from '../common/paths.mjs';
 import { readJson } from '../common/utils.mjs';
 import { PACKAGE_SCOPE } from '../package/common/constants.mjs';
-import { findPackages } from './package.mjs';
 import { validateVersion } from './version.mjs';
+import { findPackages } from '../common/package.mjs';
 /**
  * @import {
  *   Dependency,

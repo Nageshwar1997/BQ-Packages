@@ -1,10 +1,10 @@
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
 
-import { PACKAGES_DIRECTORY } from '../common/paths.mjs';
+import { PACKAGES_DIRECTORY } from './paths.mjs';
 
 /**
- * @import { WorkspacePackage } from '../common/types.mjs'
+ * @import { WorkspacePackage } from './types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -53,20 +53,4 @@ export async function findPackages() {
 
     return a.workspaceName.localeCompare(b.workspaceName);
   });
-}
-
-/* -------------------------------------------------------------------------- */
-/*                                FIND PACKAGE                                */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Finds a workspace package.
- *
- * @param {string} workspaceName
- * @returns {Promise<WorkspacePackage | null>}
- */
-export async function findPackage(workspaceName) {
-  const packages = await findPackages();
-
-  return packages.find((pkg) => pkg.workspaceName === workspaceName) ?? null;
 }
