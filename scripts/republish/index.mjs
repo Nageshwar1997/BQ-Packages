@@ -1,12 +1,11 @@
 import { EXIT_CODES } from '../common/constants.mjs';
 import { ensureLoggedIn, ensureLoggedOut } from './auth.mjs';
-import { ACTIONS } from './constants.mjs';
+import { REPUBLISH_ACTIONS } from './constants.mjs';
 import { CliError } from './errors.mjs';
 import { login, logout, whoami } from './npm.mjs';
 import { getPackage, getPackages, getSelectedPackages } from './package-selection.mjs';
 import { showPackageStatus } from './package-status.mjs';
 import { selectAction } from './prompts.mjs';
-import { publishAllPackages, publishNewPackage, publishPackages } from './publish.mjs';
 import { reportError } from './reporter.mjs';
 import { republishAllPackages, republishPackage, republishPackages } from './republish.mjs';
 
@@ -51,37 +50,7 @@ async function main() {
       const action = await selectAction(username);
 
       switch (action) {
-        case ACTIONS.PUBLISH_NEW_PACKAGE: {
-          const metadata = await getPackage({
-            filter: (pkg) => !pkg.published,
-            emptyMessage: 'No unpublished packages found.',
-          });
-
-          await publishNewPackage(metadata);
-          break;
-        }
-
-        case ACTIONS.PUBLISH_NEW_PACKAGES: {
-          const packages = await getSelectedPackages({
-            filter: (pkg) => !pkg.published,
-            emptyMessage: 'No unpublished packages found.',
-          });
-
-          await publishPackages(packages);
-          break;
-        }
-
-        case ACTIONS.PUBLISH_ALL_NEW_PACKAGES: {
-          const packages = await getPackages({
-            filter: (pkg) => !pkg.published,
-            emptyMessage: 'No unpublished packages found.',
-          });
-
-          await publishAllPackages(packages);
-          break;
-        }
-
-        case ACTIONS.REPUBLISH_PACKAGE: {
+        case REPUBLISH_ACTIONS.REPUBLISH_PACKAGE: {
           const metadata = await getPackage({
             filter: (pkg) => pkg.published,
             emptyMessage: 'No published packages found.',
@@ -91,7 +60,7 @@ async function main() {
           break;
         }
 
-        case ACTIONS.REPUBLISH_PACKAGES: {
+        case REPUBLISH_ACTIONS.REPUBLISH_PACKAGES: {
           const packages = await getSelectedPackages({
             filter: (pkg) => pkg.published,
             emptyMessage: 'No published packages found.',
@@ -101,7 +70,7 @@ async function main() {
           break;
         }
 
-        case ACTIONS.REPUBLISH_ALL_PACKAGES: {
+        case REPUBLISH_ACTIONS.REPUBLISH_ALL_PACKAGES: {
           const packages = await getPackages({
             filter: (pkg) => pkg.published,
             emptyMessage: 'No published packages found.',
@@ -111,21 +80,21 @@ async function main() {
           break;
         }
 
-        case ACTIONS.PACKAGE_STATUS:
+        case REPUBLISH_ACTIONS.PACKAGE_STATUS:
           await showPackageStatus();
           break;
 
-        case ACTIONS.LOGIN:
+        case REPUBLISH_ACTIONS.LOGIN:
           await ensureLoggedOut();
           await login();
           break;
 
-        case ACTIONS.LOGOUT:
+        case REPUBLISH_ACTIONS.LOGOUT:
           await ensureLoggedIn();
           await logout();
           break;
 
-        case ACTIONS.EXIT:
+        case REPUBLISH_ACTIONS.EXIT:
           exit();
 
         default:

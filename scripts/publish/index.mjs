@@ -8,7 +8,6 @@ import { showPackageStatus } from './package-status.mjs';
 import { selectAction } from './prompts.mjs';
 import { publishAllPackages, publishNewPackage, publishPackages } from './publish.mjs';
 import { reportError } from './reporter.mjs';
-// import { republishAllPackages, republishPackage, republishPackages } from './republish.mjs';
 
 /* -------------------------------------------------------------------------- */
 /*                              PRIVATE HELPERS                               */

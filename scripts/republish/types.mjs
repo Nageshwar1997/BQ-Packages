@@ -1,6 +1,6 @@
 /**
  * @import {
- *   ACTIONS,
+ *   REPUBLISH_ACTIONS,
  *   DEPENDENCY_SCOPES,
  *   DEPENDENCY_TYPES,
  *   PACKAGE_STATUS,
@@ -88,7 +88,7 @@
  */
 
 /**
- * @typedef {(typeof ACTIONS)[keyof typeof ACTIONS]} Action
+ * @typedef {(typeof REPUBLISH_ACTIONS)[keyof typeof REPUBLISH_ACTIONS]} RepublishAction
  */
 
 /**

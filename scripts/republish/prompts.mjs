@@ -1,10 +1,10 @@
 import inquirer from 'inquirer';
 import semver from 'semver';
 import { dim, error, heading, info, success, warning } from './color.mjs';
-import { ACTIONS, VERSION_TYPES } from './constants.mjs';
+import { REPUBLISH_ACTIONS, VERSION_TYPES } from './constants.mjs';
 
 /**
- * @import { Action, PackageMetadata, VersionType } from './types.mjs'
+ * @import { RepublishAction, PackageMetadata, VersionType } from './types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -37,7 +37,7 @@ function getPackageChoices(packages) {
  * Prompts the user to select an action.
  *
  * @param {string | null} username
- * @returns {Promise<Action>}
+ * @returns {Promise<RepublishAction>}
  */
 export async function selectAction(username) {
   const { action } = await inquirer.prompt([
@@ -47,51 +47,36 @@ export async function selectAction(username) {
       message: heading('What would you like to do?'),
       choices: [
         {
-          name: 'Publish New Package',
-          value: ACTIONS.PUBLISH_NEW_PACKAGE,
-        },
-        {
-          name: 'Publish New Packages',
-          value: ACTIONS.PUBLISH_NEW_PACKAGES,
-        },
-        {
-          name: 'Publish All New Packages',
-          value: ACTIONS.PUBLISH_ALL_NEW_PACKAGES,
-        },
-
-        new inquirer.Separator(),
-
-        {
           name: 'Republish Package',
-          value: ACTIONS.REPUBLISH_PACKAGE,
+          value: REPUBLISH_ACTIONS.REPUBLISH_PACKAGE,
         },
         {
           name: 'Republish Packages',
-          value: ACTIONS.REPUBLISH_PACKAGES,
+          value: REPUBLISH_ACTIONS.REPUBLISH_PACKAGES,
         },
         {
           name: 'Republish All Packages',
-          value: ACTIONS.REPUBLISH_ALL_PACKAGES,
+          value: REPUBLISH_ACTIONS.REPUBLISH_ALL_PACKAGES,
         },
 
         new inquirer.Separator(),
 
         {
           name: 'Package Status',
-          value: ACTIONS.PACKAGE_STATUS,
+          value: REPUBLISH_ACTIONS.PACKAGE_STATUS,
         },
 
         ...(username
           ? [
               {
                 name: `Logout (${username})`,
-                value: ACTIONS.LOGOUT,
+                value: REPUBLISH_ACTIONS.LOGOUT,
               },
             ]
           : [
               {
                 name: 'Login',
-                value: ACTIONS.LOGIN,
+                value: REPUBLISH_ACTIONS.LOGIN,
               },
             ]),
 
@@ -99,7 +84,7 @@ export async function selectAction(username) {
 
         {
           name: 'Exit',
-          value: ACTIONS.EXIT,
+          value: REPUBLISH_ACTIONS.EXIT,
         },
       ],
     },
