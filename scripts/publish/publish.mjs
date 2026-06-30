@@ -6,7 +6,7 @@ import { confirmPublish, confirmPublishMany } from './prompts.mjs';
 import { reportSuccess } from './reporter.mjs';
 import { validatePublish } from './validators.mjs';
 /**
- * @import { PackageMetadata } from './types.mjs'
+ * @import { PublishPackageMetadata } from '../common/types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -16,7 +16,7 @@ import { validatePublish } from './validators.mjs';
 /**
  * Publishes a package.
  *
- * @param {PackageMetadata} metadata
+ * @param {PublishPackageMetadata} metadata
  * @param {string} username
  * @returns {Promise<void>}
  */
@@ -37,7 +37,7 @@ async function publishPackageInternal(metadata, username) {
 /**
  * Publishes a new package.
  *
- * @param {PackageMetadata} metadata
+ * @param {PublishPackageMetadata} metadata
  * @returns {Promise<void>}
  */
 export async function publishNewPackage(metadata) {
@@ -55,7 +55,7 @@ export async function publishNewPackage(metadata) {
 /**
  * Publishes multiple packages.
  *
- * @param {PackageMetadata[]} packages
+ * @param {PublishPackageMetadata[]} packages
  * @returns {Promise<void>}
  */
 export async function publishPackages(packages) {
@@ -84,7 +84,7 @@ export async function publishPackages(packages) {
 /**
  * Publishes all packages.
  *
- * @param {PackageMetadata[]} packages
+ * @param {PublishPackageMetadata[]} packages
  * @returns {Promise<void>}
  */
 export async function publishAllPackages(packages) {

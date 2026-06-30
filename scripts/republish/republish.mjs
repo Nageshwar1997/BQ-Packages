@@ -21,7 +21,7 @@ import { reportSuccess, reportWarning } from './reporter.mjs';
 import { createSnapshot, restoreSnapshot } from './rollback.mjs';
 import { validateRepublish } from './validators.mjs';
 /**
- * @import { PackageMetadata } from './types.mjs'
+ * @import { PublishPackageMetadata } from '../common/types.mjs'
  * @import { ReleasePlan, ReleasePlanEntry } from './release-plan.mjs'
  */
 
@@ -44,7 +44,7 @@ function detectJsonIndent(content) {
 /**
  * Republishes an updated package version.
  *
- * @param {PackageMetadata} metadata
+ * @param {PublishPackageMetadata} metadata
  * @param {string} version
  * @param {string} username
  * @returns {Promise<void>}
@@ -62,7 +62,7 @@ async function republishPackageInternal(metadata, version, username) {
 /**
  * Returns the package release strategy.
  *
- * @param {PackageMetadata} metadata
+ * @param {PublishPackageMetadata} metadata
  * @returns {Promise<{ releaseType: import('./types.mjs').VersionType; customVersion?: string }>}
  */
 async function getReleaseStrategy(metadata) {
@@ -82,7 +82,7 @@ async function getReleaseStrategy(metadata) {
 /**
  * Builds a release plan for selected packages.
  *
- * @param {PackageMetadata[]} packages
+ * @param {PublishPackageMetadata[]} packages
  * @returns {Promise<ReleasePlan>}
  */
 async function buildReleasePlan(packages) {
@@ -100,7 +100,7 @@ async function buildReleasePlan(packages) {
  * Converts release plan entries into republish batch items.
  *
  * @param {ReleasePlanEntry[]} entries
- * @returns {{ metadata: PackageMetadata; version: string }[]}
+ * @returns {{ metadata: PublishPackageMetadata; version: string }[]}
  */
 function toRepublishItems(entries) {
   return entries.map((entry) => ({
@@ -188,7 +188,7 @@ async function rollbackAndThrow(snapshot, publishError) {
 /**
  * Republishes a package.
  *
- * @param {PackageMetadata} metadata
+ * @param {PublishPackageMetadata} metadata
  * @returns {Promise<void>}
  */
 export async function republishPackage(metadata) {
@@ -217,7 +217,7 @@ export async function republishPackage(metadata) {
 /**
  * Republishes multiple packages.
  *
- * @param {PackageMetadata[]} packages
+ * @param {PublishPackageMetadata[]} packages
  * @returns {Promise<void>}
  */
 export async function republishPackages(packages) {
@@ -257,7 +257,7 @@ export async function republishPackages(packages) {
 /**
  * Republishes all packages.
  *
- * @param {PackageMetadata[]} packages
+ * @param {PublishPackageMetadata[]} packages
  * @returns {Promise<void>}
  */
 export async function republishAllPackages(packages) {

@@ -15,12 +15,11 @@ import { validateVersion } from './version.mjs';
  * @import {
  *   Dependency,
  *   PackageJson,
- *   PackageMetadata,
  * } from './types.mjs'
  */
 
 /**
- * @import { WorkspacePackage } from '../common/types.mjs'
+ * @import { PublishPackageMetadata, WorkspacePackage } from '../common/types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -93,7 +92,7 @@ function getDependencies(packageJson) {
  * Returns runtime metadata for a workspace package.
  *
  * @param {WorkspacePackage} pkg
- * @returns {Promise<PackageMetadata>}
+ * @returns {Promise<PublishPackageMetadata>}
  */
 export async function getPackageMetadata(pkg) {
   const packageJson = await readJson(getPackageJsonPath(pkg.directory));
@@ -132,7 +131,7 @@ export async function getPackageMetadata(pkg) {
 /**
  * Returns metadata for all workspace packages.
  *
- * @returns {Promise<PackageMetadata[]>}
+ * @returns {Promise<PublishPackageMetadata[]>}
  */
 export async function getPackagesMetadata() {
   const packages = await findPackages();
@@ -147,8 +146,8 @@ export async function getPackagesMetadata() {
 /**
  * Returns the package status.
  *
- * @param {Pick<PackageMetadata, 'published' | 'localVersion' | 'remoteVersion'>} metadata
- * @returns {PackageMetadata['status']}
+ * @param {Pick<PublishPackageMetadata, 'published' | 'localVersion' | 'remoteVersion'>} metadata
+ * @returns {PublishPackageMetadata['status']}
  */
 function getPackageStatus({ published, localVersion, remoteVersion }) {
   if (!published) {

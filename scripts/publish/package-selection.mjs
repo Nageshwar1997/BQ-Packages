@@ -4,7 +4,7 @@ import { selectPackage, selectPackages } from './prompts.mjs';
 import { validatePackage } from './validators.mjs';
 
 /**
- * @import { PackageMetadata } from './types.mjs'
+ * @import { PublishPackageMetadata } from '../common/types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -14,7 +14,7 @@ import { validatePackage } from './validators.mjs';
 /**
  * Validates a package.
  *
- * @param {PackageMetadata} metadata
+ * @param {PublishPackageMetadata} metadata
  * @returns {Promise<void>}
  */
 async function validateMetadata(metadata) {
@@ -28,9 +28,9 @@ async function validateMetadata(metadata) {
 /**
  * Returns packages matching the given filter.
  *
- * @param {(metadata: PackageMetadata) => boolean} filter
+ * @param {(metadata: PublishPackageMetadata) => boolean} filter
  * @param {string} emptyMessage
- * @returns {Promise<PackageMetadata[]>}
+ * @returns {Promise<PublishPackageMetadata[]>}
  */
 async function getFilteredPackages(filter, emptyMessage) {
   const packages = (await getPackagesMetadata()).filter(filter);
@@ -45,7 +45,7 @@ async function getFilteredPackages(filter, emptyMessage) {
 /**
  * Validates packages.
  *
- * @param {PackageMetadata[]} packages
+ * @param {PublishPackageMetadata[]} packages
  * @returns {Promise<void>}
  */
 async function validatePackages(packages) {
@@ -62,10 +62,10 @@ async function validatePackages(packages) {
  * Prompts the user to select a package.
  *
  * @param {{
- *   filter: (metadata: PackageMetadata) => boolean;
+ *   filter: (metadata: PublishPackageMetadata) => boolean;
  *   emptyMessage: string;
  * }} options
- * @returns {Promise<PackageMetadata>}
+ * @returns {Promise<PublishPackageMetadata>}
  */
 export async function getPackage({ filter, emptyMessage }) {
   const packages = await getFilteredPackages(filter, emptyMessage);
@@ -81,10 +81,10 @@ export async function getPackage({ filter, emptyMessage }) {
  * Prompts the user to select multiple packages.
  *
  * @param {{
- *   filter: (metadata: PackageMetadata) => boolean;
+ *   filter: (metadata: PublishPackageMetadata) => boolean;
  *   emptyMessage: string;
  * }} options
- * @returns {Promise<PackageMetadata[]>}
+ * @returns {Promise<PublishPackageMetadata[]>}
  */
 export async function getSelectedPackages({ filter, emptyMessage }) {
   const packages = await getFilteredPackages(filter, emptyMessage);
@@ -100,10 +100,10 @@ export async function getSelectedPackages({ filter, emptyMessage }) {
  * Returns all packages matching the given filter.
  *
  * @param {{
- *   filter: (metadata: PackageMetadata) => boolean;
+ *   filter: (metadata: PublishPackageMetadata) => boolean;
  *   emptyMessage: string;
  * }} options
- * @returns {Promise<PackageMetadata[]>}
+ * @returns {Promise<PublishPackageMetadata[]>}
  */
 export async function getPackages({ filter, emptyMessage }) {
   const packages = await getFilteredPackages(filter, emptyMessage);

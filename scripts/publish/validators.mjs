@@ -5,13 +5,7 @@ import { pathExists } from '../common/utils.mjs';
 import { validateVersion } from './version.mjs';
 
 /**
- * @import {
- *   PackageMetadata,
- * } from './types.mjs'
- */
-
-/**
- * @import { WorkspacePackage } from '../common/types.mjs'
+ * @import { PublishPackageMetadata, WorkspacePackage } from '../common/types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -39,7 +33,7 @@ async function validateRequiredFiles(packageDirectory) {
 /**
  * Validates the package version before publishing.
  *
- * @param {PackageMetadata} metadata
+ * @param {PublishPackageMetadata} metadata
  * @returns {void}
  */
 function validatePublishVersion(metadata) {
@@ -61,7 +55,7 @@ function validatePublishVersion(metadata) {
 /**
  * Validates whether a package has already been published.
  *
- * @param {PackageMetadata} metadata
+ * @param {PublishPackageMetadata} metadata
  * @returns {void}
  */
 function validatePublished(metadata) {
@@ -73,7 +67,7 @@ function validatePublished(metadata) {
 /**
  * Validates the publish configuration.
  *
- * @param {PackageMetadata} metadata
+ * @param {PublishPackageMetadata} metadata
  * @returns {void}
  */
 function validatePublishConfig(metadata) {
@@ -105,7 +99,7 @@ export async function validatePackage(pkg) {
 /**
  * Validates whether a package can be published.
  *
- * @param {PackageMetadata} metadata
+ * @param {PublishPackageMetadata} metadata
  * @returns {void}
  */
 export function validatePublish(metadata) {
@@ -116,7 +110,7 @@ export function validatePublish(metadata) {
 /**
  * Validates whether a package can be republished.
  *
- * @param {PackageMetadata} metadata
+ * @param {PublishPackageMetadata} metadata
  * @returns {void}
  */
 export function validateRepublish(metadata) {

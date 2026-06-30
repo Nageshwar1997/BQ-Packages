@@ -3,12 +3,13 @@ import { getPackageJsonPath } from '../common/paths.mjs';
 import { parseData } from '../common/utils.mjs';
 
 /**
- * @import { PackageMetadata, PackageJson } from './types.mjs'
+ * @import { PackageJson } from './types.mjs'
+ * @import { PublishPackageMetadata } from '../common/types.mjs'
  */
 
 /**
  * @typedef {{
- *   metadata: PackageMetadata;
+ *   metadata: PublishPackageMetadata;
  *   packageJson: PackageJson;
  *   indent: string | number;
  *   trailingNewline: boolean;
@@ -52,7 +53,7 @@ function clonePackageJson(packageJson) {
 /**
  * Creates a complete in-memory package.json snapshot for selected packages.
  *
- * @param {PackageMetadata[]} packages
+ * @param {PublishPackageMetadata[]} packages
  * @returns {Promise<PackageSnapshotMap>}
  */
 export async function createSnapshot(packages) {

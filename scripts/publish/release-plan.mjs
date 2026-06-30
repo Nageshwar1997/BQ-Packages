@@ -1,12 +1,13 @@
 import { calculateVersion } from './version.mjs';
 
 /**
- * @import { PackageMetadata, VersionType } from './types.mjs'
+ * @import { VersionType } from './types.mjs'
+ * @import { PublishPackageMetadata } from '../common/types.mjs'
  */
 
 /**
  * @typedef {{
- *   metadata: PackageMetadata;
+ *   metadata: PublishPackageMetadata;
  *   currentVersion: string;
  *   nextVersion: string;
  *   releaseType: VersionType;
@@ -46,7 +47,7 @@ export function addReleasePlanEntry(releasePlan, entry) {
 /**
  * Generates a release plan from selected packages and release strategies.
  *
- * @param {PackageMetadata[]} packages
+ * @param {PublishPackageMetadata[]} packages
  * @param {Map<string, { releaseType: VersionType; customVersion?: string }>} strategies
  * @returns {ReleasePlan}
  */
@@ -93,7 +94,7 @@ export function getReleasePlanEntries(releasePlan) {
  * Returns release plan package metadata in insertion order.
  *
  * @param {ReleasePlan} releasePlan
- * @returns {PackageMetadata[]}
+ * @returns {PublishPackageMetadata[]}
  */
 export function getReleasePlanPackages(releasePlan) {
   return getReleasePlanEntries(releasePlan).map((entry) => entry.metadata);

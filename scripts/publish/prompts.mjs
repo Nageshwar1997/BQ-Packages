@@ -4,7 +4,11 @@ import { description, error, heading, info, success, warning } from '../common/c
 import { PUBLISH_ACTIONS, VERSION_TYPES } from './constants.mjs';
 
 /**
- * @import { PublishAction, PackageMetadata, VersionType } from './types.mjs'
+ * @import { PublishAction, VersionType } from './types.mjs'
+ */
+
+/**
+ * @import { PublishPackageMetadata } from '../common//types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -14,10 +18,10 @@ import { PUBLISH_ACTIONS, VERSION_TYPES } from './constants.mjs';
 /**
  * Returns package choices sorted by workspace name.
  *
- * @param {PackageMetadata[]} packages
+ * @param {PublishPackageMetadata[]} packages
  * @returns {{
  *   name: string;
- *   value: PackageMetadata;
+ *   value: PublishPackageMetadata;
  * }[]}
  */
 function getPackageChoices(packages) {
@@ -100,8 +104,8 @@ export async function selectAction(username) {
 /**
  * Prompts the user to select a package.
  *
- * @param {PackageMetadata[]} packages
- * @returns {Promise<PackageMetadata>}
+ * @param {PublishPackageMetadata[]} packages
+ * @returns {Promise<PublishPackageMetadata>}
  */
 export async function selectPackage(packages) {
   const { pkg } = await inquirer.prompt([
@@ -119,8 +123,8 @@ export async function selectPackage(packages) {
 /**
  * Prompts the user to select multiple packages.
  *
- * @param {PackageMetadata[]} packages
- * @returns {Promise<PackageMetadata[]>}
+ * @param {PublishPackageMetadata[]} packages
+ * @returns {Promise<PublishPackageMetadata[]>}
  */
 export async function selectPackages(packages) {
   const { packages: selectedPackages } = await inquirer.prompt([
@@ -259,7 +263,7 @@ export async function enterCustomVersion(currentVersion) {
 /**
  * Prompts the user to confirm publishing.
  *
- * @param {PackageMetadata} metadata
+ * @param {PublishPackageMetadata} metadata
  * @returns {Promise<boolean>}
  */
 export function confirmPublish(metadata) {
@@ -274,7 +278,7 @@ export function confirmPublish(metadata) {
 /**
  * Prompts the user to confirm publishing multiple packages.
  *
- * @param {PackageMetadata[]} packages
+ * @param {PublishPackageMetadata[]} packages
  * @returns {Promise<boolean>}
  */
 export function confirmPublishMany(packages) {
@@ -294,7 +298,7 @@ export function confirmPublishMany(packages) {
 /**
  * Prompts the user to confirm republishing.
  *
- * @param {PackageMetadata} metadata
+ * @param {PublishPackageMetadata} metadata
  * @param {string} version
  * @returns {Promise<boolean>}
  */
@@ -312,7 +316,7 @@ export function confirmRepublish(metadata, version) {
  * Prompts the user to confirm republishing multiple packages.
  *
  * @param {{
- *   metadata: PackageMetadata;
+ *   metadata: PublishPackageMetadata;
  *   version: string;
  * }[]} packages
  * @returns {Promise<boolean>}

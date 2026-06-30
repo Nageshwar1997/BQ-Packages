@@ -275,7 +275,7 @@ JSDoc type definitions for:
 - `Dependency` (name, version, type, scope)
 - `WorkspacePackage` (packageType, workspaceName, directory)
 - `PackageJson` (name, version, dependencies, devDependencies, peerDependencies, optionalDependencies, publishConfig)
-- `PackageMetadata` (full runtime metadata with status)
+- `PublishPackageMetadata` (full runtime metadata with status)
 - `TableColumn` (key, title, align)
 
 #### 6.3.3 `errors.mjs`
@@ -312,7 +312,7 @@ Abstraction layer over npm CLI:
 #### 6.3.8 `metadata.mjs`
 - `getDependencyScope` — INTERNAL if scoped under `@beautinique`, else EXTERNAL
 - `getDependencies` — collects all dependency types from package.json
-- `getPackageMetadata` — builds full `PackageMetadata` including status
+- `getPackageMetadata` — builds full `PublishPackageMetadata` including status
 - `getPackagesMetadata` — fetches metadata for all workspace packages
 
 #### 6.3.9 `package.mjs`

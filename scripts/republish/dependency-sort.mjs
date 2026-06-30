@@ -1,7 +1,7 @@
 import { DEPENDENCY_SCOPES } from '../common/constants.mjs';
 
 /**
- * @import { PackageMetadata } from './types.mjs'
+ * @import { PublishPackageMetadata } from '../common/types.mjs'
  */
 
 /**
@@ -10,9 +10,9 @@ import { DEPENDENCY_SCOPES } from '../common/constants.mjs';
 
 /**
  * @typedef {{
- *   packageMap: Map<string, PackageMetadata>;
+ *   packageMap: Map<string, PublishPackageMetadata>;
  *   visitState: Map<string, VisitState>;
- *   sortedPackages: PackageMetadata[];
+ *   sortedPackages: PublishPackageMetadata[];
  * }} DependencySortContext
  */
 
@@ -23,8 +23,8 @@ import { DEPENDENCY_SCOPES } from '../common/constants.mjs';
 /**
  * Creates a package lookup map.
  *
- * @param {PackageMetadata[]} packages
- * @returns {Map<string, PackageMetadata>}
+ * @param {PublishPackageMetadata[]} packages
+ * @returns {Map<string, PublishPackageMetadata>}
  */
 function createPackageMap(packages) {
   return new Map(packages.map((pkg) => [pkg.npmPackageName, pkg]));
@@ -33,7 +33,7 @@ function createPackageMap(packages) {
 /**
  * Visits a package and its internal dependencies.
  *
- * @param {PackageMetadata} metadata
+ * @param {PublishPackageMetadata} metadata
  * @param {DependencySortContext} context
  * @returns {void}
  */
@@ -79,8 +79,8 @@ function visit(metadata, context) {
  * Internal dependencies are always ordered before the packages that depend
  * on them.
  *
- * @param {PackageMetadata[]} packages
- * @returns {PackageMetadata[]}
+ * @param {PublishPackageMetadata[]} packages
+ * @returns {PublishPackageMetadata[]}
  */
 export function sortPackagesByDependencies(packages) {
   /** @type {DependencySortContext} */

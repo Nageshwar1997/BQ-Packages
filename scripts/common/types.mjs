@@ -10,9 +10,8 @@
  * }} WorkspacePackage
  */
 
-
 /* -------------------------------------------------------------------------- */
-/*                              PACKAGE METADATA                              */
+/*                     PUBLISH/REPUBLISh PACKAGE METADATA                     */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -24,5 +23,5 @@
  *   publishConfig: PublishConfig | null;
  *   dependencies: Dependency[];
  *   status: (typeof PACKAGE_STATUS_MAP)[keyof typeof PACKAGE_STATUS_MAP];
- * } & WorkspacePackage} PackageMetadata
+ * } & WorkspacePackage} PublishPackageMetadata
  */

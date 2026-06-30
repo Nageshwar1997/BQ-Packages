@@ -9,7 +9,7 @@ import { getPackagesMetadata } from './metadata.mjs';
 import { reportInfo, reportSection, reportSummary, reportTable } from './reporter.mjs';
 
 /**
- * @import { PackageMetadata } from './types.mjs'
+ * @import { PublishPackageMetadata } from '../common/types.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -29,8 +29,8 @@ function formatVersion(version) {
 /**
  * Returns packages sorted by workspace name.
  *
- * @param {PackageMetadata[]} packages
- * @returns {PackageMetadata[]}
+ * @param {PublishPackageMetadata[]} packages
+ * @returns {PublishPackageMetadata[]}
  */
 function sortPackages(packages) {
   return [...packages].sort((a, b) => a.workspaceName.localeCompare(b.workspaceName));
@@ -39,7 +39,7 @@ function sortPackages(packages) {
 /**
  * Returns a human-readable package status.
  *
- * @param {PackageMetadata['status']} status
+ * @param {PublishPackageMetadata['status']} status
  * @returns {string}
  */
 function formatStatus(status) {
@@ -49,7 +49,7 @@ function formatStatus(status) {
 /**
  * Creates table rows.
  *
- * @param {PackageMetadata[]} packages
+ * @param {PublishPackageMetadata[]} packages
  * @returns {Record<string, unknown>[]}
  */
 function createRows(packages) {
@@ -65,7 +65,7 @@ function createRows(packages) {
 /**
  * Creates summary items.
  *
- * @param {PackageMetadata[]} packages
+ * @param {PublishPackageMetadata[]} packages
  * @returns {readonly (readonly [string, number])[]}
  */
 function createSummary(packages) {
