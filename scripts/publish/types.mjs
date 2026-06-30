@@ -17,11 +17,5 @@
  * @typedef {(typeof PUBLISH_ACTIONS)[keyof typeof PUBLISH_ACTIONS]} PublishAction
  */
 
-/**
- * @typedef {{
- *   key: string;
- *   title: string;
- *   align?: TableAlignment;
- * }} TableColumn
- */
+
 export {};

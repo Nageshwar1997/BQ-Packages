@@ -31,6 +31,14 @@
  * @typedef {(typeof TABLE_ALIGNMENTS)[keyof typeof TABLE_ALIGNMENTS]} TableAlignment
  */
 
+/**
+ * @typedef {{
+ *   key: string;
+ *   title: string;
+ *   align?: TableAlignment;
+ * }} TableColumn
+ */
+
 /* -------------------------------------------------------------------------- */
 /*                               DEPENDENCIES                                 */
 /* -------------------------------------------------------------------------- */

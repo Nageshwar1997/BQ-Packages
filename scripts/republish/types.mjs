@@ -5,17 +5,6 @@
  * } from './constants.mjs'
  */
 
-/**
- * @import {
- *   DEPENDENCY_SCOPES,
- *   DEPENDENCY_TYPES,
- *   PACKAGE_STATUS_MAP,
- *   TABLE_ALIGNMENTS,
- * } from '../common/constants.mjs'
- */
-
-
-
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
 /* -------------------------------------------------------------------------- */
@@ -28,15 +17,4 @@
  * @typedef {(typeof REPUBLISH_ACTIONS)[keyof typeof REPUBLISH_ACTIONS]} RepublishAction
  */
 
-/**
- * @typedef {(typeof TABLE_ALIGNMENTS)[keyof typeof TABLE_ALIGNMENTS]} TableAlignment
- */
-
-/**
- * @typedef {{
- *   key: string;
- *   title: string;
- *   align?: TableAlignment;
- * }} TableColumn
- */
 export {};

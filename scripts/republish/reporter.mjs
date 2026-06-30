@@ -1,5 +1,9 @@
 import { printTable } from './table.mjs';
 
+/**
+ * @import { TableColumn } from '../common/types.mjs'
+ */
+
 /* -------------------------------------------------------------------------- */
 /*                                   TABLE                                    */
 /* -------------------------------------------------------------------------- */
@@ -8,7 +12,7 @@ import { printTable } from './table.mjs';
  * Prints a table.
  *
  * @param {{
- *   columns: import('./types.mjs').TableColumn[];
+ *   columns: TableColumn[];
  *   rows: Record<string, unknown>[];
  * }} options
  * @returns {void}
