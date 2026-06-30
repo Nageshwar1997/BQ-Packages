@@ -2,7 +2,7 @@ import { exec, spawn } from 'node:child_process';
 import { constants } from 'node:fs';
 import { access, readFile, writeFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
-import { JsonError } from './errors.mjs';
+import { JsonError } from '../common/errors.mjs';
 
 const execAsync = promisify(exec);
 

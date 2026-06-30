@@ -1,4 +1,4 @@
-import { ValidationError } from './errors.mjs';
+import { ValidationError } from '../common/errors.mjs';
 import { getPackagesMetadata } from './metadata.mjs';
 import { selectPackage, selectPackages } from './prompts.mjs';
 import { validatePackage } from './validators.mjs';

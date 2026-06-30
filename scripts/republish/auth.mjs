@@ -1,4 +1,4 @@
-import { AuthenticationError } from './errors.mjs';
+import { AuthenticationError } from '../common/errors.mjs';
 import { whoami } from './npm.mjs';
 
 /* -------------------------------------------------------------------------- */

@@ -1,5 +1,5 @@
 import semver from 'semver';
-import { ValidationError } from './errors.mjs';
+import { ValidationError } from '../common/errors.mjs';
 import { parseData, runCommand, runInteractiveCommand } from './utils.mjs';
 
 /* -------------------------------------------------------------------------- */

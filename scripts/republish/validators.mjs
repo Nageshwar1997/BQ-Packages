@@ -1,5 +1,5 @@
 import semver from 'semver';
-import { PublishError, ValidationError } from './errors.mjs';
+import { PublishError, ValidationError } from '../common/errors.mjs';
 import { getPackageJsonPath, getReadmePath } from './paths.mjs';
 import { pathExists } from './utils.mjs';
 import { validateVersion } from './version.mjs';
