@@ -6,9 +6,6 @@ import { PUBLISH_CHOICES } from './constants.mjs';
 
 /**
  * @import { PublishAction } from './types.mjs'
- */
-
-/**
  * @import { PublishPackageMetadata } from '../common//types.mjs'
  */
 

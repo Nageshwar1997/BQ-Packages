@@ -5,6 +5,7 @@ import { publishToNpm } from '../common/npm.mjs';
 import { reportSuccess } from '../common/reporter.mjs';
 import { confirmPublish, confirmPublishMany } from './prompts.mjs';
 import { validatePublish } from './validators.mjs';
+
 /**
  * @import { PublishPackageMetadata } from '../common/types.mjs'
  */
