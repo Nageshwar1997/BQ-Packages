@@ -3,8 +3,9 @@ import { exec, spawn } from 'node:child_process';
 import { constants } from 'node:fs';
 import { access, readFile, writeFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
+
 import { JsonError } from '../common/errors.mjs';
-import { EXIT_CODES } from './constants.mjs';
+import { COMMON_ACTIONS, EXIT_CODES } from './constants.mjs';
 
 /**
  * @import { ExecOptions, SpawnOptions } from 'node:child_process'
@@ -216,12 +217,12 @@ export function runInteractiveCommand(command, args = [], options = {}) {
 export function getCommonChoices(username) {
   return [
     new inquirer.Separator(),
-    { name: 'Package Status', value: PUBLISH_ACTIONS.STATUS },
+    { name: 'Package Status', value: COMMON_ACTIONS.STATUS },
     ...(username
-      ? [{ name: `Logout (${username})`, value: PUBLISH_ACTIONS.LOGOUT }]
-      : [{ name: 'Login', value: PUBLISH_ACTIONS.LOGIN }]),
+      ? [{ name: `Logout (${username})`, value: COMMON_ACTIONS.LOGOUT }]
+      : [{ name: 'Login', value: COMMON_ACTIONS.LOGIN }]),
     new inquirer.Separator(),
-    { name: 'Exit', value: PUBLISH_ACTIONS.EXIT },
+    { name: 'Exit', value: COMMON_ACTIONS.EXIT },
   ];
 }
 
