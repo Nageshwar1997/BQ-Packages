@@ -39,7 +39,7 @@ export default tseslint.config(
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
 
-      'sort-imports': ['warn', { ignoreDeclarationSort: true, allowSeparatedGroups: true }],
+      'sort-imports': 'off',
 
       /* TypeScript */
       '@typescript-eslint/consistent-type-imports': 'error',
