@@ -5,7 +5,7 @@ import type {
   SELLER_TYPES,
   USER_ROLE_MAP,
   USER_ROLES,
-} from './index.js';
+} from '@beautinique/shared-constants';
 
 export type TAuthProvider = (typeof AUTH_PROVIDERS)[number];
 export type TAuthProviderMap = typeof AUTH_PROVIDER_MAP;
