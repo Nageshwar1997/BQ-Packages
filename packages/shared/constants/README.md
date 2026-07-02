@@ -1,6 +1,6 @@
 # @beautinique/shared-constants
 
-Shared constants for Beautiniqu project.
+Shared constants for Beautinique project.
 
 ## Installation
 
