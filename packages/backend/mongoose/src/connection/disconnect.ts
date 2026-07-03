@@ -1,16 +1,12 @@
 import mongoose from 'mongoose';
 
 import { mongoEventEmitter } from '../classes/index.js';
+import { connectionState } from '../states/index.js';
 
 export const disconnectDB = async (): Promise<void> => {
-  if (
-    mongoose.connection.readyState === mongoose.STATES.disconnected ||
-    mongoose.connection.readyState === mongoose.STATES.uninitialized
-  ) {
+  if (connectionState.isDisconnected() || connectionState.isUninitialized()) {
     return;
   }
-
-  mongoEventEmitter.emitMongoEvent('disconnecting');
 
   try {
     await mongoose.disconnect();
@@ -18,8 +14,13 @@ export const disconnectDB = async (): Promise<void> => {
     global.mongooseConnection = undefined;
     global.mongooseConnectionPromise = undefined;
   } catch (error) {
-    mongoEventEmitter.emitMongoEvent('error', error as Error);
+    const err =
+      error instanceof Error
+        ? error
+        : new Error(`Unknown MongoDB disconnect error: ${String(error)}`);
 
-    throw error;
+    mongoEventEmitter.emitMongoEvent('error', err);
+
+    throw err;
   }
 };

@@ -3,15 +3,17 @@ import mongoose, { connect } from 'mongoose';
 import { mongoEventEmitter } from '../classes/index.js';
 import {
   CACHED_CONNECT_OPTIONS,
+  CONNECTION_STATES,
   DEFAULT_CONNECT_OPTIONS,
   DEFAULT_RUNTIME_OPTIONS,
 } from '../constants/index.js';
+import { connectionState } from '../states/index.js';
 import type { MongoConnectOptions } from '../types/index.js';
 
 let listenersRegistered = false;
 let mongooseConfigured = false;
 
-export const connectToDB = async ({
+export const connectDb = async ({
   uri,
   enableGlobalCache = false,
   options = {},
@@ -20,12 +22,12 @@ export const connectToDB = async ({
     throw new Error('MongoDB connection URI is required.');
   }
 
-  if (mongoose.connection.readyState === mongoose.STATES.connected) {
+  if (connectionState.isConnected()) {
     return mongoose;
   }
 
   if (enableGlobalCache) {
-    if (global.mongooseConnection?.connection.readyState === mongoose.STATES.connected) {
+    if (global.mongooseConnection?.connection.readyState === CONNECTION_STATES.connected) {
       return global.mongooseConnection;
     }
 
