@@ -1,9 +1,9 @@
 import { ERROR_CODE_STATUS_MAP } from '../constants/index.js';
-import type { ErrorCode, IAppError, TFieldErrors } from '../types/index.js';
+import type { IAppError, TErrorCode, TFieldErrors } from '../types/index.js';
 
 export abstract class AppError extends Error {
   public readonly statusCode: number;
-  public readonly code: ErrorCode;
+  public readonly code: TErrorCode;
   public readonly isOperational: boolean;
   public readonly fieldErrors?: TFieldErrors;
   public readonly globalErrors: string[];
