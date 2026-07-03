@@ -1,3 +1,4 @@
+import type { ErrorBuilder } from '../classes/index.js';
 import type { ERROR_CODE_STATUS_MAP } from '../constants/index.js';
 
 export type TFieldErrors = Record<string, string[]>;
@@ -21,4 +22,9 @@ export interface IAppError extends TErrorPayload {
 
 export interface IErrorBuilderResult extends TErrorPayload {
   code?: TErrorCode;
+}
+
+export interface TCreateErrorOptions {
+  message: string;
+  payload: ErrorBuilder | IErrorBuilderResult;
 }

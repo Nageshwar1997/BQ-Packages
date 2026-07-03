@@ -1,12 +1,6 @@
+import { type AppError, ErrorBuilder } from '../classes/index.js';
 import { ERROR_CLASS_MAP } from '../constants/index.js';
-import type { IErrorBuilderResult } from '../types/index.js';
-import type { AppError } from './AppError.js';
-import { ErrorBuilder } from './ErrorBuilder.js';
-
-interface TCreateErrorOptions {
-  message: string;
-  payload: ErrorBuilder | IErrorBuilderResult;
-}
+import type { TCreateErrorOptions } from '../types/index.js';
 
 /**
  * Creates the appropriate AppError instance from an ErrorBuilder

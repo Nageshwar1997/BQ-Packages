@@ -1,22 +1,24 @@
-import { AuthenticationError } from '../classes/AuthenticationError.js';
-import { AuthorizationError } from '../classes/AuthorizationError.js';
-import { BadGatewayError } from '../classes/BadGatewayError.js';
-import { BadRequestError } from '../classes/BadRequestError.js';
-import { ConflictError } from '../classes/ConflictError.js';
-import { GatewayTimeoutError } from '../classes/GatewayTimeoutError.js';
-import { GoneError } from '../classes/GoneError.js';
-import { InternalServerError } from '../classes/InternalServerError.js';
-import { MethodNotAllowedError } from '../classes/MethodNotAllowedError.js';
-import { NotFoundError } from '../classes/NotFoundError.js';
-import { NotImplementedError } from '../classes/NotImplementedError.js';
-import { PayloadTooLargeError } from '../classes/PayloadTooLargeError.js';
-import { PreconditionFailedError } from '../classes/PreconditionFailedError.js';
-import { RequestTimeoutError } from '../classes/RequestTimeoutError.js';
-import { ServiceUnavailableError } from '../classes/ServiceUnavailableError.js';
-import { TooManyRequestsError } from '../classes/TooManyRequestsError.js';
-import { UnprocessableEntityError } from '../classes/UnprocessableEntityError.js';
-import { UnsupportedMediaTypeError } from '../classes/UnsupportedMediaTypeError.js';
-import { ValidationError } from '../classes/ValidationError.js';
+import {
+  AuthenticationError,
+  AuthorizationError,
+  BadGatewayError,
+  BadRequestError,
+  ConflictError,
+  GatewayTimeoutError,
+  GoneError,
+  InternalServerError,
+  MethodNotAllowedError,
+  NotFoundError,
+  NotImplementedError,
+  PayloadTooLargeError,
+  PreconditionFailedError,
+  RequestTimeoutError,
+  ServiceUnavailableError,
+  TooManyRequestsError,
+  UnprocessableEntityError,
+  UnsupportedMediaTypeError,
+  ValidationError,
+} from '../classes/index.js';
 import type { TErrorCode } from '../types/index.js';
 
 export const ERROR_CODE_STATUS_MAP = {
