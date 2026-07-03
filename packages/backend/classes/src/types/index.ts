@@ -9,6 +9,7 @@ export interface TErrorPayload {
   globalErrors?: string[];
   statusCode?: number;
   isOperational?: boolean;
+  cause?: unknown;
 }
 
 export interface IAppError extends TErrorPayload {

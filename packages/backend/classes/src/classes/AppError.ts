@@ -7,6 +7,7 @@ export abstract class AppError extends Error {
   public readonly isOperational: boolean;
   public readonly fieldErrors?: TFieldErrors;
   public readonly globalErrors: string[];
+  public override readonly cause?: unknown;
 
   constructor({
     message,
@@ -15,8 +16,9 @@ export abstract class AppError extends Error {
     isOperational = true,
     fieldErrors,
     globalErrors,
+    cause,
   }: IAppError) {
-    super(message);
+    super(message, { cause });
 
     this.name = new.target.name;
 
@@ -25,6 +27,7 @@ export abstract class AppError extends Error {
     this.isOperational = isOperational;
     this.fieldErrors = fieldErrors;
     this.globalErrors = globalErrors ?? [message];
+    this.cause = cause;
 
     Object.setPrototypeOf(this, new.target.prototype);
 
