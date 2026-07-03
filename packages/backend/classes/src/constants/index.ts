@@ -1,3 +1,22 @@
+import { AuthenticationError } from '../classes/AuthenticationError.js';
+import { AuthorizationError } from '../classes/AuthorizationError.js';
+import { BadGatewayError } from '../classes/BadGatewayError.js';
+import { BadRequestError } from '../classes/BadRequestError.js';
+import { ConflictError } from '../classes/ConflictError.js';
+import { GatewayTimeoutError } from '../classes/GatewayTimeoutError.js';
+import { GoneError } from '../classes/GoneError.js';
+import { InternalServerError } from '../classes/InternalServerError.js';
+import { MethodNotAllowedError } from '../classes/MethodNotAllowedError.js';
+import { NotFoundError } from '../classes/NotFoundError.js';
+import { NotImplementedError } from '../classes/NotImplementedError.js';
+import { PayloadTooLargeError } from '../classes/PayloadTooLargeError.js';
+import { PreconditionFailedError } from '../classes/PreconditionFailedError.js';
+import { RequestTimeoutError } from '../classes/RequestTimeoutError.js';
+import { ServiceUnavailableError } from '../classes/ServiceUnavailableError.js';
+import { TooManyRequestsError } from '../classes/TooManyRequestsError.js';
+import { UnprocessableEntityError } from '../classes/UnprocessableEntityError.js';
+import { UnsupportedMediaTypeError } from '../classes/UnsupportedMediaTypeError.js';
+import { ValidationError } from '../classes/ValidationError.js';
 import type { TErrorCode } from '../types/index.js';
 
 export const ERROR_CODE_STATUS_MAP = {
@@ -68,4 +87,59 @@ export const ERROR_PRIORITY: Readonly<Record<TErrorCode, number>> = {
   // Generic Client Error (Lowest)
   // ========================================
   BAD_REQUEST: 2,
+} as const;
+
+export const ERROR_CLASS_MAP = {
+  // ========================================
+  // 5xx - Server Errors
+  // Unexpected failures within the application
+  // or infrastructure dependencies.
+  // ========================================
+  INTERNAL_SERVER_ERROR: InternalServerError,
+  SERVICE_UNAVAILABLE: ServiceUnavailableError,
+  BAD_GATEWAY: BadGatewayError,
+  GATEWAY_TIMEOUT: GatewayTimeoutError,
+  NOT_IMPLEMENTED: NotImplementedError,
+
+  // ========================================
+  // 401–403 - Authentication & Authorization
+  // Identity verification and access control.
+  // ========================================
+  AUTHENTICATION_ERROR: AuthenticationError,
+  AUTHORIZATION_ERROR: AuthorizationError,
+
+  // ========================================
+  // 404–410 - Resource State
+  // Requested resource is missing or its current
+  // state prevents the requested operation.
+  // ========================================
+  NOT_FOUND: NotFoundError,
+  CONFLICT: ConflictError,
+  GONE: GoneError,
+
+  // ========================================
+  // 405–429 - Request Constraints
+  // Request violates protocol, limits, or
+  // content restrictions.
+  // ========================================
+  PAYLOAD_TOO_LARGE: PayloadTooLargeError,
+  UNSUPPORTED_MEDIA_TYPE: UnsupportedMediaTypeError,
+  TOO_MANY_REQUESTS: TooManyRequestsError,
+  REQUEST_TIMEOUT: RequestTimeoutError,
+  METHOD_NOT_ALLOWED: MethodNotAllowedError,
+  PRECONDITION_FAILED: PreconditionFailedError,
+
+  // ========================================
+  // 422 - Validation
+  // Request syntax is valid but validation or
+  // business rules failed.
+  // ========================================
+  VALIDATION_ERROR: ValidationError,
+  UNPROCESSABLE_ENTITY: UnprocessableEntityError,
+
+  // ========================================
+  // 400 - Generic Client Error
+  // Fallback for invalid client requests.
+  // ========================================
+  BAD_REQUEST: BadRequestError,
 } as const;
