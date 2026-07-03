@@ -2,6 +2,7 @@ import { ensureLoggedIn } from '../common/auth.mjs';
 import { runBatchOperation } from '../common/batch-operation.mjs';
 import { sortPackagesByDependencies } from '../common/dependency-sort.mjs';
 import { republishToNpm } from '../common/npm.mjs';
+import { buildWorkspacePackage, installWorkspaceDependencies } from '../common/package-lifecycle.mjs';
 import { getPackageJsonPath } from '../common/paths.mjs';
 import { reportSuccess, reportWarning } from '../common/reporter.mjs';
 import { parseData, readFileByPath, writeJson } from '../common/utils.mjs';
@@ -41,6 +42,7 @@ import { validateRepublish } from './validators.mjs';
 async function republishPackageInternal(metadata, version, username) {
   validateRepublish({ ...metadata, localVersion: version });
 
+  await buildWorkspacePackage(metadata);
   await republishToNpm(metadata.directory, version);
 
   reportSuccess(
@@ -197,6 +199,7 @@ export async function republishPackage(metadata) {
 
   try {
     await updatePackageJsonForReleasePlan(releasePlan);
+    await installWorkspaceDependencies();
     await republishPackageInternal(metadata, nextVersion, username);
   } catch (error) {
     await rollbackAndThrow(snapshot, error);
@@ -230,6 +233,7 @@ export async function republishPackages(packages) {
 
   try {
     await updatePackageJsonForReleasePlan(releasePlan);
+    await installWorkspaceDependencies();
 
     await runBatchOperation({
       title: 'Republish Summary',

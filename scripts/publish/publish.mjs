@@ -2,6 +2,7 @@ import { ensureLoggedIn } from '../common/auth.mjs';
 import { runBatchOperation } from '../common/batch-operation.mjs';
 import { sortPackagesByDependencies } from '../common/dependency-sort.mjs';
 import { publishToNpm } from '../common/npm.mjs';
+import { buildWorkspacePackage, installWorkspaceDependencies } from '../common/package-lifecycle.mjs';
 import { reportSuccess } from '../common/reporter.mjs';
 import { confirmPublish, confirmPublishMany } from './prompts.mjs';
 import { validatePublish } from './validators.mjs';
@@ -24,6 +25,7 @@ import { validatePublish } from './validators.mjs';
 async function publishPackageInternal(metadata, username) {
   validatePublish(metadata);
 
+  await buildWorkspacePackage(metadata);
   await publishToNpm(metadata.directory, metadata.localVersion);
 
   reportSuccess(
@@ -50,6 +52,7 @@ export async function publishNewPackage(metadata) {
     return;
   }
 
+  await installWorkspaceDependencies();
   await publishPackageInternal(metadata, username);
 }
 
@@ -73,6 +76,8 @@ export async function publishPackages(packages) {
   if (!isConfirmed) {
     return;
   }
+
+  await installWorkspaceDependencies();
 
   await runBatchOperation({
     title: 'Publish Summary',
