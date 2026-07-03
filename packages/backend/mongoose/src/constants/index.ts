@@ -8,8 +8,8 @@ export const DEFAULT_CONNECT_OPTIONS = {
   retryWrites: true,
 } as const;
 
-export const DEV_CONNECT_OPTIONS = { maxPoolSize: 5, minPoolSize: 1, autoIndex: true } as const;
+export const CACHED_CONNECT_OPTIONS = { maxPoolSize: 5, minPoolSize: 1, autoIndex: true } as const;
 
-export const PROD_CONNECT_OPTIONS = { autoIndex: false } as const;
+export const DEFAULT_RUNTIME_OPTIONS = { autoIndex: false } as const;
 
 export const CONNECTION_STATES = STATES;

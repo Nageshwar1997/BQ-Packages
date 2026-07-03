@@ -2,35 +2,30 @@ import mongoose, { connect } from 'mongoose';
 
 import { mongoEventEmitter } from '../classes/index.js';
 import {
+  CACHED_CONNECT_OPTIONS,
   DEFAULT_CONNECT_OPTIONS,
-  DEV_CONNECT_OPTIONS,
-  PROD_CONNECT_OPTIONS,
+  DEFAULT_RUNTIME_OPTIONS,
 } from '../constants/index.js';
 import type { MongoConnectOptions } from '../types/index.js';
 
 let listenersRegistered = false;
+let mongooseConfigured = false;
 
 export const connectToDB = async ({
   uri,
-  isDev = false,
+  enableGlobalCache = false,
   options = {},
 }: MongoConnectOptions): Promise<typeof mongoose> => {
   if (!uri.trim()) {
     throw new Error('MongoDB connection URI is required.');
   }
 
-  /**
-   * Already connected.
-   */
   if (mongoose.connection.readyState === mongoose.STATES.connected) {
     return mongoose;
   }
 
-  /**
-   * Development cache.
-   */
-  if (isDev) {
-    if (global.mongooseConnection) {
+  if (enableGlobalCache) {
+    if (global.mongooseConnection?.connection.readyState === mongoose.STATES.connected) {
       return global.mongooseConnection;
     }
 
@@ -39,25 +34,32 @@ export const connectToDB = async ({
     }
   }
 
-  mongoose.set('strictQuery', true);
+  if (!mongooseConfigured) {
+    mongoose.set('strictQuery', true);
+    mongooseConfigured = true;
+  }
 
   mongoEventEmitter.emitMongoEvent('connecting');
 
   const connectionPromise = connect(uri, {
     ...DEFAULT_CONNECT_OPTIONS,
-    ...(isDev ? DEV_CONNECT_OPTIONS : PROD_CONNECT_OPTIONS),
+    ...(enableGlobalCache ? CACHED_CONNECT_OPTIONS : DEFAULT_RUNTIME_OPTIONS),
     ...options,
   })
     .then((connection) => {
       if (!listenersRegistered) {
         listenersRegistered = true;
 
-        mongoose.connection.on('connected', () => {
+        connection.connection.on('connected', () => {
           mongoEventEmitter.emitMongoEvent('connected');
         });
 
-        mongoose.connection.on('disconnected', () => {
-          if (isDev) {
+        connection.connection.on('disconnecting', () => {
+          mongoEventEmitter.emitMongoEvent('disconnecting');
+        });
+
+        connection.connection.on('disconnected', () => {
+          if (enableGlobalCache) {
             global.mongooseConnection = undefined;
             global.mongooseConnectionPromise = undefined;
           }
@@ -65,40 +67,36 @@ export const connectToDB = async ({
           mongoEventEmitter.emitMongoEvent('disconnected');
         });
 
-        mongoose.connection.on('disconnecting', () => {
-          mongoEventEmitter.emitMongoEvent('disconnecting');
-        });
-
-        mongoose.connection.on('error', (error) => {
-          if (isDev) {
+        connection.connection.on('error', (error: Error) => {
+          if (enableGlobalCache) {
             global.mongooseConnection = undefined;
             global.mongooseConnectionPromise = undefined;
           }
 
-          mongoEventEmitter.emitMongoEvent('error', error as Error);
+          mongoEventEmitter.emitMongoEvent('error', error);
         });
       }
 
-      if (isDev) {
+      if (enableGlobalCache) {
         global.mongooseConnection = connection;
       }
-
-      mongoEventEmitter.emitMongoEvent('connected');
 
       return connection;
     })
     .catch((error: unknown) => {
-      if (isDev) {
+      if (enableGlobalCache) {
         global.mongooseConnection = undefined;
         global.mongooseConnectionPromise = undefined;
       }
 
-      mongoEventEmitter.emitMongoEvent('error', error as Error);
+      const err = error instanceof Error ? error : new Error('Unknown MongoDB connection error.');
 
-      throw error;
+      mongoEventEmitter.emitMongoEvent('error', err);
+
+      throw err;
     });
 
-  if (isDev) {
+  if (enableGlobalCache) {
     global.mongooseConnectionPromise = connectionPromise;
   }
 

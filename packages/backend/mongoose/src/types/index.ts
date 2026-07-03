@@ -1,21 +1,17 @@
 import type { ConnectOptions } from 'mongoose';
 
 export interface MongoConnectOptions {
-  /**
-   * MongoDB connection string.
-   */
   uri: string;
 
   /**
-   * Enables development optimizations such as global connection caching.
+   * Enables global connection caching.
+   *
+   * Useful in development environments with hot reload.
    *
    * @default false
    */
-  isDev?: boolean;
+  enableGlobalCache?: boolean;
 
-  /**
-   * Additional Mongoose connection options.
-   */
   options?: ConnectOptions;
 }
 
