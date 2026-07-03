@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 
-export interface IMongoEventMap {
+interface IMongoEventMap {
   connecting: [];
   connected: [];
   disconnecting: [];
@@ -8,9 +8,9 @@ export interface IMongoEventMap {
   error: [Error];
 }
 
-export type TMongoEvent = keyof IMongoEventMap;
+type TMongoEvent = keyof IMongoEventMap;
 
-export interface IMongoEvents {
+interface IMongoEvents {
   on<K extends TMongoEvent>(event: K, listener: (...args: IMongoEventMap[K]) => void): IMongoEvents;
 
   once<K extends TMongoEvent>(
