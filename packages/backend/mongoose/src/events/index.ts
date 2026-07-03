@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 
-interface MongoEventMap {
+export interface IMongoEventMap {
   connecting: [];
   connected: [];
   disconnecting: [];
@@ -8,31 +8,57 @@ interface MongoEventMap {
   error: [Error];
 }
 
+export type TMongoEvent = keyof IMongoEventMap;
+
+export interface IMongoEvents {
+  on<K extends TMongoEvent>(event: K, listener: (...args: IMongoEventMap[K]) => void): IMongoEvents;
+
+  once<K extends TMongoEvent>(
+    event: K,
+    listener: (...args: IMongoEventMap[K]) => void,
+  ): IMongoEvents;
+
+  off<K extends TMongoEvent>(
+    event: K,
+    listener: (...args: IMongoEventMap[K]) => void,
+  ): IMongoEvents;
+
+  listenerCount(event: TMongoEvent): number;
+}
+
 const emitter = new EventEmitter();
 
-export const mongoEvents = {
-  on<K extends keyof MongoEventMap>(event: K, listener: (...args: MongoEventMap[K]) => void) {
+export const mongoEvents: IMongoEvents = {
+  on(event, listener) {
     emitter.on(event, listener);
 
     return this;
   },
 
-  once<K extends keyof MongoEventMap>(event: K, listener: (...args: MongoEventMap[K]) => void) {
+  once(event, listener) {
     emitter.once(event, listener);
 
     return this;
   },
 
-  off<K extends keyof MongoEventMap>(event: K, listener: (...args: MongoEventMap[K]) => void) {
+  off(event, listener) {
     emitter.off(event, listener);
 
     return this;
   },
-};
 
-export const emitMongoEvent = <K extends keyof MongoEventMap>(
+  listenerCount(event) {
+    return emitter.listenerCount(event);
+  },
+};
+/**
+ * Internal API.
+ *
+ * Do NOT export from index.ts.
+ */
+export const emitMongoEvent = <K extends TMongoEvent>(
   event: K,
-  ...args: MongoEventMap[K]
+  ...args: IMongoEventMap[K]
 ): void => {
   emitter.emit(event, ...args);
 };
