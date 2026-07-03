@@ -1,63 +1,34 @@
-import mongoose, { connect, type ConnectOptions, STATES } from 'mongoose';
+import mongoose, { connect } from 'mongoose';
 
-declare global {
-  var mongooseConnection: typeof mongoose | undefined;
-  var mongooseConnectionPromise: Promise<typeof mongoose> | undefined;
-}
-
-export interface MongoOptions {
-  uri: string;
-  isDev?: boolean;
-  options?: ConnectOptions;
-  events?: {
-    onConnected?: (mong: typeof mongoose) => void;
-    onDisconnected?: () => void;
-    onError?: (error: Error) => void;
-  };
-}
+import {
+  DEFAULT_CONNECT_OPTIONS,
+  DEV_CONNECT_OPTIONS,
+  PROD_CONNECT_OPTIONS,
+} from '../constants/index.js';
+import { emitMongoEvent } from '../events/index.js';
+import type { MongoConnectOptions } from '../types/index.js';
 
 let listenersRegistered = false;
-
-const registerListeners = (isDev: boolean, events?: MongoOptions['events']): void => {
-  if (listenersRegistered) {
-    return;
-  }
-
-  listenersRegistered = true;
-
-  mongoose.connection.on('disconnected', () => {
-    if (isDev) {
-      global.mongooseConnection = undefined;
-      global.mongooseConnectionPromise = undefined;
-    }
-
-    events?.onDisconnected?.();
-  });
-
-  mongoose.connection.on('error', (error) => {
-    if (isDev) {
-      global.mongooseConnection = undefined;
-      global.mongooseConnectionPromise = undefined;
-    }
-
-    events?.onError?.(error as Error);
-  });
-};
 
 export const connectToDB = async ({
   uri,
   isDev = false,
   options = {},
-  events,
-}: MongoOptions): Promise<typeof mongoose> => {
+}: MongoConnectOptions): Promise<typeof mongoose> => {
   if (!uri.trim()) {
-    throw new Error('MongoDB URI not provided.');
+    throw new Error('MongoDB connection URI is required.');
   }
 
-  if (mongoose.connection.readyState === STATES.connected) {
+  /**
+   * Already connected.
+   */
+  if (mongoose.connection.readyState === mongoose.STATES.connected) {
     return mongoose;
   }
 
+  /**
+   * Development cache.
+   */
   if (isDev) {
     if (global.mongooseConnection) {
       return global.mongooseConnection;
@@ -70,23 +41,49 @@ export const connectToDB = async ({
 
   mongoose.set('strictQuery', true);
 
-  const promise = connect(uri, {
-    serverSelectionTimeoutMS: 5_000,
-    socketTimeoutMS: 45_000,
-    maxPoolSize: isDev ? 5 : 10,
-    minPoolSize: isDev ? 1 : 2,
-    autoIndex: isDev,
-    retryWrites: true,
+  emitMongoEvent('connecting');
+
+  const connectionPromise = connect(uri, {
+    ...DEFAULT_CONNECT_OPTIONS,
+    ...(isDev ? DEV_CONNECT_OPTIONS : PROD_CONNECT_OPTIONS),
     ...options,
   })
     .then((connection) => {
-      registerListeners(isDev, events);
+      if (!listenersRegistered) {
+        listenersRegistered = true;
+
+        mongoose.connection.on('connected', () => {
+          emitMongoEvent('connected');
+        });
+
+        mongoose.connection.on('disconnected', () => {
+          if (isDev) {
+            global.mongooseConnection = undefined;
+            global.mongooseConnectionPromise = undefined;
+          }
+
+          emitMongoEvent('disconnected');
+        });
+
+        mongoose.connection.on('disconnecting', () => {
+          emitMongoEvent('disconnecting');
+        });
+
+        mongoose.connection.on('error', (error) => {
+          if (isDev) {
+            global.mongooseConnection = undefined;
+            global.mongooseConnectionPromise = undefined;
+          }
+
+          emitMongoEvent('error', error as Error);
+        });
+      }
 
       if (isDev) {
         global.mongooseConnection = connection;
       }
 
-      events?.onConnected?.(connection);
+      emitMongoEvent('connected');
 
       return connection;
     })
@@ -96,14 +93,14 @@ export const connectToDB = async ({
         global.mongooseConnectionPromise = undefined;
       }
 
-      events?.onError?.(error as Error);
+      emitMongoEvent('error', error as Error);
 
       throw error;
     });
 
   if (isDev) {
-    global.mongooseConnectionPromise = promise;
+    global.mongooseConnectionPromise = connectionPromise;
   }
 
-  return promise;
+  return connectionPromise;
 };
