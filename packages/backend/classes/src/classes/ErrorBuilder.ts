@@ -1,15 +1,13 @@
-import { ERROR_CLASS_MAP, ERROR_PRIORITY } from '../constants/index.js';
-import type { TErrorCode, TErrorPayload } from '../types/index.js';
-import type { AppError } from './AppError.js';
+import { ERROR_PRIORITY } from '../constants/index.js';
+import type { IErrorBuilderResult, TErrorCode, TErrorPayload } from '../types/index.js';
 
-export interface IErrorBuilderResult extends TErrorPayload {
-  code?: TErrorCode;
-}
 
+/**
+ * Collects, merges and builds structured error payloads.
+ */
 export class ErrorBuilder {
   private fieldErrors: NonNullable<TErrorPayload['fieldErrors']> = {};
   private globalErrors: NonNullable<TErrorPayload['globalErrors']> = [];
-
   private code?: TErrorCode;
 
   /**
@@ -161,18 +159,6 @@ export class ErrorBuilder {
         Object.keys(this.fieldErrors).length > 0 ? structuredClone(this.fieldErrors) : undefined,
       globalErrors: this.globalErrors.length > 0 ? [...this.globalErrors] : undefined,
     });
-  }
-
-  /**
-   * Creates the appropriate AppError instance based on the
-   * highest priority collected error code.
-   */
-  public toError(message: string): AppError {
-    const payload = this.build();
-
-    const ErrorClass = ERROR_CLASS_MAP[payload.code ?? 'INTERNAL_SERVER_ERROR'];
-
-    return new ErrorClass(message, payload);
   }
 
   /**

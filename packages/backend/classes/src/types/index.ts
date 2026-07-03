@@ -18,3 +18,7 @@ export interface IAppError extends TErrorPayload {
   statusCode?: number;
   isOperational?: boolean;
 }
+
+export interface IErrorBuilderResult extends TErrorPayload {
+  code?: TErrorCode;
+}
