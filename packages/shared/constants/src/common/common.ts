@@ -20,3 +20,14 @@ export const SORT = ['asc', 'desc'] as const;
 export const SORT_MAP = Object.fromEntries(SORT.map((sort) => [sort, sort])) as {
   [K in (typeof SORT)[number]]: K;
 };
+
+export const HEADERS_MAP = {
+  serviceSecret: 'X-Service-Secret',
+  userId: 'X-User-Id',
+  userRole: 'X-User-Role',
+  authorization: 'Authorization',
+  contentType: 'Content-Type',
+  loginRole: 'X-Login-Role',
+} as const;
+
+export const HEADERS = Object.values(HEADERS_MAP);
