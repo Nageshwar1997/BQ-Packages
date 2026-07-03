@@ -1,11 +1,11 @@
 import mongoose, { connect } from 'mongoose';
 
+import { mongoEventEmitter } from '../classes/index.js';
 import {
   DEFAULT_CONNECT_OPTIONS,
   DEV_CONNECT_OPTIONS,
   PROD_CONNECT_OPTIONS,
 } from '../constants/index.js';
-import { emitMongoEvent } from '../events/index.js';
 import type { MongoConnectOptions } from '../types/index.js';
 
 let listenersRegistered = false;
@@ -41,7 +41,7 @@ export const connectToDB = async ({
 
   mongoose.set('strictQuery', true);
 
-  emitMongoEvent('connecting');
+  mongoEventEmitter.emitMongoEvent('connecting');
 
   const connectionPromise = connect(uri, {
     ...DEFAULT_CONNECT_OPTIONS,
@@ -53,7 +53,7 @@ export const connectToDB = async ({
         listenersRegistered = true;
 
         mongoose.connection.on('connected', () => {
-          emitMongoEvent('connected');
+          mongoEventEmitter.emitMongoEvent('connected');
         });
 
         mongoose.connection.on('disconnected', () => {
@@ -62,11 +62,11 @@ export const connectToDB = async ({
             global.mongooseConnectionPromise = undefined;
           }
 
-          emitMongoEvent('disconnected');
+          mongoEventEmitter.emitMongoEvent('disconnected');
         });
 
         mongoose.connection.on('disconnecting', () => {
-          emitMongoEvent('disconnecting');
+          mongoEventEmitter.emitMongoEvent('disconnecting');
         });
 
         mongoose.connection.on('error', (error) => {
@@ -75,7 +75,7 @@ export const connectToDB = async ({
             global.mongooseConnectionPromise = undefined;
           }
 
-          emitMongoEvent('error', error as Error);
+          mongoEventEmitter.emitMongoEvent('error', error as Error);
         });
       }
 
@@ -83,7 +83,7 @@ export const connectToDB = async ({
         global.mongooseConnection = connection;
       }
 
-      emitMongoEvent('connected');
+      mongoEventEmitter.emitMongoEvent('connected');
 
       return connection;
     })
@@ -93,7 +93,7 @@ export const connectToDB = async ({
         global.mongooseConnectionPromise = undefined;
       }
 
-      emitMongoEvent('error', error as Error);
+      mongoEventEmitter.emitMongoEvent('error', error as Error);
 
       throw error;
     });

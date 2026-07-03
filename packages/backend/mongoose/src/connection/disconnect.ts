@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-import { emitMongoEvent } from '../events/index.js';
+import { mongoEventEmitter } from '../classes/index.js';
 
 export const disconnectDB = async (): Promise<void> => {
   if (
@@ -10,7 +10,7 @@ export const disconnectDB = async (): Promise<void> => {
     return;
   }
 
-  emitMongoEvent('disconnecting');
+  mongoEventEmitter.emitMongoEvent('disconnecting');
 
   try {
     await mongoose.disconnect();
@@ -18,7 +18,7 @@ export const disconnectDB = async (): Promise<void> => {
     global.mongooseConnection = undefined;
     global.mongooseConnectionPromise = undefined;
   } catch (error) {
-    emitMongoEvent('error', error as Error);
+    mongoEventEmitter.emitMongoEvent('error', error as Error);
 
     throw error;
   }
