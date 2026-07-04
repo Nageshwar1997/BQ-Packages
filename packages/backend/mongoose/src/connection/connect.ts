@@ -52,10 +52,6 @@ export const connectDb = async ({
       if (!listenersRegistered) {
         listenersRegistered = true;
 
-        connection.connection.on('connected', () => {
-          mongoEventEmitter.emitMongoEvent('connected');
-        });
-
         connection.connection.on('disconnecting', () => {
           mongoEventEmitter.emitMongoEvent('disconnecting');
         });
@@ -83,6 +79,8 @@ export const connectDb = async ({
         global.mongooseConnection = connection;
       }
 
+      mongoEventEmitter.emitMongoEvent('connected');
+
       return connection;
     })
     .catch((error: unknown) => {
@@ -91,7 +89,10 @@ export const connectDb = async ({
         global.mongooseConnectionPromise = undefined;
       }
 
-      const err = error instanceof Error ? error : new Error('Unknown MongoDB connection error.');
+      const err =
+        error instanceof Error
+          ? error
+          : new Error(`Unknown MongoDB connection error: ${String(error)}`);
 
       mongoEventEmitter.emitMongoEvent('error', err);
 

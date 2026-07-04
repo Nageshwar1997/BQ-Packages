@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/backend-mongoose",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Backend mongoose for Beautinique project.",
   "keywords": [
     "backend",
