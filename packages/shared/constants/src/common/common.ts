@@ -7,7 +7,7 @@ export const SERVICE_NAMES = [
 
 export const SERVICE_NAMES_MAP = Object.fromEntries(
   SERVICE_NAMES.map((service) => [service, service] as const),
-);
+) as { readonly [K in (typeof SERVICE_NAMES)[number]]: K };
 
 export const API_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const;
 
@@ -18,7 +18,7 @@ export const API_METHODS_MAP = Object.fromEntries(
 export const SORT = ['asc', 'desc'] as const;
 
 export const SORT_MAP = Object.fromEntries(SORT.map((sort) => [sort, sort])) as {
-  [K in (typeof SORT)[number]]: K;
+  readonly [K in (typeof SORT)[number]]: K;
 };
 
 export const HEADERS_MAP = {
