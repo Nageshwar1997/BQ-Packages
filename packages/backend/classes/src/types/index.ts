@@ -1,13 +1,13 @@
+import type { TFieldErrors, TGlobalErrors } from '@beautinique/shared-types';
+
 import type { ErrorBuilder } from '../classes/index.js';
 import type { ERROR_CODE_STATUS_MAP } from '../constants/index.js';
-
-export type TFieldErrors = Record<string, string[]>;
 
 export type TErrorCode = keyof typeof ERROR_CODE_STATUS_MAP;
 
 export interface TErrorPayload {
   fieldErrors?: TFieldErrors;
-  globalErrors?: string[];
+  globalErrors?: TGlobalErrors;
   statusCode?: number;
   isOperational?: boolean;
   cause?: unknown;
