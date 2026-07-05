@@ -1,3 +1,5 @@
+import type { IncomingMessage } from 'node:http';
+
 import type { Logger, LoggerOptions, redactOptions, SerializedError } from 'pino';
 
 export interface ILoggerOptions extends Omit<
@@ -33,4 +35,18 @@ export interface ISerializedError extends Omit<SerializedError, 'cause'> {
 
 export interface IErrorSerializerOptions {
   includeStack: boolean;
+}
+
+export interface IRequestSerializerOptions {
+  includeBody: boolean;
+}
+
+export interface ISerializedRequest extends Pick<IncomingMessage, 'method' | 'url'> {
+  id?: string;
+  query?: unknown;
+  params?: unknown;
+  ip?: string;
+  remoteAddress?: string;
+  userAgent?: string;
+  body?: unknown;
 }
