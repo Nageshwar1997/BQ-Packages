@@ -1,6 +1,7 @@
 import { stdSerializers } from 'pino';
 
 import type { IErrorSerializerOptions, ISerializedError } from '../types/index.js';
+import { normalizeError } from './normalize-error.js';
 
 export function serializeError(
   error: unknown,
@@ -9,20 +10,18 @@ export function serializeError(
 ): ISerializedError {
   const { includeStack } = options;
 
-  if (error instanceof Error) {
-    if (visited.has(error)) {
-      return { type: error.name, message: error.message };
-    }
+  const normalizedError = normalizeError(error);
 
-    visited.add(error);
+  if (visited.has(normalizedError)) {
+    return { type: normalizedError.name, message: normalizedError.message };
   }
 
-  const serialized = stdSerializers.err(
-    error instanceof Error ? error : new Error(String(error)),
-  ) as ISerializedError;
+  visited.add(normalizedError);
 
-  if (error instanceof Error && error.cause !== undefined) {
-    serialized.cause = serializeError(error.cause, options, visited);
+  const serialized = stdSerializers.err(normalizedError) as ISerializedError;
+
+  if (normalizedError.cause !== undefined) {
+    serialized.cause = serializeError(normalizedError.cause, options, visited);
   }
 
   if (!includeStack) {
