@@ -1,6 +1,5 @@
 import type { Logger, LoggerOptions, redactOptions, SerializedError } from 'pino';
 import type { StdSerializedResults } from 'pino-http';
-import type { ParsedQs } from 'qs';
 export interface ILoggerOptions extends Omit<
   LoggerOptions,
   'base' | 'name' | 'transport' | 'redact'
@@ -43,9 +42,9 @@ export interface IRequestSerializerOptions {
 type SerializedRequest = StdSerializedResults['req'];
 
 export interface IRequest extends Pick<SerializedRequest, 'method' | 'url' | 'id'> {
-  query?: ParsedQs;
+  query?: Record<string, unknown>;
+  params?: Record<string, unknown>;
   headers: Record<string, string | string[] | undefined>;
-  params: Record<string, string | string[] | undefined>;
   originalUrl?: string;
   ip?: string;
   body?: unknown;
