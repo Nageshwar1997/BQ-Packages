@@ -53,8 +53,9 @@ export interface IRequest extends Pick<SerializedRequest, 'method' | 'url' | 'id
 
 export interface ISerializedRequest
   extends
-    Pick<SerializedRequest, 'id' | 'method' | 'url' | 'remoteAddress' | 'remotePort'>,
-    Pick<IRequest, 'query' | 'params' | 'ip'> {
+    Pick<SerializedRequest, 'id' | 'method' | 'url'>,
+    Pick<IRequest, 'query' | 'params' | 'ip'>,
+    Pick<NonNullable<IRequest['socket']>, 'remoteAddress' | 'remotePort'> {
   userAgent?: string; //User-Agent header.
   body?: unknown; // Request body (Development only).
 }
