@@ -1,11 +1,11 @@
 {
-  "name": "@beautinique/backend-zod",
-  "version": "1.0.2",
-  "description": "Backend zod for Beautinique project",
+  "name": "@beautinique/backend-types",
+  "version": "1.0.1",
+  "description": "Backend types for Beautinique project.",
   "keywords": [
     "backend",
     "shared",
-    "zod",
+    "types",
     "beautinique"
   ],
   "author": "Nageshwar Pawar",
@@ -13,12 +13,12 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Nageshwar1997/BQ-Packages.git",
-    "directory": "packages/backend/zod"
+    "directory": "packages/backend/types"
   },
   "bugs": {
     "url": "https://github.com/Nageshwar1997/BQ-Packages/issues"
   },
-  "homepage": "https://github.com/Nageshwar1997/BQ-Packages/tree/main/packages/backend/zod#readme",
+  "homepage": "https://github.com/Nageshwar1997/BQ-Packages/tree/main/packages/backend/types#readme",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -49,9 +49,7 @@
     "node": ">=24"
   },
   "devDependencies": {
+    "@beautinique/backend-zod": "^1.0.2",
     "typescript": "^6.0.3"
-  },
-  "dependencies": {
-    "@beautinique/shared-zod": "^1.0.0"
   }
 }
