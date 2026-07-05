@@ -2,7 +2,7 @@ import { createLogger } from './core/create-logger.js';
 
 const logger = createLogger({
   service: 'test-service',
-  pretty: false,
+  pretty: true,
 });
 
 logger.info('Logger initialized');
