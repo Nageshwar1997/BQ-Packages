@@ -20,6 +20,12 @@ export function serializeError(
 
   const serialized = stdSerializers.err(normalizedError) as ISerializedError;
 
+  if (normalizedError instanceof AggregateError) {
+    serialized.errors = normalizedError.errors.map((error) =>
+      serializeError(error, options, visited),
+    );
+  }
+
   if (normalizedError.cause !== undefined) {
     serialized.cause = serializeError(normalizedError.cause, options, visited);
   }
