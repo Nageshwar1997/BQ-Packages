@@ -1,6 +1,6 @@
 import type { Logger, LoggerOptions, redactOptions, SerializedError } from 'pino';
 import type { StdSerializedResults } from 'pino-http';
-
+import type { ParsedQs } from 'qs';
 export interface ILoggerOptions extends Omit<
   LoggerOptions,
   'base' | 'name' | 'transport' | 'redact'
@@ -42,18 +42,20 @@ export interface IRequestSerializerOptions {
 
 type SerializedRequest = StdSerializedResults['req'];
 
-export interface IRequest extends Pick<
-  SerializedRequest,
-  'method' | 'url' | 'id' | 'query' | 'params' | 'headers'
-> {
+export interface IRequest extends Pick<SerializedRequest, 'method' | 'url' | 'id'> {
+  query?: ParsedQs;
+  headers: Record<string, string | string[] | undefined>;
+  params: Record<string, string | string[] | undefined>;
   originalUrl?: string;
   ip?: string;
   body?: unknown;
-  socket: Pick<SerializedRequest, 'remoteAddress' | 'remotePort'>;
+  socket?: Partial<Pick<SerializedRequest, 'remoteAddress' | 'remotePort'>>;
 }
 
-export interface ISerializedRequest extends Omit<SerializedRequest, 'raw' | 'headers'> {
-  ip?: string; // Client IP address.
+export interface ISerializedRequest
+  extends
+    Pick<SerializedRequest, 'id' | 'method' | 'url' | 'remoteAddress' | 'remotePort'>,
+    Pick<IRequest, 'query' | 'params' | 'ip'> {
   userAgent?: string; //User-Agent header.
   body?: unknown; // Request body (Development only).
 }

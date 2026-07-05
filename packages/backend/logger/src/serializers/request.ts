@@ -9,8 +9,8 @@ export function createRequestSerializer({ includeBody }: IRequestSerializerOptio
       query: request.query,
       params: request.params,
       ip: request.ip,
-      remoteAddress: request.socket.remoteAddress,
-      remotePort: request.socket.remotePort,
+      remoteAddress: request.socket?.remoteAddress ?? '',
+      remotePort: request.socket?.remotePort ?? 0,
       userAgent:
         typeof request.headers['user-agent'] === 'string'
           ? request.headers['user-agent']
