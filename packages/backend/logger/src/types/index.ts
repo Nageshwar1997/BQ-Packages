@@ -58,3 +58,9 @@ export interface ISerializedRequest
   userAgent?: string; //User-Agent header.
   body?: unknown; // Request body (Development only).
 }
+
+type SerializedResponse = StdSerializedResults['res'];
+
+export type IResponse = Pick<SerializedResponse, 'statusCode'>;
+
+export type ISerializedResponse = Pick<SerializedResponse, 'statusCode'>;

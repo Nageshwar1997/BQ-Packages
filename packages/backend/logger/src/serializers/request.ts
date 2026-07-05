@@ -11,11 +11,10 @@ export function createRequestSerializer({ includeBody }: IRequestSerializerOptio
       ip: request.ip,
       remoteAddress: request.socket?.remoteAddress ?? '',
       remotePort: request.socket?.remotePort ?? 0,
-      userAgent:
-        typeof request.headers['user-agent'] === 'string'
-          ? request.headers['user-agent']
-          : undefined,
-      body: includeBody ? request.body : undefined,
+      ...(typeof request.headers['user-agent'] === 'string' && {
+        userAgent: request.headers['user-agent'],
+      }),
+      ...(includeBody && { body: request.body }),
     };
 
     return serialized;
