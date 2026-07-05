@@ -1,31 +1,22 @@
-import type { Request } from 'express';
-
-import type { IRequestSerializerOptions, ISerializedRequest } from '../types/index.js';
+import type { IRequest, IRequestSerializerOptions, ISerializedRequest } from '../types/index.js';
 
 export function createRequestSerializer({ includeBody }: IRequestSerializerOptions) {
-  return ({
-    method,
-    originalUrl,
-    query,
-    params,
-    ip,
-    socket,
-    body,
-    ...restReq
-  }: Request): ISerializedRequest => {
+  return (request: IRequest): ISerializedRequest => {
     const serialized: ISerializedRequest = {
-      method,
-      url: originalUrl,
-      query,
-      params,
-      ip,
-      remoteAddress: socket.remoteAddress,
-      userAgent: restReq.get('user-agent'),
+      id: request.id,
+      method: request.method,
+      url: request.originalUrl ?? request.url,
+      query: request.query,
+      params: request.params,
+      ip: request.ip,
+      remoteAddress: request.socket.remoteAddress,
+      remotePort: request.socket.remotePort,
+      userAgent:
+        typeof request.headers['user-agent'] === 'string'
+          ? request.headers['user-agent']
+          : undefined,
+      body: includeBody ? request.body : undefined,
     };
-
-    if (includeBody) {
-      serialized.body = body;
-    }
 
     return serialized;
   };

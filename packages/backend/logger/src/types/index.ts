@@ -1,6 +1,5 @@
-import type { IncomingMessage } from 'node:http';
-
 import type { Logger, LoggerOptions, redactOptions, SerializedError } from 'pino';
+import type { StdSerializedResults } from 'pino-http';
 
 export interface ILoggerOptions extends Omit<
   LoggerOptions,
@@ -41,12 +40,20 @@ export interface IRequestSerializerOptions {
   includeBody: boolean;
 }
 
-export interface ISerializedRequest extends Pick<IncomingMessage, 'method' | 'url'> {
-  id?: string;
-  query?: unknown;
-  params?: unknown;
+type SerializedRequest = StdSerializedResults['req'];
+
+export interface IRequest extends Pick<
+  SerializedRequest,
+  'method' | 'url' | 'id' | 'query' | 'params' | 'headers'
+> {
+  originalUrl?: string;
   ip?: string;
-  remoteAddress?: string;
-  userAgent?: string;
   body?: unknown;
+  socket: Pick<SerializedRequest, 'remoteAddress' | 'remotePort'>;
+}
+
+export interface ISerializedRequest extends Omit<SerializedRequest, 'raw' | 'headers'> {
+  ip?: string; // Client IP address.
+  userAgent?: string; //User-Agent header.
+  body?: unknown; // Request body (Development only).
 }
