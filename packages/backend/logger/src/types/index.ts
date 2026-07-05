@@ -1,7 +1,7 @@
-import type { Logger, LoggerOptions as PinoLoggerOptions, redactOptions } from 'pino';
+import type { Logger, LoggerOptions, redactOptions, SerializedError } from 'pino';
 
-export interface LoggerOptions extends Omit<
-  PinoLoggerOptions,
+export interface TLoggerOptions extends Omit<
+  LoggerOptions,
   'base' | 'name' | 'transport' | 'redact'
 > {
   /** Name of the service emitting logs. */
@@ -24,4 +24,8 @@ export interface LoggerOptions extends Omit<
 export interface RequestLoggerOptions {
   logger: Logger;
   ignorePaths?: string[];
+}
+
+export interface TSerializedError extends Omit<SerializedError, 'cause'> {
+  cause?: TSerializedError;
 }

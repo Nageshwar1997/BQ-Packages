@@ -3,9 +3,9 @@ import pino from 'pino';
 import { createBase } from '../configs/base.js';
 import { createRedact } from '../configs/redact.js';
 import { createTransport } from '../configs/transport.js';
-import type { LoggerOptions } from '../types/index.js';
+import type { TLoggerOptions } from '../types/index.js';
 
-export function createLogger(options: LoggerOptions) {
+export function createLogger(options: TLoggerOptions) {
   const { context: _, redact: __, service: ___, ...pinoOptions } = options;
 
   return pino({
