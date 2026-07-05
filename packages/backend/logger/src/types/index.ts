@@ -29,3 +29,7 @@ export interface IRequestLoggerOptions {
 export interface ISerializedError extends Omit<SerializedError, 'cause'> {
   cause?: ISerializedError;
 }
+
+export interface IErrorSerializerOptions {
+  includeStack: boolean;
+}

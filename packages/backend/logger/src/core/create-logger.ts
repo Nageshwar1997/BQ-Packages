@@ -14,6 +14,6 @@ export function createLogger(options: ILoggerOptions) {
     base: createBase(options),
     redact: createRedact(options),
     transport: createTransport(options.pretty),
-    serializers: { err: createErrorSerializer() },
+    serializers: { err: createErrorSerializer({ includeStack: !!options.pretty }) },
   });
 }
