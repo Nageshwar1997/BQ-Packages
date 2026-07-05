@@ -1,7 +1,7 @@
 import type { Bindings } from 'pino';
 
-import type { TLoggerOptions } from '../types/index.js';
+import type { ILoggerOptions } from '../types/index.js';
 
-export function createBase({ context, service }: TLoggerOptions): Bindings {
+export function createBase({ context, service }: ILoggerOptions): Bindings {
   return { service, ...context };
 }

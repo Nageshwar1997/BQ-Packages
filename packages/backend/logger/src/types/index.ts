@@ -1,6 +1,6 @@
 import type { Logger, LoggerOptions, redactOptions, SerializedError } from 'pino';
 
-export interface TLoggerOptions extends Omit<
+export interface ILoggerOptions extends Omit<
   LoggerOptions,
   'base' | 'name' | 'transport' | 'redact'
 > {
@@ -21,11 +21,11 @@ export interface TLoggerOptions extends Omit<
   redact?: Omit<redactOptions, 'paths'> & { paths?: string[] };
 }
 
-export interface RequestLoggerOptions {
+export interface IRequestLoggerOptions {
   logger: Logger;
   ignorePaths?: string[];
 }
 
-export interface TSerializedError extends Omit<SerializedError, 'cause'> {
-  cause?: TSerializedError;
+export interface ISerializedError extends Omit<SerializedError, 'cause'> {
+  cause?: ISerializedError;
 }

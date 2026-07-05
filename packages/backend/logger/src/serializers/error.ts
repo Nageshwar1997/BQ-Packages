@@ -1,7 +1,7 @@
-import type { TSerializedError } from '../types/index.js';
+import type { ISerializedError } from '../types/index.js';
 
 export function createErrorSerializer() {
-  return (_error: Error): TSerializedError => {
+  return (_error: Error): ISerializedError => {
     throw new Error('Not implemented');
   };
 }
