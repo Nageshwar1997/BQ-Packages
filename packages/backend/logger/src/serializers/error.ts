@@ -1,7 +1,7 @@
-import type { ISerializedError } from '../types/index.js';
+import { stdSerializers } from 'pino';
 
 export function createErrorSerializer() {
-  return (_error: Error): ISerializedError => {
-    throw new Error('Not implemented');
+  return (error: unknown) => {
+    return stdSerializers.err(error instanceof Error ? error : new Error(String(error)));
   };
 }
