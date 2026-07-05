@@ -13,3 +13,6 @@ export type TApiMethod = (typeof API_METHODS)[number];
 export type TApiMethodsMap = typeof API_METHODS_MAP;
 export type TSort = (typeof SORT)[number];
 export type TSortMap = typeof SORT_MAP;
+
+export type TFieldErrors = Record<string, string[]>;
+export type TGlobalErrors = string[];
