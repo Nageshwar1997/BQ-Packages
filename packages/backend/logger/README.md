@@ -42,14 +42,9 @@ logger.error({ err: someError }, 'Job failed');
 | `service` | _(required)_                    | Tags every log line - use this to filter/group logs per service in Grafana.                                      |
 | `pretty`  | `process.env.IS_DEV === 'true'` | Human-readable, colorized output via `pino-pretty`. Also controls whether error stack traces are included.       |
 | `context` | `undefined`                     | Extra static fields merged into every log line.                                                                  |
+| `logsDir` | `undefined`                     | Additionally write logs to files in this directory, split by category (see "File logging" below).                |
 | `redact`  | `undefined`                     | Extra redact paths, additively merged with the built-in secure defaults (see below). Cannot remove the defaults. |
 | ...       |                                 | Any other native Pino `LoggerOptions` (`level`, `formatters`, `hooks`, ...) are passed straight through.         |
-
-A ready-to-use default instance (`service: "app"`) is also exported for quick scripts:
-
-```ts
-import { logger } from '@beautinique/backend-logger';
-```
 
 ## HTTP logger - `createHttpLogger`
 
@@ -80,6 +75,30 @@ Always enforced (not configurable), so every service produces the same log shape
 - **Log level mapping**: 2xx/3xx → `info`, 4xx → `warn`, 5xx or an unhandled error → `error`.
 - **Serializers**: the secure request/response/error serializers described below.
 - **Success message format**: `"Request completed with status <code>"`.
+
+## File logging
+
+By default, logs only go to `stdout` (see "Where do logs go?" below). Passing `logsDir` additionally writes them to files in that directory, split into four categories:
+
+```ts
+const logger = createLogger({
+  service: 'gateway',
+  logsDir: 'logs', // created automatically if missing
+});
+```
+
+| File            | Contents                                                                                                     |
+| --------------- | -------------------------------------------------------------------------------------------------------------- |
+| `request.log`   | Every HTTP request/response log line (from `createHttpLogger`), regardless of outcome - a full traffic trail. |
+| `error.log`     | Every `error`/`fatal` level log line - including request-tied ones, so it's a complete error feed on its own.  |
+| `warning.log`   | Every `warn` level log line - including request-tied ones (e.g. 4xx responses).                                |
+| `success.log`   | Everything else (`info`/`debug`/`trace`) that is **not** already part of an HTTP request - plain application messages, so this file doesn't get flooded with routine request traffic. |
+
+This is intentionally simple - plain append-only file streams, no rotation or worker threads. For log rotation, shipping to Loki, etc., see the roadmap in the package description.
+
+### Where do logs go by default?
+
+Without `logsDir`, this package only ever writes to `stdout` (colorized in development, raw JSON in production) - it does not persist logs anywhere by itself. Persisting/collecting logs long-term is normally handled by your deployment infrastructure: a container runtime captures `stdout`, a shipper (Promtail/Fluent Bit/Grafana Agent) forwards it to Loki, and Grafana queries Loki. `logsDir` exists for simple local/file-based persistence when that infrastructure isn't in place yet.
 
 ## Serializers
 
