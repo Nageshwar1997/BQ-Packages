@@ -1,5 +1,5 @@
 import type { Logger, LoggerOptions, redactOptions, SerializedError } from 'pino';
-import type { StdSerializedResults } from 'pino-http';
+import type { Options as HttpLoggerOptions, StdSerializedResults } from 'pino-http';
 export interface ILoggerOptions extends Omit<
   LoggerOptions,
   'base' | 'name' | 'transport' | 'redact'
@@ -65,3 +65,8 @@ type SerializedResponse = StdSerializedResults['res'];
 export type IResponse = Pick<SerializedResponse, 'statusCode'>;
 
 export type ISerializedResponse = Pick<SerializedResponse, 'statusCode'>;
+
+export type THttpLoggerOptions = Omit<
+  HttpLoggerOptions,
+  'serializers' | 'customProps' | 'genReqId'
+>;

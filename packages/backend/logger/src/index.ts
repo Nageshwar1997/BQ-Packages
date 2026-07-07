@@ -1,10 +1,23 @@
-import { createLogger } from './core/create-logger.js';
+import express from 'express';
 
+import { createLogger } from './core/index.js';
+import { createHttpLogger } from './http/index.js';
 const logger = createLogger({
-  service: 'test-service',
+  service: 'gateway',
   pretty: true,
 });
 
-logger.info('Logger initialized');
+const httpLogger = createHttpLogger({
+  logger,
+});
 
-logger.error(new Error('Something went wrong'));
+
+const app = express();
+
+app.use(httpLogger);
+
+app.get('/', (_, res) => {
+  res.send('Hello');
+});
+
+app.listen(3000);
