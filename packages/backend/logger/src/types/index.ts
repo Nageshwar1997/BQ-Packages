@@ -66,7 +66,16 @@ export type IResponse = Pick<SerializedResponse, 'statusCode'>;
 
 export type ISerializedResponse = Pick<SerializedResponse, 'statusCode'>;
 
-export type THttpLoggerOptions = Omit<
+export interface IHttpLoggerOptions extends Omit<
   HttpLoggerOptions,
   'serializers' | 'customProps' | 'genReqId'
->;
+> {
+  /** Additional paths to ignore. */
+  ignorePaths?: string[];
+}
+
+export type TCustomSuccessMessage = NonNullable<HttpLoggerOptions['customSuccessMessage']>;
+
+export type TCustomErrorMessage = NonNullable<HttpLoggerOptions['customErrorMessage']>;
+
+export type TCustomLogLevel = NonNullable<HttpLoggerOptions['customLogLevel']>;

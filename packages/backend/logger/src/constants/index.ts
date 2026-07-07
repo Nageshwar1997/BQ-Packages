@@ -12,3 +12,6 @@ export const DEFAULT_REDACT_PATHS = [
   'accessToken',
   'refreshToken',
 ] as const;
+
+
+export const DEFAULT_IGNORE_PATHS = ['/health', '/favicon.ico', '/robots.txt'] as const;
