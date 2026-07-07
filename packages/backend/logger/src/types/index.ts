@@ -44,6 +44,21 @@ export interface ILoggerOptions
   context?: Record<string, unknown>;
 
   /**
+   * Enables file-based logging into this directory (created if missing),
+   * in addition to the normal console output.
+   *
+   * Logs are split into four files - `request.log` (every HTTP
+   * request/response log, regardless of outcome), `error.log`,
+   * `warning.log`, and `success.log` (everything else) - see
+   * `createFileLogRouter` for the exact routing rules.
+   *
+   * Opt-in and `undefined` by default: local files aren't meaningful (or
+   * even writable) in every deployment target, e.g. serverless platforms
+   * with a read-only filesystem.
+   */
+  logsDir?: string;
+
+  /**
    * Additional redaction paths, merged with {@link DEFAULT_REDACT_PATHS}.
    *
    * The default paths can never be removed this way - only extended - so

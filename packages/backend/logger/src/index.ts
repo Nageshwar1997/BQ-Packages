@@ -11,9 +11,5 @@
  *
  * See the package README for full usage and configuration details.
  */
-export * from './constants/index.js';
-export * from './core/index.js';
-export * from './errors/index.js';
-export * from './http/index.js';
-export * from './serializers/index.js';
-export * from './types/index.js';
+export { createLogger } from './core/index.js';
+export { createHttpLogger } from './http/index.js';

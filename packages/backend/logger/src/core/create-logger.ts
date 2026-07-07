@@ -5,7 +5,7 @@ import { createRedact } from '../configs/redact.js';
 import { DEFAULT_LOG_LEVEL } from '../constants/index.js';
 import { LoggerConfigurationError } from '../errors/index.js';
 import { createErrorSerializer } from '../serializers/error.js';
-import { resolveTransport } from '../transports/index.js';
+import { resolveDestination } from '../transports/index.js';
 import type { ILoggerOptions } from '../types/index.js';
 import { resolvePretty } from '../utils/index.js';
 
@@ -19,13 +19,13 @@ import { resolvePretty } from '../utils/index.js';
  *
  *  - base bindings (`service` + `context`) - see `createBase`.
  *  - secure-by-default redaction - see `createRedact`.
- *  - a development pretty-print transport, or no transport at all (raw
- *    JSON to `stdout`) in production - see `resolveTransport`.
+ *  - a development pretty-print destination, raw JSON `stdout` in
+ *    production, and optionally file-based logging - see `resolveDestination`.
  *  - a recursive, circular-safe error serializer - see `createErrorSerializer`.
  *
- * `pretty`, `service` and `context` are consumed here and never forwarded
- * to Pino directly; everything else in `options` is passed through
- * untouched, so any native Pino option keeps working.
+ * `pretty`, `service`, `context`, `redact` and `logsDir` are consumed here
+ * and never forwarded to Pino directly; everything else in `options` is
+ * passed through untouched, so any native Pino option keeps working.
  *
  * @example
  * ```ts
@@ -48,21 +48,29 @@ export function createLogger(options: ILoggerOptions): Logger {
     );
   }
 
-  const { context: _context, redact: _redact, service: _service, ...pinoOptions } = options;
+  const {
+    context: _context,
+    redact: _redact,
+    service: _service,
+    logsDir,
+    ...pinoOptions
+  } = options;
 
   const pretty = resolvePretty(options.pretty);
 
-  return pino({
-    level: DEFAULT_LOG_LEVEL,
-    ...pinoOptions,
-    base: createBase(options),
-    redact: createRedact(options),
-    transport: resolveTransport(pretty),
-    serializers: {
-      ...pinoOptions.serializers,
-      err: createErrorSerializer({
-        includeStack: pretty,
-      }),
+  return pino(
+    {
+      level: DEFAULT_LOG_LEVEL,
+      ...pinoOptions,
+      base: createBase(options),
+      redact: createRedact(options),
+      serializers: {
+        ...pinoOptions.serializers,
+        err: createErrorSerializer({
+          includeStack: pretty,
+        }),
+      },
     },
-  });
+    resolveDestination({ pretty, logsDir }),
+  );
 }
