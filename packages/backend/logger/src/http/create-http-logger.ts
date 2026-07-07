@@ -17,6 +17,7 @@ export function createHttpLogger({ logger, ...options }: IHttpLoggerOptions) {
       },
     },
     logger,
+    customProps: (req, _res) => ({ requestId: req.id }),
     genReqId: generateRequestId,
     customSuccessMessage: customSuccessMessage,
     customLogLevel: (_request, response, error) => {
@@ -29,6 +30,25 @@ export function createHttpLogger({ logger, ...options }: IHttpLoggerOptions) {
       }
 
       return 'info';
+    },
+
+    customReceivedObject: (request) => {
+      return {
+        requestId: request.id,
+      };
+    },
+
+    customSuccessObject: (request) => {
+      return {
+        requestId: request.id,
+      };
+    },
+
+    customErrorObject: (request, _response, error) => {
+      return {
+        requestId: request.id,
+        error,
+      };
     },
   });
 }
