@@ -2,6 +2,8 @@ import type { IRequest, IRequestSerializerOptions, ISerializedRequest } from '..
 
 export function createRequestSerializer({ includeBody }: IRequestSerializerOptions) {
   return (request: IRequest): ISerializedRequest => {
+    console.log("🚀 ~ createRequestSerializer ~ request, { depth: null }:", request, { depth: null })
+    console.log("🚀 ~ createRequestSerializer ~ request:", request.socket)
     const serialized: ISerializedRequest = {
       id: request.id,
       method: request.method,

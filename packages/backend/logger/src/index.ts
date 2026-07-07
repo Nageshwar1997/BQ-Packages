@@ -1,23 +1,35 @@
 import express from 'express';
 
-import { createLogger } from './core/index.js';
-import { createHttpLogger } from './http/index.js';
+import { createLogger } from './core/create-logger.js';
+import { createHttpLogger } from './http/create-http-logger.js';
+
+const app = express();
+
+app.use(express.json());
+
 const logger = createLogger({
   service: 'gateway',
   pretty: true,
 });
 
-const httpLogger = createHttpLogger({
-  logger,
+app.use(
+  createHttpLogger({
+    logger,
+  }),
+);
+
+app.get('/', (_req, res) => {
+  logger.info('Hello World');
+
+  res.json({
+    success: true,
+  });
 });
 
-
-const app = express();
-
-app.use(httpLogger);
-
-app.get('/', (_, res) => {
-  res.send('Hello');
+app.get('/error', () => {
+  throw new Error('Something went wrong');
 });
 
-app.listen(3000);
+app.listen(3000, () => {
+  logger.info('Server started');
+});

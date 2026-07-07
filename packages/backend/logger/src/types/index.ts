@@ -72,6 +72,8 @@ export interface IHttpLoggerOptions extends Omit<
 > {
   /** Additional paths to ignore. */
   ignorePaths?: string[];
+  /** Pretty. */
+  pretty?: boolean;
 }
 
 export type TCustomSuccessMessage = NonNullable<HttpLoggerOptions['customSuccessMessage']>;

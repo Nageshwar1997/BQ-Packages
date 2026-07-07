@@ -1,6 +1,9 @@
 import { pinoHttp } from 'pino-http';
 
 import { DEFAULT_IGNORE_PATHS } from '../constants/index.js';
+import { createErrorSerializer } from '../serializers/error.js';
+import { createRequestSerializer } from '../serializers/request.js';
+import { createResponseSerializer } from '../serializers/response.js';
 import type { IHttpLoggerOptions } from '../types/index.js';
 import { customSuccessMessage } from './custom-success-message.js';
 import { generateRequestId } from './gen-request-id.js';
@@ -49,6 +52,15 @@ export function createHttpLogger({ logger, ...options }: IHttpLoggerOptions) {
         requestId: request.id,
         error,
       };
+    },
+    serializers: {
+      req: createRequestSerializer({
+        includeBody: !!options.pretty,
+      }),
+      res: createResponseSerializer(),
+      err: createErrorSerializer({
+        includeStack: !!options.pretty,
+      }),
     },
   });
 }
