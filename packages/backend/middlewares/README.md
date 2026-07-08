@@ -8,6 +8,14 @@ Reusable Express middlewares for Beautinique backend services.
 npm install @beautinique/backend-middlewares
 ```
 
+`cors` is an **optional** peer dependency - only install it in services that actually use `corsMiddleware`:
+
+```bash
+npm install cors
+```
+
+`checkEmptyRequest`/`serviceAccess` never touch `cors` at all, and importing this package never requires `cors` to be installed - it's only resolved the moment `corsMiddleware(...)` is actually called. Calling it without `cors` installed throws a clear `ConfigurationError` telling you to install it, instead of a cryptic module-not-found error.
+
 ## `corsMiddleware`
 
 A thin, production-ready wrapper around the [`cors`](https://www.npmjs.com/package/cors) package. Every option is `cors`'s own `CorsOptions` - same names (`origin` included), same types, same defaults when a field is left out (`cors` applies its own, e.g. `origin: '*'`). Nothing here is reinvented or re-defaulted.
