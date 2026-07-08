@@ -41,3 +41,14 @@ export interface IErrorResponseOptions {
    */
   includeStack?: boolean;
 }
+
+/** Options accepted by `notFound`. */
+export interface INotFoundOptions {
+  /**
+   * Builds the `NotFoundError` message for a request that matched no
+   * route.
+   *
+   * @default (req) => `Cannot ${req.method} ${req.originalUrl}`
+   */
+  message?: (req: Request) => string;
+}

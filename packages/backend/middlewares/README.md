@@ -124,14 +124,31 @@ app.get('/users/:id', tryCatch(async (req, res) => {
 
 `res.success({ data?, message?, statusCode? })` - `data` is omitted from the JSON body entirely when not provided, rather than sent as `null`.
 
+## `notFound`
+
+Catch-all for requests that matched no route. Turns "nothing else handled this" into a `NotFoundError` and forwards it via `next(error)`, so it flows through the exact same error path as everything else. Register it after every route, but before `errorResponse`.
+
+```ts
+import { notFound } from '@beautinique/backend-middlewares';
+
+app.use('/api', routes);
+app.use(notFound());      // after routes
+app.use(errorResponse()); // last
+```
+
+| Option    | Default                                          | Description                                    |
+| --------- | ---------------------------------------------------------- | -------------------------------------------------- |
+| `message` | `` (req) => `Cannot ${req.method} ${req.originalUrl}` `` | Builds the `NotFoundError` message for the request. |
+
 ## `errorResponse`
 
-The app's centralized error-handling middleware. Register it **last**, after every route (Express only recognizes a 4-argument function as error-handling middleware, and only errors that reach the end of the chain - e.g. via `next(error)`, as `tryCatch`/`tryCatchSession`/`checkEmptyRequest`/`serviceAccess` all do - end up here).
+The app's centralized error-handling middleware. Register it **last**, after every route and `notFound` (Express only recognizes a 4-argument function as error-handling middleware, and only errors that reach the end of the chain - e.g. via `next(error)`, as `tryCatch`/`tryCatchSession`/`checkEmptyRequest`/`serviceAccess`/`notFound` all do - end up here).
 
 ```ts
 import { errorResponse } from '@beautinique/backend-middlewares';
 
 app.use('/api', routes);
+app.use(notFound());
 app.use(errorResponse()); // last
 ```
 
