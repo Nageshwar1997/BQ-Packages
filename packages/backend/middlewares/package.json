@@ -54,10 +54,10 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
-    "@beautinique/backend-classes": "^1.0.1",
-    "cors": "^2.8.6"
+    "@beautinique/backend-classes": "^1.0.1"
   },
   "peerDependencies": {
+    "cors": "^2.8.6",
     "express": "^5.2.1"
   }
 }
