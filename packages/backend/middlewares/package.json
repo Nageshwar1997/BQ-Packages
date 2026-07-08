@@ -23,7 +23,8 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "public"
   ],
   "sideEffects": false,
   "exports": {

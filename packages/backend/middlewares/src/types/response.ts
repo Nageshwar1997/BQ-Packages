@@ -46,9 +46,21 @@ export interface IErrorResponseOptions {
 export interface INotFoundOptions {
   /**
    * Builds the `NotFoundError` message for a request that matched no
-   * route.
+   * route. Only used when `serveHtml` is off, or the request doesn't look
+   * like a browser navigation.
    *
    * @default (req) => `Cannot ${req.method} ${req.originalUrl}`
    */
   message?: (req: Request) => string;
+
+  /**
+   * Serve Beautinique's branded HTML 404 page instead of the usual JSON
+   * error, for requests that look like a real browser navigation (an
+   * `Accept` header that explicitly includes `text/html`). JSON API
+   * clients still get the normal `NotFoundError` → `errorResponse` flow
+   * either way.
+   *
+   * @default false
+   */
+  serveHtml?: boolean;
 }

@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "not-found-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "backend/middlewares/public", "-l", "4173"],
+      "port": 4173
+    }
+  ]
+}

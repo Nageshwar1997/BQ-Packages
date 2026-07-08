@@ -136,9 +136,16 @@ app.use(notFound());      // after routes
 app.use(errorResponse()); // last
 ```
 
-| Option    | Default                                          | Description                                    |
-| --------- | ---------------------------------------------------------- | -------------------------------------------------- |
-| `message` | `` (req) => `Cannot ${req.method} ${req.originalUrl}` `` | Builds the `NotFoundError` message for the request. |
+| Option      | Default                                                    | Description                                                             |
+| ----------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `message`   | `` (req) => `Cannot ${req.method} ${req.originalUrl}` ``    | Builds the `NotFoundError` message for the request.                     |
+| `serveHtml` | `false`                                                    | Serve Beautinique's branded HTML 404 page for requests that look like a real browser navigation, instead of JSON. |
+
+```ts
+app.use(notFound({ serveHtml: true }));
+```
+
+With `serveHtml: true`, a request whose `Accept` header explicitly includes `text/html` - i.e. a browser navigating directly to a dead link, not a `fetch`/`axios` API call - gets [`public/not-found.html`](./public/not-found.html) instead: a fully responsive, on-brand 404 page (read once from disk at setup time, not per-request) showing the actual path that wasn't found, with links back to the shop and a product search box. JSON API clients get the normal `NotFoundError` → `errorResponse` JSON flow either way. If the bundled HTML can't be read for some reason, this logs a warning and falls back to JSON automatically, rather than breaking request handling.
 
 ## `errorResponse`
 
