@@ -1,12 +1,14 @@
+import type { ISendSuccessOptions } from './response.js';
 import type { TAsyncTask } from './task.js';
 
 /**
  * `res.locals` fields used by `tryCatch`/`tryCatchSession` to queue
  * deferred lifecycle hooks (work to run after the response is sent, or
- * after a transaction commits/rolls back). Augmenting Express's own
- * `Locals` interface here - rather than typing these as `any` - means
+ * after a transaction commits/rolls back), and `res.success(...)`,
+ * attached by `successResponse`. Augmenting Express's own `Locals`/
+ * `Response` interfaces here - rather than typing these as `any` - means
  * every route handler in a consuming service gets full type-checking and
- * autocomplete on `res.locals.afterX`, with no casting required.
+ * autocomplete, with no casting required.
  *
  * This is a plain (non-type-only) side-effect import in every entry file
  * that needs it, specifically so the ambient `declare global` block below
@@ -29,6 +31,11 @@ declare global {
       afterCommit?: TAsyncTask[];
       /** Tasks run once the HTTP response has fully finished sending - always, success or failure. */
       afterFinish?: TAsyncTask[];
+    }
+
+    interface Response {
+      /** Sends a consistent `{ success: true, ... }` JSON response. Attached by `successResponse`. */
+      success?: <T = unknown>(options?: ISendSuccessOptions<T>) => void;
     }
   }
 }

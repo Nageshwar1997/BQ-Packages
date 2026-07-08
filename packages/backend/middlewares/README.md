@@ -103,6 +103,46 @@ Two things are added on top of plain `cors`:
 
 The request itself is never rejected because of a CORS mismatch - headers are simply omitted, and it's the browser, not this middleware, that then blocks the response from being read cross-origin.
 
+## `successResponse`
+
+Attaches `res.success(...)` - a consistent `{ success: true, message, data? }` JSON response helper - so route handlers don't hand-build that envelope themselves. Register once, near the top of the middleware chain, before your routes.
+
+```ts
+import { successResponse } from '@beautinique/backend-middlewares';
+
+app.use(successResponse());
+
+app.get('/users/:id', tryCatch(async (req, res) => {
+  const user = await userService.findById(req.params.id);
+  res.success?.({ data: user, message: 'User fetched' });
+}));
+```
+
+| Option           | Default     | Description                                                       |
+| ----------------- | ----------- | -------------------------------------------------------------------- |
+| `defaultMessage`  | `'Success'` | Used whenever a `res.success(...)` call doesn't provide its own. |
+
+`res.success({ data?, message?, statusCode? })` - `data` is omitted from the JSON body entirely when not provided, rather than sent as `null`.
+
+## `errorResponse`
+
+The app's centralized error-handling middleware. Register it **last**, after every route (Express only recognizes a 4-argument function as error-handling middleware, and only errors that reach the end of the chain - e.g. via `next(error)`, as `tryCatch`/`tryCatchSession`/`checkEmptyRequest`/`serviceAccess` all do - end up here).
+
+```ts
+import { errorResponse } from '@beautinique/backend-middlewares';
+
+app.use('/api', routes);
+app.use(errorResponse()); // last
+```
+
+Sends a `{ success: false, code, message, fieldErrors?, globalErrors? }` JSON response. Any thrown error that is a trusted, operational `@beautinique/backend-classes` `AppError` (the default for every one of its built-in error classes - `ValidationError`, `NotFoundError`, ...) is reflected as-is: its own `statusCode`, `code`, `message`, `fieldErrors`, `globalErrors`. Anything else - a non-operational `AppError`, or a completely unknown thrown value (a bug: a raw `TypeError`, a rejected promise with no `Error` at all, ...) - becomes a generic `500` with a generic message; **the real error's message is never leaked to the client**.
+
+| Option          | Default                          | Description                                                              |
+| ---------------- | --------------------------------- | ---------------------------------------------------------------------------- |
+| `includeStack`   | `process.env.IS_DEV === 'true'`  | Include the underlying error's stack trace in the response. Dev-only by design - a stack trace can leak internal file paths to API clients. |
+
+If the response has already started sending by the time an error reaches this middleware (`res.headersSent`), it defers to Express's own default error handler instead of attempting - and failing - to send a second response.
+
 ## `checkEmptyRequest`
 
 Rejects requests missing required parts (body/file/files/params/query) before they reach a route handler.
