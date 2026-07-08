@@ -15,38 +15,26 @@ export interface IServiceAccessOptions {
   secret: string;
 }
 
-/** A single allowed-origin matcher: an exact string, or a `RegExp` (e.g. for subdomain patterns). */
-export type TCorsOriginPattern = string | RegExp;
-
 /**
- * Which origins `corsMiddleware` should allow:
- *  - the literal string `'*'` - any origin (only valid when `credentials`
- *    is not enabled; not its own type constituent since it's already a
- *    `string`, but special-cased at runtime).
- *  - a pattern, or list of patterns - exact strings and/or `RegExp`s.
- *  - a predicate - full custom matching logic, given the request's `Origin` header value.
+ * Options accepted by `corsMiddleware`.
+ *
+ * Picked directly from `cors`'s own `CorsOptions` - same names, same
+ * types, same defaults when a field is omitted (`cors` applies its own,
+ * e.g. `origin: '*'`, `methods: 'GET,HEAD,PUT,PATCH,POST,DELETE'`) - so
+ * upgrading the `cors` dependency never requires a change here.
+ * `preflightContinue` isn't picked; this middleware always lets `cors`
+ * terminate the preflight response itself.
  */
-export type TCorsOrigins =
-  TCorsOriginPattern | TCorsOriginPattern[] | ((origin: string) => boolean);
-
-export interface ICorsOptions extends Pick<
-  CorsOptions,
-  | 'allowedHeaders'
-  | 'credentials'
-  | 'exposedHeaders'
-  | 'methods'
-  | 'maxAge'
-  | 'optionsSuccessStatus'
-> {
-  /** Which origins are allowed to make cross-origin requests. */
-  origins: TCorsOrigins;
-
+export interface ICorsOptions extends CorsOptions {
   /**
    * Called whenever a request carries an `Origin` header that did not
-   * match `origins` - e.g. for logging/alerting. The request itself is
-   * never rejected because of this: CORS headers are simply omitted, and
-   * the browser (not this middleware) is what blocks the response from
-   * being read cross-origin.
+   * match `origin` - e.g. for logging/alerting. Only fires for the
+   * static forms of `origin` (string/`RegExp`/`boolean`/array) - if
+   * `origin` is itself a custom `(requestOrigin, callback)` matcher, it
+   * already has full control, including its own logging. The request
+   * itself is never rejected because of this: CORS headers are simply
+   * omitted, and the browser (not this middleware) is what blocks the
+   * response from being read cross-origin.
    */
   onOriginDenied?: (origin: string) => void;
 }

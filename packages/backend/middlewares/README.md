@@ -10,31 +10,27 @@ npm install @beautinique/backend-middlewares
 
 ## `corsMiddleware`
 
-Production-ready CORS middleware (wraps the [`cors`](https://www.npmjs.com/package/cors) package) with secure defaults: no blanket `*` when credentials are enabled, disallowed origins are never treated as errors (the browser enforces CORS, not this middleware), and non-browser requests (no `Origin` header) always pass through.
+A thin, production-ready wrapper around the [`cors`](https://www.npmjs.com/package/cors) package. Every option is `cors`'s own `CorsOptions` - same names (`origin` included), same types, same defaults when a field is left out (`cors` applies its own, e.g. `origin: '*'`). Nothing here is reinvented or re-defaulted.
 
 ```ts
 import { corsMiddleware } from '@beautinique/backend-middlewares';
 
 app.use(
   corsMiddleware({
-    origins: ['https://app.beautinique.com', /\.beautinique\.com$/],
+    origin: ['https://app.beautinique.com', /\.beautinique\.com$/],
     credentials: true,
   }),
 );
 ```
 
-| Option                 | Default                                          | Description                                                                 |
-| ---------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `origins`               | _(required)_                                      | `'*'`, a string/`RegExp`, an array of them, or a `(origin) => boolean` predicate. |
-| `credentials`           | `false`                                            | Allow cookies/`Authorization` cross-origin. Cannot be combined with `origins: '*'`. |
-| `methods`               | `['GET','POST','PUT','PATCH','DELETE','OPTIONS']` | Allowed HTTP methods.                                                        |
-| `allowedHeaders`        | `['Content-Type','Authorization']`                | Request headers the client may send.                                        |
-| `exposedHeaders`        | `['X-Request-Id']`                                | Response headers exposed to browser JS.                                     |
-| `maxAge`                | `600`                                              | Preflight cache duration, in seconds.                                       |
-| `optionsSuccessStatus`  | `204`                                              | Status code for successful preflight responses.                             |
-| `onOriginDenied`        | `undefined`                                       | Called with the rejected `Origin` value - e.g. for logging/alerting.        |
+Two things are added on top of plain `cors`:
 
-Passing `credentials: true` together with `origins: '*'` throws a `ConfigurationError` at setup time (browsers reject that combination outright, so this fails fast at boot instead of at request time).
+| Addition                | Behaviour                                                                                                                                                                        |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Setup-time guard         | `credentials: true` combined with `origin: '*'`/`true` throws a `ConfigurationError` immediately (browsers reject that combination outright - fails fast at boot instead of at request time). |
+| `onOriginDenied`         | Optional. Called with the rejected `Origin` value whenever `origin` is a static value (string/`RegExp`/`boolean`/array) and didn't match - e.g. for logging/alerting. Not called when `origin` is itself a custom `(requestOrigin, callback)` matcher (it already has full control). |
+
+The request itself is never rejected because of a CORS mismatch - headers are simply omitted, and it's the browser, not this middleware, that then blocks the response from being read cross-origin.
 
 ## `checkEmptyRequest`
 

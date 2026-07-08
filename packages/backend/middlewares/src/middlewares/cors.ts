@@ -1,97 +1,104 @@
 import { ConfigurationError } from '@beautinique/backend-classes';
+import type { CorsOptions } from 'cors';
 import cors from 'cors';
 import type { RequestHandler } from 'express';
 
-import type { ICorsOptions, TCorsOrigins } from '../types/index.js';
+import type { ICorsOptions } from '../types/index.js';
 
 const DEFAULT_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
 const DEFAULT_ALLOWED_HEADERS = ['Content-Type', 'Authorization'];
 const DEFAULT_EXPOSED_HEADERS = ['X-Request-Id'];
 const DEFAULT_MAX_AGE_SECONDS = 600;
-const DEFAULT_OPTIONS_SUCCESS_STATUS = 204;
 
-/** Whether `origin` (the request's `Origin` header value) satisfies `origins`. */
-function isOriginAllowed(origin: string, origins: TCorsOrigins): boolean {
-  if (origins === '*') {
+/** The non-callback members of `CorsOptions['origin']` - a `boolean`, `string`, `RegExp`, or a mix of those. */
+type TCorsStaticOrigin = Exclude<CorsOptions['origin'], (...args: never[]) => unknown>;
+
+/** Whether `requestOrigin` satisfies a static origin value (mirrors `cors`'s own matching rules). */
+function matchesStaticOrigin(requestOrigin: string, pattern: TCorsStaticOrigin): boolean {
+  if (pattern === undefined || pattern === '*') {
     return true;
   }
 
-  if (typeof origins === 'function') {
-    return origins(origin);
+  if (typeof pattern === 'boolean') {
+    return pattern;
   }
 
-  const patterns = Array.isArray(origins) ? origins : [origins];
+  if (Array.isArray(pattern)) {
+    return pattern.some((entry) => matchesStaticOrigin(requestOrigin, entry));
+  }
 
-  return patterns.some((pattern) =>
-    typeof pattern === 'string' ? pattern === origin : pattern.test(origin),
-  );
+  return typeof pattern === 'string' ? pattern === requestOrigin : pattern.test(requestOrigin);
 }
 
 /**
- * Creates a production-ready, reusable CORS middleware.
+ * Creates a production-ready CORS middleware.
  *
- * Wraps the battle-tested `cors` package (rather than reimplementing
- * preflight handling and header composition) with secure-by-default
- * behaviour:
+ * A thin wrapper around the `cors` package itself: `options` is passed
+ * through to `cors()` untouched - same fields, same values, and any field
+ * left out is resolved by `cors`'s own defaults (not ours). Only two
+ * things are added on top:
  *
- *  - Allowed origins are matched individually and the specific matching
- *    origin is reflected back - never a blanket `*` - whenever
- *    `credentials` is enabled, since browsers reject
- *    `Access-Control-Allow-Origin: *` together with credentialed
- *    requests. That combination is rejected here at setup time, before it
- *    can cause a confusing runtime CORS failure.
- *  - A request with no `Origin` header (server-to-server calls, curl,
- *    mobile apps, same-origin requests) is always passed through as-is:
- *    CORS is a browser enforcement mechanism, not an API access-control
- *    mechanism, so it has nothing to say about non-browser callers.
- *  - A request whose `Origin` does not match `origins` is never rejected
- *    with an error - CORS headers are simply omitted, and it's the
- *    browser, not this middleware, that then blocks the response from
- *    being read cross-origin. Observe denials via `onOriginDenied` if
- *    you need to log/alert on them.
+ *  - A setup-time guard: `credentials: true` combined with `origin: '*'`
+ *    (or `true`) is rejected immediately, since browsers reject that
+ *    combination outright - failing fast at boot beats a confusing
+ *    runtime CORS failure.
+ *  - `onOriginDenied`, an optional hook called whenever a request's
+ *    `Origin` didn't match a *static* `origin` value (string/`RegExp`/
+ *    `boolean`/array). If `origin` is itself a custom matcher function,
+ *    it is passed straight through to `cors` unmodified and this hook
+ *    does not apply (that function already has full control).
  *
- * @param options - `origins` is required; everything else has a secure, sensible default.
- * @throws {ConfigurationError} At setup time, if `credentials` is enabled together with `origins: '*'`.
+ * @param options - Any `cors` `CorsOptions`, plus the optional `onOriginDenied` hook.
+ * @throws {ConfigurationError} At setup time, if `credentials` is enabled together with `origin: '*'`/`true`.
  * @returns An Express request handler.
  */
-
-export function corsMiddleware({
-  origins,
-  credentials = false,
-  methods = DEFAULT_METHODS,
-  allowedHeaders = DEFAULT_ALLOWED_HEADERS,
-  exposedHeaders = DEFAULT_EXPOSED_HEADERS,
-  maxAge = DEFAULT_MAX_AGE_SECONDS,
-  optionsSuccessStatus = DEFAULT_OPTIONS_SUCCESS_STATUS,
-  onOriginDenied,
-}: ICorsOptions): RequestHandler {
-  if (credentials && origins === '*') {
-    throw new ConfigurationError(
-      'CORS misconfiguration: "credentials" cannot be enabled together with origins: "*" - browsers reject this combination. Provide an explicit origin allowlist instead.',
-    );
-  }
-
-  return cors({
+export function corsMiddleware({ onOriginDenied, ...options }: ICorsOptions): RequestHandler {
+  const {
+    origin,
+    credentials = false,
+    methods = DEFAULT_METHODS,
+    allowedHeaders = DEFAULT_ALLOWED_HEADERS,
+    exposedHeaders = DEFAULT_EXPOSED_HEADERS,
+    maxAge = DEFAULT_MAX_AGE_SECONDS,
+    optionsSuccessStatus,
+    preflightContinue = false,
+  } = options;
+  const finalOptions: CorsOptions = {
+    origin,
     credentials,
     methods,
     allowedHeaders,
     exposedHeaders,
     maxAge,
     optionsSuccessStatus,
-    preflightContinue: false,
+    preflightContinue,
+  };
+
+  if (credentials && (origin === '*' || origin === true)) {
+    throw new ConfigurationError(
+      'CORS misconfiguration: "credentials" cannot be enabled together with origin: "*"/true - browsers reject this combination. Provide an explicit origin allowlist instead.',
+    );
+  }
+
+  if (typeof origin === 'function' || !onOriginDenied) {
+    return cors(finalOptions);
+  }
+
+  return cors({
+    ...finalOptions,
     origin: (requestOrigin, callback) => {
       if (!requestOrigin) {
         callback(null, true);
         return;
       }
 
-      if (isOriginAllowed(requestOrigin, origins)) {
-        callback(null, true);
-        return;
+      const allowed = matchesStaticOrigin(requestOrigin, origin);
+
+      if (!allowed) {
+        onOriginDenied(requestOrigin);
       }
 
-      onOriginDenied?.(requestOrigin);
-      callback(null, false);
+      callback(null, allowed);
     },
   });
 }
