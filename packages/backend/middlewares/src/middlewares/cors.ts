@@ -4,7 +4,7 @@ import { ConfigurationError } from '@beautinique/backend-classes';
 import type { CorsOptions } from 'cors';
 import type { RequestHandler } from 'express';
 
-import type { ICorsOptions } from '../types/index.js';
+import type { ICorsOptions } from '../types/cors.js';
 
 /**
  * The shape of the `cors` package's default export, narrowed down to just

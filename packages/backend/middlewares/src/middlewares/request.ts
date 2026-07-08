@@ -7,7 +7,7 @@ import {
 } from '@beautinique/backend-classes';
 import type { RequestHandler } from 'express';
 
-import type { IRequestCheckOptions, IServiceAccessOptions } from '../types/index.js';
+import type { IRequestCheckOptions, IServiceAccessOptions } from '../types/request.js';
 
 /**
  * `true` when `value` is missing, or is an object/array with no own keys

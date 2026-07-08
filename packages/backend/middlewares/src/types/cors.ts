@@ -1,20 +1,5 @@
 import type { CorsOptions } from 'cors';
 
-export interface IRequestCheckOptions {
-  body?: boolean;
-  file?: boolean;
-  fileOrBody?: boolean;
-  filesOrBody?: boolean;
-  files?: boolean;
-  params?: boolean;
-  query?: boolean;
-}
-
-export interface IServiceAccessOptions {
-  headerName?: string;
-  secret: string;
-}
-
 /**
  * Options accepted by `corsMiddleware`.
  *
@@ -24,6 +9,11 @@ export interface IServiceAccessOptions {
  * upgrading the `cors` dependency never requires a change here.
  * `preflightContinue` isn't picked; this middleware always lets `cors`
  * terminate the preflight response itself.
+ *
+ * Kept in its own file (and its own `@beautinique/backend-middlewares/cors`
+ * entry point) specifically so a service that never uses `corsMiddleware`
+ * never needs `cors`'s types resolvable just to import this package's
+ * other, `cors`-independent exports.
  */
 export interface ICorsOptions extends CorsOptions {
   /**
