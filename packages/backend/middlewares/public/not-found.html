@@ -152,6 +152,10 @@
       .card {
         width: 100%;
         max-width: 720px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
         text-align: center;
         animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
       }
@@ -197,6 +201,7 @@
       .digits {
         font-family: 'Playfair Display', serif;
         font-weight: 700;
+        width: 100%;
         font-style: italic;
         font-size: clamp(4.5rem, 16vw, 8rem);
         line-height: 1;
@@ -236,159 +241,6 @@
         line-height: 1.7;
       }
 
-      .path-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        margin: 1.15rem auto 1.75rem;
-        padding: 0.5rem 1rem;
-        background: rgba(255, 255, 255, 0.6);
-        border: 1px solid rgba(168, 99, 111, 0.25);
-        border-radius: 999px;
-        font-size: 0.82rem;
-        color: var(--rose-gold-dark);
-        max-width: 90%;
-        overflow: hidden;
-      }
-
-      #attempted-path {
-        font-weight: 600;
-        color: var(--plum);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      /* ---------- Search ---------- */
-      form.search {
-        display: flex;
-        align-items: center;
-        max-width: 420px;
-        margin: 0 auto 1.75rem;
-        background: #fff;
-        border-radius: 999px;
-        box-shadow: 0 10px 30px var(--shadow);
-        padding: 0.35rem 0.35rem 0.35rem 1.15rem;
-        border: 1px solid rgba(255, 255, 255, 0.8);
-      }
-
-      form.search input {
-        flex: 1;
-        border: none;
-        outline: none;
-        background: transparent;
-        font-family: 'Poppins', sans-serif;
-        font-size: 0.92rem;
-        color: var(--plum);
-        padding: 0.5rem 0;
-      }
-
-      form.search input::placeholder {
-        color: #c6a3ab;
-      }
-
-      form.search button {
-        border: none;
-        cursor: pointer;
-        background: linear-gradient(135deg, var(--rose-gold), var(--rose-gold-dark));
-        color: #fff;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: grid;
-        place-items: center;
-        flex-shrink: 0;
-        transition:
-          transform 0.25s ease,
-          box-shadow 0.25s ease;
-      }
-
-      form.search button:hover {
-        transform: scale(1.06);
-        box-shadow: 0 6px 16px var(--shadow);
-      }
-
-      form.search button svg {
-        width: 16px;
-        height: 16px;
-      }
-
-      /* ---------- CTAs ---------- */
-      .actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.85rem;
-        justify-content: center;
-        margin-bottom: 2.25rem;
-      }
-
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.85rem 1.7rem;
-        border-radius: 999px;
-        font-family: 'Poppins', sans-serif;
-        font-weight: 500;
-        font-size: 0.92rem;
-        text-decoration: none;
-        transition:
-          transform 0.25s ease,
-          box-shadow 0.25s ease,
-          background 0.25s ease;
-        cursor: pointer;
-        border: none;
-      }
-
-      .btn--primary {
-        background: linear-gradient(135deg, var(--rose-gold-dark), var(--rose-gold));
-        color: #fff;
-        box-shadow: 0 12px 24px var(--shadow);
-      }
-
-      .btn--primary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 16px 30px var(--shadow);
-      }
-
-      .btn--ghost {
-        background: transparent;
-        color: var(--plum);
-        border: 1.5px solid var(--rose-gold);
-      }
-
-      .btn--ghost:hover {
-        background: rgba(255, 255, 255, 0.55);
-        transform: translateY(-3px);
-      }
-
-      /* ---------- Categories ---------- */
-      .categories {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.6rem;
-      }
-
-      .chip {
-        font-size: 0.78rem;
-        font-weight: 500;
-        color: var(--rose-gold-dark);
-        background: rgba(255, 255, 255, 0.55);
-        border: 1px solid rgba(168, 99, 111, 0.2);
-        padding: 0.45rem 0.95rem;
-        border-radius: 999px;
-        text-decoration: none;
-        transition:
-          background 0.2s ease,
-          color 0.2s ease;
-      }
-
-      .chip:hover {
-        background: var(--rose-gold);
-        color: #fff;
-      }
-
       /* ---------- Footer ---------- */
       footer {
         position: relative;
@@ -402,16 +254,6 @@
 
       footer span {
         color: var(--rose-gold-dark);
-      }
-
-      @media (max-width: 480px) {
-        .actions {
-          flex-direction: column;
-          align-items: stretch;
-        }
-        .btn {
-          justify-content: center;
-        }
       }
     </style>
   </head>
@@ -474,41 +316,11 @@
 
         <div class="digits" aria-hidden="true">404</div>
 
-        <h1>Oops! This shade doesn't exist.</h1>
+        <h1>Oops! This route doesn't exist.</h1>
         <p class="lede">
-          The page you were looking for has vanished like a favorite lipstick — gone, but not
+          The route you were looking for has vanished like a favorite lipstick — gone, but not
           forgotten. Let's help you find your way back to glowing skin and gorgeous finds.
         </p>
-
-        <div class="path-pill">📍 <span id="attempted-path">/unknown-page</span></div>
-
-        <form class="search" id="searchForm">
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="Search for lipstick, skincare, perfume…"
-            autocomplete="off"
-          />
-          <button type="submit" aria-label="Search">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="11" cy="11" r="7" stroke="white" stroke-width="2" />
-              <path d="M21 21l-4.3-4.3" stroke="white" stroke-width="2" stroke-linecap="round" />
-            </svg>
-          </button>
-        </form>
-
-        <div class="actions">
-          <a href="/" class="btn btn--primary"> ✨ Back to Homepage </a>
-          <a href="/shop" class="btn btn--ghost"> 🛍️ Continue Shopping </a>
-        </div>
-
-        <div class="categories">
-          <a href="/category/skincare" class="chip">Skincare</a>
-          <a href="/category/makeup" class="chip">Makeup</a>
-          <a href="/category/fragrance" class="chip">Fragrance</a>
-          <a href="/category/haircare" class="chip">Haircare</a>
-          <a href="/category/new-arrivals" class="chip">New Arrivals</a>
-        </div>
       </div>
     </main>
 
@@ -518,10 +330,7 @@
     </footer>
 
     <script>
-      // Show the actual path that wasn't found, so the page is genuinely
       // useful for debugging - not just decorative.
-      document.getElementById('attempted-path').textContent =
-        window.location.pathname + window.location.search || '/';
 
       document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -540,15 +349,6 @@
         el.style.animationDelay = Math.random() * -20 + 's';
         decor.appendChild(el);
       }
-
-      // Redirect a search submission to the shop's search route.
-      document.getElementById('searchForm').addEventListener('submit', (event) => {
-        event.preventDefault();
-        const query = document.getElementById('searchInput').value.trim();
-        if (query) {
-          window.location.href = '/search?q=' + encodeURIComponent(query);
-        }
-      });
     </script>
   </body>
 </html>
