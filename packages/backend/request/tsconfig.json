@@ -1,0 +1,14 @@
+{
+  "extends": "../../../configs/tsconfig/tsconfig.backend.json",
+
+  "compilerOptions": {
+    /*
+     * The shared base config restricts automatic global type inclusion to
+     * "node" only. "multer" is added here (scoped to this package alone)
+     * so its ambient `Express.Request.file`/`.files` augmentation is
+     * available - this package reads those fields but never imports
+     * `multer` itself, so this is a type-only, build-time addition.
+     */
+    "types": ["node", "multer"]
+  }
+}
