@@ -6,6 +6,10 @@
     "backend",
     "multer",
     "express",
+    "middleware",
+    "upload",
+    "file-upload",
+    "validation",
     "beautinique"
   ],
   "author": "Nageshwar Pawar",
@@ -47,5 +51,19 @@
   },
   "engines": {
     "node": ">=24"
+  },
+  "dependencies": {
+    "@beautinique/backend-classes": "^1.0.1",
+    "@beautinique/shared-constants": "^1.0.6",
+    "multer": "^2.2.0"
+  },
+  "peerDependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@beautinique/shared-types": "^1.0.5",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.2.0",
+    "typescript": "^6.0.3"
   }
 }
