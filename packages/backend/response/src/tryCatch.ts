@@ -1,6 +1,5 @@
+import { runTasks } from '@beautinique/backend-utils';
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
-
-import { runTasks } from './runTasks.js';
 
 /** An async Express route handler, as wrapped by `tryCatch`. */
 export type TAsyncRequestHandler = (
