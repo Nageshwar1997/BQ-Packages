@@ -52,4 +52,4 @@ export const validateMulter = ({
   };
 };
 
-export type { IMulterValidation, TFile } from './types/index.js';
+export type { IMulterValidation } from './types/index.js';

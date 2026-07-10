@@ -1,4 +1,5 @@
 import type { Multer, Options } from 'multer';
+
 type TMediaKey = 'IMAGE' | 'VIDEO' | 'OTHER';
 
 interface ICommonMulterFileConfigs {
