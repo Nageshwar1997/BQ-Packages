@@ -2,7 +2,7 @@ import { AppError, InternalServerError } from '@beautinique/backend-classes';
 import type { ErrorRequestHandler } from 'express';
 
 /** Options accepted by `errorResponse`. */
-interface IErrorResponseOptions {
+export interface IErrorResponseOptions {
   /**
    * Include the underlying error's stack trace in the JSON response.
    *
