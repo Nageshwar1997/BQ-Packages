@@ -83,7 +83,7 @@ function matchesStaticOrigin(requestOrigin: string, pattern: TCorsStaticOrigin):
  * @throws {ConfigurationError} At setup time, if `credentials` is enabled together with `origin: '*'`/`true`.
  * @returns An Express request handler.
  */
-export function corsMiddleware({ onOriginDenied, ...options }: ICorsOptions): RequestHandler {
+export function checkCors({ onOriginDenied, ...options }: ICorsOptions): RequestHandler {
   const {
     origin,
     credentials = false,
