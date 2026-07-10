@@ -1,5 +1,6 @@
+import type { TAsyncTask } from '@beautinique/backend-utils';
+
 import type { ISendSuccessOptions } from './successResponse.js';
-import type { TAsyncTask } from './task.js';
 
 /**
  * `res.locals` fields used by `tryCatch` to queue deferred lifecycle hooks
