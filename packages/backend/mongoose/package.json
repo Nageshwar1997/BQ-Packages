@@ -5,6 +5,9 @@
   "keywords": [
     "backend",
     "mongoose",
+    "express",
+    "middleware",
+    "transaction",
     "beautinique"
   ],
   "author": "Nageshwar Pawar",
@@ -48,9 +51,14 @@
     "node": ">=24"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "typescript": "^6.0.3"
   },
   "dependencies": {
+    "@beautinique/backend-utils": "^1.0.0",
     "mongoose": "^9.7.3"
+  },
+  "peerDependencies": {
+    "express": "^5.2.1"
   }
 }
