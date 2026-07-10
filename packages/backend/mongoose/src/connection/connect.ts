@@ -1,3 +1,4 @@
+import { ConfigurationError, DatabaseError } from '@beautinique/backend-classes';
 import mongoose, { connect } from 'mongoose';
 
 import { mongoEventEmitter } from '../classes/index.js';
@@ -19,7 +20,7 @@ export const connectDb = async ({
   options = {},
 }: MongoConnectOptions): Promise<typeof mongoose> => {
   if (!uri.trim()) {
-    throw new Error('MongoDB connection URI is required.');
+    throw new ConfigurationError('MongoDB connection URI is required.');
   }
 
   if (connectionState.isConnected()) {
@@ -92,7 +93,9 @@ export const connectDb = async ({
       const err =
         error instanceof Error
           ? error
-          : new Error(`Unknown MongoDB connection error: ${String(error)}`);
+          : new DatabaseError(`Unknown MongoDB connection error: ${String(error)}`, {
+              cause: error,
+            });
 
       mongoEventEmitter.emitMongoEvent('error', err);
 

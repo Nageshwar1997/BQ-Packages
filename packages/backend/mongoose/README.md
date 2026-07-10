@@ -1,6 +1,6 @@
 # @beautinique/backend-mongoose
 
-Mongoose connection management, health/state reporting, and a transaction-aware Express middleware for Beautinique backend services.
+Mongoose connection management, health/state reporting, and transaction-aware Express middleware for Beautinique backend services.
 
 ## Installation
 
@@ -8,7 +8,7 @@ Mongoose connection management, health/state reporting, and a transaction-aware 
 npm install @beautinique/backend-mongoose
 ```
 
-`express` is a peer dependency - only required for `tryCatchSession`. Install whichever version your service already uses.
+`express` is a peer dependency - only required for `checkDbConnection`/`tryCatchSession`. Install whichever version your service already uses.
 
 ## Connection
 
@@ -34,6 +34,25 @@ app.get('/health', (_req, res) => res.json(getConnectionHealth()));
 
 mongoEvents.on('error', (error) => logger.error({ err: error }, 'MongoDB error'));
 ```
+
+## `checkDbConnection`
+
+Rejects requests with a `ServiceUnavailableError` (503) if the MongoDB connection isn't ready yet, instead of letting the request sit in mongoose's own query buffer (`bufferCommands`, ~10s timeout by default) only to fail later with an opaque, generic 500.
+
+```ts
+import { checkDbConnection } from '@beautinique/backend-mongoose';
+
+await connectDb({ uri: process.env.MONGO_URI! });
+
+app.use(checkDbConnection());
+app.use('/api', routes); // only reached once the DB is connected
+```
+
+| Option    | Default                              | Description                                     |
+| --------- | -------------------------------------- | -------------------------------------------------- |
+| `message` | `Database connection is not ready.`  | Overrides the `ServiceUnavailableError` message. |
+
+Register it after `connectDb()` has been called, but before any route that touches the database - **not** in front of a health/readiness endpoint, which needs to report "not ready" rather than fail outright while the DB is still connecting.
 
 ## `tryCatchSession`
 

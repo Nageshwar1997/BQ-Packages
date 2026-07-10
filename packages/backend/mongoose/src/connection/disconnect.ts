@@ -1,3 +1,4 @@
+import { DatabaseError } from '@beautinique/backend-classes';
 import mongoose from 'mongoose';
 
 import { mongoEventEmitter } from '../classes/index.js';
@@ -17,7 +18,9 @@ export const disconnectDB = async (): Promise<void> => {
     const err =
       error instanceof Error
         ? error
-        : new Error(`Unknown MongoDB disconnect error: ${String(error)}`);
+        : new DatabaseError(`Unknown MongoDB disconnect error: ${String(error)}`, {
+            cause: error,
+          });
 
     mongoEventEmitter.emitMongoEvent('error', err);
 
