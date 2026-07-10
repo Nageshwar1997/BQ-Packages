@@ -1,0 +1,51 @@
+{
+  "name": "@beautinique/backend-cors",
+  "version": "1.0.0",
+  "description": "Cors middleware for Beautinique project.",
+  "keywords": [
+    "cors",
+    "backend",
+    "beautinique",
+    "middleware"
+  ],
+  "author": "Nageshwar Pawar",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nageshwar1997/BQ-Packages.git",
+    "directory": "packages/backend/cors"
+  },
+  "bugs": {
+    "url": "https://github.com/Nageshwar1997/BQ-Packages/issues"
+  },
+  "homepage": "https://github.com/Nageshwar1997/BQ-Packages/tree/main/packages/backend/cors#readme",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
