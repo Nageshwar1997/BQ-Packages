@@ -25,7 +25,7 @@ export type TAsyncRequestHandler = (
  * @param handler - The async route handler to wrap.
  * @returns An Express request handler.
  */
-export function tryCatch(handler: TAsyncRequestHandler): RequestHandler {
+export function tryCatchResponse(handler: TAsyncRequestHandler): RequestHandler {
   return async (req, res, next) => {
     res.locals.afterResponse = [];
     res.locals.afterRollback = [];
