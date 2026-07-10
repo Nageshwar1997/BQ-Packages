@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/backend-mongoose",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Backend mongoose for Beautinique project.",
   "keywords": [
     "backend",
@@ -28,7 +28,9 @@
   "files": [
     "dist"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "./src/globals.ts"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
