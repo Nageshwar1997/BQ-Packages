@@ -6,6 +6,9 @@
     "backend",
     "shared",
     "zod",
+    "express",
+    "middleware",
+    "validation",
     "beautinique"
   ],
   "author": "Nageshwar Pawar",
@@ -48,10 +51,15 @@
   "engines": {
     "node": ">=24"
   },
+  "peerDependencies": {
+    "express": "^5.2.1"
+  },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "typescript": "^6.0.3"
   },
   "dependencies": {
+    "@beautinique/backend-classes": "^1.0.1",
     "@beautinique/shared-zod": "^1.0.0"
   }
 }
