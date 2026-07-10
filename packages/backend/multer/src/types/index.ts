@@ -14,6 +14,7 @@ export interface IMulterValidation extends ICommonMulterFileConfigs {
   maxCount?: number;
   fieldsConfig?: { name: string; maxCount: number }[];
   limits?: Options['limits'];
+  isDev?: boolean;
 }
 
 export interface ICollectCustomError extends ICommonMulterFileConfigs {

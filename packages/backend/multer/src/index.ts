@@ -17,6 +17,7 @@ export const validateMulter = ({
   limits,
   format,
   size,
+  isDev = false,
 }: IMulterValidation): RequestHandler => {
   const upload = createMulterUpload({ type, fieldName, maxCount, fieldsConfig, limits });
 
@@ -25,7 +26,7 @@ export const validateMulter = ({
       const errors = new ErrorBuilder();
 
       // ===== Multer Internal Validation =====
-      collectMulterErrors(errors, { error, fieldName, maxCount }, process.env.IS_DEV === 'true');
+      collectMulterErrors(errors, { error, fieldName, maxCount }, isDev);
 
       // If Multer itself failed, stop immediately.
       if (!errors.isEmpty()) {

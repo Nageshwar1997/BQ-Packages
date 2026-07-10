@@ -169,7 +169,7 @@ const getCause = (cause: unknown, isDev?: boolean) => {
 export const collectMulterErrors = (
   errors: ErrorBuilder,
   { error, fieldName = '', maxCount }: ICollectMulterError,
-  isDev = false,
+  isDev?: boolean,
 ): void => {
   if (!error) {
     return;

@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/backend-multer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Backend multer middleware for Beautinique project.",
   "keywords": [
     "backend",
