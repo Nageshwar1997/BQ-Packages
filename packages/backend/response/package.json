@@ -29,7 +29,9 @@
     "dist",
     "public"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "./src/globals.ts"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
