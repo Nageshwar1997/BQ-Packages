@@ -47,5 +47,17 @@
   },
   "engines": {
     "node": ">=24"
+  },
+  "dependencies": {
+    "@beautinique/backend-classes": "^1.0.1",
+    "cors": "^2.8.6"
+  },
+  "peerDependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "typescript": "^6.0.3"
   }
 }
