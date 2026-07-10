@@ -119,7 +119,7 @@ function digest(value: string) {
  * @returns An Express request handler that throws {@link AuthorizationError}
  * when the header is missing or does not match.
  */
-export const serviceAccess = ({
+export const checkServiceAccess = ({
   secret,
   headerName = 'X-Service-Secret',
 }: IServiceAccessOptions): RequestHandler => {
