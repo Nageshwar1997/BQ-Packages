@@ -15,7 +15,7 @@ import type { ISuccessResponseOptions } from '../../types/response.js';
  *
  * app.get('/users/:id', tryCatch(async (req, res) => {
  *   const user = await userService.findById(req.params.id);
- *   res.success?.({ data: user, message: 'User fetched' });
+ *   res.success({ data: user, message: 'User fetched' });
  * }));
  * ```
  *

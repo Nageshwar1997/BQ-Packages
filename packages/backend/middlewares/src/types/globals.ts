@@ -35,7 +35,7 @@ declare global {
 
     interface Response {
       /** Sends a consistent `{ success: true, ... }` JSON response. Attached by `successResponse`. */
-      success?: <T = unknown>(options?: ISendSuccessOptions<T>) => void;
+      success: <T = unknown>(options?: ISendSuccessOptions<T>) => void;
     }
   }
 }

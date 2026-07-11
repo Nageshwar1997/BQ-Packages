@@ -20,7 +20,7 @@ app.post(
   validateMulter({ type: 'single', fieldName: 'image' }),
   tryCatch(async (req, res) => {
     // req.file is validated - correct MIME type, within the size limit
-    res.success?.({ data: req.file });
+    res.success({ data: req.file });
   }),
 );
 ```

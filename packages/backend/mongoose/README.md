@@ -70,7 +70,7 @@ app.post(
       await notifyWarehouse(order.id);
     });
 
-    res.success?.({ data: order, statusCode: 201 });
+    res.success({ data: order, statusCode: 201 });
   }),
 );
 ```

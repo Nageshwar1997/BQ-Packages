@@ -28,7 +28,7 @@ app.get(
   }),
   tryCatch(async (req, res) => {
     // req.query.page / req.query.limit are numbers here, not strings
-    res.success?.({ data: await productService.list(req.query) });
+    res.success({ data: await productService.list(req.query) });
   }),
 );
 
