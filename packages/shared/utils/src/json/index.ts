@@ -1,5 +1,7 @@
 /* ========== PARSE FUNCTION ========== */
 export const parseData = (data: string): unknown => {
+  if (!data) return '';
+
   try {
     return JSON.parse(data);
   } catch (error) {
@@ -13,6 +15,7 @@ export const parseData = (data: string): unknown => {
 
 /* ========== STRINGIFY FUNCTION ========== */
 export const stringifyData = (data: unknown): string => {
+  if (!data) return '';
   try {
     return JSON.stringify(data);
   } catch (error) {
