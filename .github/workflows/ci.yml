@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build, typecheck, lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build all packages
+        run: npm run build --workspaces
+
+      - name: Typecheck all packages
+        run: npm run typecheck --workspaces
+
+      - name: Lint all packages
+        run: npm run lint --workspaces
+
+      - name: Verify declaration files were generated
+        run: |
+          missing=0
+          for dir in packages/*/*/; do
+            if [ -f "$dir/package.json" ]; then
+              if [ ! -f "$dir/dist/index.d.ts" ] || [ ! -f "$dir/dist/index.d.cts" ]; then
+                echo "::error::Missing dist/index.d.ts or dist/index.d.cts in $dir"
+                missing=1
+              fi
+            fi
+          done
+          exit $missing

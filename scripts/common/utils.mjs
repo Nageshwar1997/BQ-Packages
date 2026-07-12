@@ -185,7 +185,13 @@ export async function runCommand(command, args = [], options = {}) {
  */
 export function runInteractiveCommand(command, args = [], options = {}) {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
+    /*
+     * Pre-joins command + args into a single, pre-escaped string (the same
+     * helper `runCommand` uses) instead of passing `args` as a separate
+     * array alongside `shell: true` - Node deprecates that combination
+     * (DEP0190) because it does its own unescaped concatenation internally.
+     */
+    const child = spawn(buildCommand(command, args), {
       ...options,
       stdio: 'inherit',
       shell: true,
