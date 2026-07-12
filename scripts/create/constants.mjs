@@ -100,6 +100,7 @@ export const PACKAGE_EXPORTS = {
  */
 export const PACKAGE_SCRIPTS = {
   build: 'tsup',
+  postbuild: 'node ../../../scripts/build-types/index.mjs',
   dev: 'tsup --watch',
   lint: 'eslint .',
   typecheck: 'tsc --noEmit',

@@ -1,6 +1,8 @@
 {
   "extends": "../../../configs/tsconfig/tsconfig.backend.json",
 
+  "exclude": ["dist", "tsup.config.ts"],
+
   "compilerOptions": {
     /*
      * The shared base config restricts automatic global type inclusion to

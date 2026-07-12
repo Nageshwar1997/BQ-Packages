@@ -1,3 +1,5 @@
 {
-  "extends": "../../../configs/tsconfig/tsconfig.backend.json"
+  "extends": "../../../configs/tsconfig/tsconfig.backend.json",
+
+  "exclude": ["dist", "tsup.config.ts"]
 }
