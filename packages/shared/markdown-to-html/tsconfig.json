@@ -3,5 +3,15 @@
   "exclude": [
     "dist",
     "tsup.config.ts"
-  ]
+  ],
+
+  "compilerOptions": {
+    /*
+     * The shared base config leaves "types" unset (other shared/* packages
+     * are meant to stay isomorphic). This package is inherently a Node
+     * build-time tool (reads/writes files via `node:fs`), so it opts into
+     * Node's ambient types here alone.
+     */
+    "types": ["node"]
+  }
 }
