@@ -7,6 +7,7 @@ import {
   VIDEO_MIMES,
 } from '@beautinique/shared-constants';
 import type { TImageMime, TVideoMime } from '@beautinique/shared-types';
+import { formatFileSize } from '@beautinique/shared-utils';
 import type { Request, RequestHandler } from 'express';
 import multer, { memoryStorage, MulterError } from 'multer';
 
@@ -141,9 +142,9 @@ export const collectCustomErrors = (
     if (fileSize > maxAllowedSize) {
       errors.addField(
         fieldname,
-        `${mediaType} '${originalname}' exceeds the maximum allowed size (${(
-          maxAllowedSize / MB
-        ).toFixed(2)} MB). Received: ${(fileSize / MB).toFixed(2)} MB.`,
+        `${mediaType} '${originalname}' exceeds the maximum allowed size (${formatFileSize(
+          maxAllowedSize / MB,
+        )}). Received: ${formatFileSize(fileSize / MB)}.`,
         'PAYLOAD_TOO_LARGE',
       );
     }
