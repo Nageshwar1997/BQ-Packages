@@ -1,3 +1,3 @@
-export * from './common.js';
-export * from './image.js';
-export * from './video.js';
+export * from './common.types.js';
+export * from './image.types.js';
+export * from './video.types.js';

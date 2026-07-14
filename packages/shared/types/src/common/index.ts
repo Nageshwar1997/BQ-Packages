@@ -1,3 +1,3 @@
-export * from './address.js';
-export * from './common.js';
-export * from './payment.js';
+export * from './address.types.js';
+export * from './common.types.js';
+export * from './payment.types.js';
