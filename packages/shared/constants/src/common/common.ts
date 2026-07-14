@@ -12,7 +12,7 @@ export const SERVICE_NAMES_MAP = Object.fromEntries(
 export const API_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const;
 
 export const API_METHODS_MAP = Object.fromEntries(
-  API_METHODS.map((method) => [method, method.toLowerCase()] as const),
+  API_METHODS.map((method) => [method, method.toLowerCase()]),
 ) as { readonly [K in (typeof API_METHODS)[number]]: Lowercase<K> };
 
 export const SORT = ['asc', 'desc'] as const;
@@ -31,3 +31,5 @@ export const HEADERS_MAP = {
 } as const;
 
 export const HEADERS = Object.values(HEADERS_MAP);
+
+export const MAX_OTP_RESEND = 3 as const;
