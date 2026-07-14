@@ -1,5 +1,5 @@
 import { REGEX } from '@beautinique/shared-constants';
-import { string } from 'zod';
+import { object, string } from 'zod';
 
 export const emailValidation = string('Email is required')
   .trim()
@@ -80,3 +80,13 @@ export const lastNameValidation = string('Last name is required')
   .nonempty('Last name is required')
   .regex(REGEX.SINGLE_SPACE, "Last name can't contain multiple spaces")
   .regex(REGEX.ONLY_LETTERS_AND_SPACES, 'Last name is invalid. e.g. John');
+
+export const passwordsValidation = object({
+  password: passwordValidation,
+  confirmPassword: confirmPasswordValidation,
+});
+
+export const otpValidation = string('OTP is required')
+  .trim()
+  .nonempty('OTP is required')
+  .length(6, 'OTP must be 6 digits long');

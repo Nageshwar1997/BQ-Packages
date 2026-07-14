@@ -3,6 +3,7 @@ import { object } from 'zod';
 import {
   confirmPasswordValidation,
   emailValidation,
+  otpValidation,
   passwordValidation,
   phoneNumberValidation,
 } from '../constants/index.js';
@@ -15,7 +16,4 @@ export const passwordZodSchema = object({ password: passwordValidation });
 
 export const confirmPasswordZodSchema = object({ password: confirmPasswordValidation });
 
-export const passwordsValidation = object({
-  password: passwordValidation,
-  confirmPassword: confirmPasswordValidation,
-});
+export const otpZodSchema = object({ otp: otpValidation });

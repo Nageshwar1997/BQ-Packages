@@ -1,11 +1,11 @@
 import { discriminatedUnion, literal, object, type RefinementCtx } from 'zod';
 
-import { passwordsValidation } from '../common/index.js';
 import {
   currentPasswordValidation,
   emailValidation,
   firstNameValidation,
   lastNameValidation,
+  passwordsValidation,
   passwordValidation,
   phoneNumberValidation,
 } from '../constants/index.js';
@@ -52,7 +52,7 @@ export const registerZodSchema = passwordsZodSchema
 
 export const setPasswordZodSchema = passwordsValidation.superRefine(passwordMatchValidation);
 
-export const changePasswordSchema = passwordsValidation
+export const changePasswordZodSchema = passwordsValidation
   .extend({ currentPassword: currentPasswordValidation })
   .superRefine(passwordMatchValidation);
 
