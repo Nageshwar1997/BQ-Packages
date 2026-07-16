@@ -129,22 +129,22 @@ export class JobWorker<Q extends TQueueName> {
   }
 
   /** Whether the underlying BullMQ worker is actively processing jobs. */
-  isRunning(): boolean {
+  public isRunning(): boolean {
     return this.worker.isRunning();
   }
 
   /** Stops picking up new jobs; in-flight jobs are allowed to finish. */
-  async pause(): Promise<void> {
+  public async pause(): Promise<void> {
     await this.worker.pause();
   }
 
   /** Resumes a paused worker. */
-  resume(): void {
+  public resume(): void {
     this.worker.resume();
   }
 
   /** Escape hatch for advanced use (e.g. extra event listeners) not covered by this class. */
-  getWorkerInstance(): TAnyWorker {
+  public getWorkerInstance(): TAnyWorker {
     return this.worker;
   }
 
@@ -154,7 +154,7 @@ export class JobWorker<Q extends TQueueName> {
    * @param force - Skips waiting for in-flight jobs to finish. Prefer the
    * default (`false`) so a deploy/restart doesn't abandon a running job.
    */
-  async close(force = false): Promise<void> {
+  public async close(force = false): Promise<void> {
     await this.worker.close(force);
   }
 }
