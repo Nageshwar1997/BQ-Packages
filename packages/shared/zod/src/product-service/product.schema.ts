@@ -61,3 +61,49 @@ export const productBasicInfoSchema = object({
   path: ['sellingPrice'],
   message: 'Selling price cannot be greater than original price.',
 });
+
+const satisfyContentCondition = (value: string | undefined) => {
+  if (value === undefined) return true;
+  const trimmed = value.trim();
+  return trimmed === '' || trimmed === '<p><br></p>' || trimmed.length >= 20;
+};
+
+export const productDescriptionAndContentSchema = object({
+  shortDescription: string('Short description is required.')
+    .trim()
+    .nonempty('Short description is required.')
+    .min(10, 'Short description must be at least 10 characters.')
+    .max(300, 'Short description cannot exceed 300 characters.')
+    .regex(REGEX.SINGLE_SPACE, 'Short description cannot contain consecutive spaces.'),
+
+  description: string('Description is required.')
+    .trim()
+    .nonempty('Description is required.')
+    .refine((value) => value !== '<p><br></p>', 'Description is required.')
+    .min(107, 'Description must be at least 100 characters.')
+    .regex(REGEX.SINGLE_SPACE, 'Description cannot contain consecutive spaces.'),
+
+  instructions: string()
+    .trim()
+    .optional()
+    .refine(
+      (value) => satisfyContentCondition(value),
+      'Usage instructions must be at least 10 characters.',
+    ),
+
+  ingredients: string()
+    .trim()
+    .optional()
+    .refine(
+      (value) => satisfyContentCondition(value),
+      'Ingredients must be at least 10 characters.',
+    ),
+
+  additional: string()
+    .trim()
+    .optional()
+    .refine(
+      (value) => satisfyContentCondition(value),
+      'Additional details must be at least 10 characters.',
+    ),
+});
