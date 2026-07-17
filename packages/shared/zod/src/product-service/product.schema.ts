@@ -1,19 +1,9 @@
-import { REGEX } from '@beautinique/shared-constants';
-import { number, object, string } from 'zod';
+import { REGEX, VARIANT_TYPES } from '@beautinique/shared-constants';
+import { enum as enum_z, literal, number, object, string } from 'zod';
 
-export const productBasicInfoSchema = object({
-  title: string('Title is required.')
-    .nonempty('Title is required.')
-    .min(2, 'Title must be at least 2 characters.')
-    .max(150, 'Title cannot exceed 150 characters.')
-    .regex(REGEX.SINGLE_SPACE, 'Title cannot contain consecutive spaces.'),
+import { appendCustomIssue } from '../utils/index.js';
 
-  brand: string('Brand is required.')
-    .nonempty('Brand is required.')
-    .min(2, 'Brand must be at least 2 characters.')
-    .max(80, 'Brand cannot exceed 80 characters.')
-    .regex(REGEX.SINGLE_SPACE, 'Brand cannot contain consecutive spaces.'),
-
+export const pricesSchema = object({
   originalPrice: number('Original price is required.')
     .nonnegative('Original price cannot be negative.')
     .positive('Original price must be greater than 0.'),
@@ -21,46 +11,62 @@ export const productBasicInfoSchema = object({
   sellingPrice: number('Selling price is required.')
     .nonnegative('Selling price cannot be negative.')
     .positive('Selling price must be greater than 0.'),
-
-  l1Category: object(
-    {
-      _id: string('(L1) Main category is required.')
-        .nonempty('(L1) Main category is required.')
-        .regex(REGEX.MONGODB_ID, '(L1) Main category must be a valid ID.'),
-      name: string('(L1) Main category is required.')
-        .nonempty('(L1) Main category is required.')
-        .regex(REGEX.SINGLE_SPACE, '(L1) Main category cannot contain consecutive spaces.'),
-    },
-    '(L1) Main category is required.',
-  ),
-
-  l2Category: object(
-    {
-      _id: string('(L2) Sub-category is required.')
-        .nonempty('(L2) Sub-category is required.')
-        .regex(REGEX.MONGODB_ID, '(L2) Sub-category must be a valid ID.'),
-      name: string('(L2) Sub-category is required.')
-        .nonempty('(L2) Sub-category is required.')
-        .regex(REGEX.SINGLE_SPACE, '(L2) Sub-category cannot contain consecutive spaces.'),
-    },
-    '(L2) Sub-category is required.',
-  ),
-
-  l3Category: object(
-    {
-      _id: string('(L3) Product category is required.')
-        .nonempty('(L3) Product category is required.')
-        .regex(REGEX.MONGODB_ID, '(L3) Product category must be a valid ID.'),
-      name: string('(L3) Product category is required.')
-        .nonempty('(L3) Product category is required.')
-        .regex(REGEX.SINGLE_SPACE, '(L3) Product category cannot contain consecutive spaces.'),
-    },
-    '(L3) Product category is required.',
-  ),
-}).refine((data) => !data.sellingPrice || data.sellingPrice <= data.originalPrice, {
-  path: ['sellingPrice'],
-  message: 'Selling price cannot be greater than original price.',
 });
+
+export const productBasicInfoSchema = pricesSchema
+  .extend({
+    title: string('Title is required.')
+      .nonempty('Title is required.')
+      .min(2, 'Title must be at least 2 characters.')
+      .max(150, 'Title cannot exceed 150 characters.')
+      .regex(REGEX.SINGLE_SPACE, 'Title cannot contain consecutive spaces.'),
+
+    brand: string('Brand is required.')
+      .nonempty('Brand is required.')
+      .min(2, 'Brand must be at least 2 characters.')
+      .max(80, 'Brand cannot exceed 80 characters.')
+      .regex(REGEX.SINGLE_SPACE, 'Brand cannot contain consecutive spaces.'),
+
+    l1Category: object(
+      {
+        _id: string('(L1) Main category is required.')
+          .nonempty('(L1) Main category is required.')
+          .regex(REGEX.MONGODB_ID, '(L1) Main category must be a valid ID.'),
+        name: string('(L1) Main category is required.')
+          .nonempty('(L1) Main category is required.')
+          .regex(REGEX.SINGLE_SPACE, '(L1) Main category cannot contain consecutive spaces.'),
+      },
+      '(L1) Main category is required.',
+    ),
+
+    l2Category: object(
+      {
+        _id: string('(L2) Sub-category is required.')
+          .nonempty('(L2) Sub-category is required.')
+          .regex(REGEX.MONGODB_ID, '(L2) Sub-category must be a valid ID.'),
+        name: string('(L2) Sub-category is required.')
+          .nonempty('(L2) Sub-category is required.')
+          .regex(REGEX.SINGLE_SPACE, '(L2) Sub-category cannot contain consecutive spaces.'),
+      },
+      '(L2) Sub-category is required.',
+    ),
+
+    l3Category: object(
+      {
+        _id: string('(L3) Product category is required.')
+          .nonempty('(L3) Product category is required.')
+          .regex(REGEX.MONGODB_ID, '(L3) Product category must be a valid ID.'),
+        name: string('(L3) Product category is required.')
+          .nonempty('(L3) Product category is required.')
+          .regex(REGEX.SINGLE_SPACE, '(L3) Product category cannot contain consecutive spaces.'),
+      },
+      '(L3) Product category is required.',
+    ),
+  })
+  .refine((data) => !data.sellingPrice || data.sellingPrice <= data.originalPrice, {
+    path: ['sellingPrice'],
+    message: 'Selling price cannot be greater than original price.',
+  });
 
 const satisfyContentCondition = (value: string | undefined) => {
   if (value === undefined) return true;
@@ -107,3 +113,43 @@ export const productDescriptionAndContentSchema = object({
       'Additional details must be at least 10 characters.',
     ),
 });
+
+export const stocksSchema = object({
+  stock: number('Stock is required')
+    .int('Stock must be a whole number.')
+    .nonnegative('Stock cannot be negative.')
+    .positive('Stock must be greater than 0.')
+    .min(1, 'Stock must be greater than 0.')
+    .max(100, 'Stock cannot exceed 100.'),
+
+  stockThreshold: number('Stock threshold is required')
+    .int('Stock threshold must be a whole number.')
+    .nonnegative('Stock threshold cannot be negative.')
+    .positive('Stock threshold must be greater than 0.')
+    .min(1, 'Stock threshold must be greater than 0.')
+    .max(10, 'Stock threshold cannot exceed 10.'),
+});
+
+export const baseVariantZodSchema = stocksSchema
+  .extend({
+    type: enum_z(VARIANT_TYPES, 'Variant type is required.'),
+
+    label: string('Variant label is required.')
+      .nonempty('Variant label is required.')
+      .min(2, 'Variant label must be at least 2 characters.')
+      .max(100, 'Variant label cannot exceed 100 characters.')
+      .regex(REGEX.SINGLE_SPACE, 'Variant label cannot contain consecutive spaces.'),
+
+    value: string('Variant value is required.')
+      .nonempty('Variant value is required.')
+      .regex(REGEX.SINGLE_SPACE, 'Variant value cannot contain consecutive spaces.'),
+  })
+  .and(pricesSchema);
+
+export const withoutVariantsSchema = stocksSchema
+  .extend({ hasVariants: literal(false) })
+  .superRefine((data, ctx) => {
+    if (data.stockThreshold >= data.stock) {
+      appendCustomIssue(ctx, 'Stock threshold must be less than stock.', 'stockThreshold');
+    }
+  });
