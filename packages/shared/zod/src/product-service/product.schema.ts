@@ -1,5 +1,11 @@
-import { REGEX, VARIANT_TYPES } from '@beautinique/shared-constants';
-import { enum as enum_z, literal, number, object, string } from 'zod';
+import {
+  REGEX,
+  TRY_ON_CATEGORY_MAP,
+  TRY_ON_MAP,
+  VARIANT_TYPES,
+} from '@beautinique/shared-constants';
+import { isNullOrUndefined } from '@beautinique/shared-utils';
+import { discriminatedUnion, enum as enum_z, literal, number, object, string } from 'zod';
 
 import { appendCustomIssue } from '../utils/index.js';
 
@@ -69,7 +75,7 @@ export const productBasicInfoSchema = pricesSchema
   });
 
 const satisfyContentCondition = (value: string | undefined) => {
-  if (value === undefined) return true;
+  if (isNullOrUndefined(value)) return true;
   const trimmed = value.trim();
   return trimmed === '' || trimmed === '<p><br></p>' || trimmed.length >= 20;
 };
@@ -153,3 +159,48 @@ export const withoutVariantsSchema = stocksSchema
       appendCustomIssue(ctx, 'Stock threshold must be less than stock.', 'stockThreshold');
     }
   });
+
+const tryonConfiguration = discriminatedUnion(
+  'category',
+  [
+    object({
+      category: literal(TRY_ON_CATEGORY_MAP.LIP),
+      subCategory: enum_z(TRY_ON_MAP[TRY_ON_CATEGORY_MAP.LIP], `TryOn sub-category is required.`),
+    }),
+
+    object({
+      category: literal(TRY_ON_CATEGORY_MAP.EYE),
+      subCategory: enum_z(TRY_ON_MAP[TRY_ON_CATEGORY_MAP.EYE], `TryOn sub-category is required.`),
+    }),
+
+    object({
+      category: literal(TRY_ON_CATEGORY_MAP.HAIR),
+      subCategory: enum_z(TRY_ON_MAP[TRY_ON_CATEGORY_MAP.HAIR], `TryOn sub-category is required.`),
+    }),
+
+    object({
+      category: literal(TRY_ON_CATEGORY_MAP.FACE),
+      subCategory: enum_z(TRY_ON_MAP[TRY_ON_CATEGORY_MAP.FACE], `TryOn sub-category is required.`),
+    }),
+
+    object({
+      category: literal(TRY_ON_CATEGORY_MAP.NAIL),
+      subCategory: enum_z(TRY_ON_MAP[TRY_ON_CATEGORY_MAP.NAIL], `TryOn sub-category is required.`),
+    }),
+
+    object({
+      category: literal(TRY_ON_CATEGORY_MAP.SKIN),
+      subCategory: enum_z(TRY_ON_MAP[TRY_ON_CATEGORY_MAP.SKIN], `TryOn sub-category is required.`),
+    }),
+  ],
+  'TryOn category is required.',
+);
+
+export const productTryOnConfigurationSchema = discriminatedUnion(
+  'enabled',
+  [
+    object({ enabled: literal(false), tryOn: tryonConfiguration.optional() }),
+    object({ enabled: literal(true), tryOn: tryonConfiguration }),
+  ],
+  'TryOn is required.',
+);

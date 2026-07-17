@@ -53,6 +53,7 @@
   },
   "dependencies": {
     "@beautinique/shared-constants": "^1.0.7",
+    "@beautinique/shared-utils": "^1.0.4",
     "zod": "^4.4.3"
   }
 }
