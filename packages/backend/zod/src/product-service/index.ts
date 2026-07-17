@@ -1,1 +1,1 @@
-export * from "./category.js";
+export * from "./category.schema.js";

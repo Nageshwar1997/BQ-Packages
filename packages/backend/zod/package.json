@@ -61,6 +61,6 @@
   },
   "dependencies": {
     "@beautinique/backend-classes": "^1.0.1",
-    "@beautinique/shared-zod": "^1.0.3"
+    "@beautinique/shared-zod": "^1.0.4"
   }
 }
