@@ -1,3 +1,3 @@
-import type { folderZodSchema, TZodInfer } from '@beautinique/backend-zod';
+import type { folderZodSchema, TInfer } from '@beautinique/backend-zod';
 
-export type TFolderZodSchema = TZodInfer<typeof folderZodSchema>;
+export type TFolderZodSchema = TInfer<typeof folderZodSchema>;

@@ -4,12 +4,12 @@ import type {
   l1CategoryZodSchema,
   l2CategoryZodSchema,
   l3CategoryZodSchema,
-  TZodInfer,
+  TInfer,
 } from '@beautinique/backend-zod';
 
-export type TL1CategoryZodSchema = TZodInfer<typeof l1CategoryZodSchema>;
-export type TL2CategoryZodSchema = TZodInfer<typeof l2CategoryZodSchema>;
-export type TL3CategoryZodSchema = TZodInfer<typeof l3CategoryZodSchema>;
+export type TL1CategoryZodSchema = TInfer<typeof l1CategoryZodSchema>;
+export type TL2CategoryZodSchema = TInfer<typeof l2CategoryZodSchema>;
+export type TL3CategoryZodSchema = TInfer<typeof l3CategoryZodSchema>;
 
-export type TCategoryZodSchema = TZodInfer<typeof categoryZodSchema>;
-export type TCategoryUpdateZodSchema = TZodInfer<typeof categoryUpdateZodSchema>;
+export type TCategoryZodSchema = TInfer<typeof categoryZodSchema>;
+export type TCategoryUpdateZodSchema = TInfer<typeof categoryUpdateZodSchema>;

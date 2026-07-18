@@ -50,11 +50,11 @@
     "node": ">=24"
   },
   "devDependencies": {
-    "@beautinique/backend-zod": "^1.0.9",
+    "@beautinique/backend-zod": "^1.0.14",
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "@beautinique/backend-zod": "^1.0.10",
+    "@beautinique/backend-zod": "^1.0.14",
     "@beautinique/shared-types": "^1.0.7"
   }
 }

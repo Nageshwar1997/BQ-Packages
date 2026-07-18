@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/backend-zod",
-  "version": "1.0.12",
+  "version": "1.0.14",
   "description": "Backend zod for Beautinique project",
   "keywords": [
     "backend",
