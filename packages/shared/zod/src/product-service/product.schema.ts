@@ -3,6 +3,7 @@ import {
   TRY_ON_CATEGORY_MAP,
   TRY_ON_MAP,
   VARIANT_TYPES,
+  VARIANT_TYPES_MAP,
 } from '@beautinique/shared-constants';
 import { isNullOrUndefined } from '@beautinique/shared-utils';
 import { discriminatedUnion, enum as enum_z, literal, number, object, string } from 'zod';
@@ -17,10 +18,74 @@ export const pricesSchema = object({
   sellingPrice: number('Selling price is required.')
     .nonnegative('Selling price cannot be negative.')
     .positive('Selling price must be greater than 0.'),
+}).superRefine((data, ctx) => {
+  if (data.sellingPrice > data.originalPrice) {
+    appendCustomIssue(ctx, 'Selling price cannot be greater than original price.', 'sellingPrice');
+  }
 });
 
-export const productBasicInfoSchema = pricesSchema
-  .extend({
+export const stocksSchema = object({
+  stock: number('Stock is required')
+    .int('Stock must be a whole number.')
+    .nonnegative('Stock cannot be negative.')
+    .positive('Stock must be greater than 0.')
+    .min(1, 'Stock must be greater than 0.')
+    .max(100, 'Stock cannot exceed 100.'),
+
+  stockThreshold: number('Stock threshold is required')
+    .int('Stock threshold must be a whole number.')
+    .nonnegative('Stock threshold cannot be negative.')
+    .positive('Stock threshold must be greater than 0.')
+    .min(1, 'Stock threshold must be greater than 0.')
+    .max(10, 'Stock threshold cannot exceed 10.'),
+}).superRefine((data, ctx) => {
+  if (data.stockThreshold >= data.stock) {
+    appendCustomIssue(ctx, 'Stock threshold must be less than stock.', 'stockThreshold');
+  }
+});
+
+const labelAndValueAndTypeSchema = object({
+  type: enum_z(VARIANT_TYPES, 'Variant type is required.'),
+
+  label: string('Variant label is required.')
+    .nonempty('Variant label is required.')
+    .min(2, 'Variant label must be at least 2 characters.')
+    .max(100, 'Variant label cannot exceed 100 characters.')
+    .regex(REGEX.SINGLE_SPACE, 'Variant label cannot contain consecutive spaces.'),
+
+  value: string('Variant value is required.')
+    .nonempty('Variant value is required.')
+    .regex(REGEX.SINGLE_SPACE, 'Variant value cannot contain consecutive spaces.'),
+}).superRefine((data, ctx) => {
+  const value = data.value.trim();
+
+  /* -------------------------------------------------------------------------- */
+  /*                               COLOR VARIANT                                */
+  /* -------------------------------------------------------------------------- */
+
+  if (data.type === VARIANT_TYPES_MAP.Color && value && !REGEX.HEX_CODE.test(value)) {
+    appendCustomIssue(ctx, 'Invalid hex color code.', 'value');
+    return;
+  }
+
+  /* -------------------------------------------------------------------------- */
+  /*                                TEXT VARIANT                                */
+  /* -------------------------------------------------------------------------- */
+
+  if (data.type === VARIANT_TYPES_MAP.Text && value) {
+    if (value.length > 50) {
+      appendCustomIssue(ctx, 'Variant value cannot exceed 50 characters.', 'value');
+      return;
+    }
+    if (value.length < 2) {
+      appendCustomIssue(ctx, 'Variant value must be at least 2 character.', 'value');
+      return;
+    }
+  }
+});
+
+export const productBasicInfoSchema = pricesSchema.and(
+  object({
     title: string('Title is required.')
       .nonempty('Title is required.')
       .min(2, 'Title must be at least 2 characters.')
@@ -68,11 +133,8 @@ export const productBasicInfoSchema = pricesSchema
       },
       '(L3) Product category is required.',
     ),
-  })
-  .refine((data) => !data.sellingPrice || data.sellingPrice <= data.originalPrice, {
-    path: ['sellingPrice'],
-    message: 'Selling price cannot be greater than original price.',
-  });
+  }),
+);
 
 const satisfyContentCondition = (value: string | undefined) => {
   if (isNullOrUndefined(value)) return true;
@@ -120,51 +182,9 @@ export const productDescriptionAndContentSchema = object({
     ),
 });
 
-export const stocksSchema = object({
-  stock: number('Stock is required')
-    .int('Stock must be a whole number.')
-    .nonnegative('Stock cannot be negative.')
-    .positive('Stock must be greater than 0.')
-    .min(1, 'Stock must be greater than 0.')
-    .max(100, 'Stock cannot exceed 100.'),
+export const baseVariantZodSchema = labelAndValueAndTypeSchema.and(pricesSchema).and(stocksSchema);
 
-  stockThreshold: number('Stock threshold is required')
-    .int('Stock threshold must be a whole number.')
-    .nonnegative('Stock threshold cannot be negative.')
-    .positive('Stock threshold must be greater than 0.')
-    .min(1, 'Stock threshold must be greater than 0.')
-    .max(10, 'Stock threshold cannot exceed 10.'),
-});
-
-export const baseVariantZodSchema = object({
-  stock: stocksSchema.shape.stock,
-
-  stockThreshold: stocksSchema.shape.stockThreshold,
-
-  originalPrice: pricesSchema.shape.originalPrice,
-
-  sellingPrice: pricesSchema.shape.sellingPrice,
-
-  type: enum_z(VARIANT_TYPES, 'Variant type is required.'),
-
-  label: string('Variant label is required.')
-    .nonempty('Variant label is required.')
-    .min(2, 'Variant label must be at least 2 characters.')
-    .max(100, 'Variant label cannot exceed 100 characters.')
-    .regex(REGEX.SINGLE_SPACE, 'Variant label cannot contain consecutive spaces.'),
-
-  value: string('Variant value is required.')
-    .nonempty('Variant value is required.')
-    .regex(REGEX.SINGLE_SPACE, 'Variant value cannot contain consecutive spaces.'),
-});
-
-export const withoutVariantsSchema = stocksSchema
-  .extend({ hasVariants: literal(false) })
-  .superRefine((data, ctx) => {
-    if (data.stockThreshold >= data.stock) {
-      appendCustomIssue(ctx, 'Stock threshold must be less than stock.', 'stockThreshold');
-    }
-  });
+export const withoutVariantsSchema = stocksSchema.extend({ hasVariants: literal(false) });
 
 const tryonConfiguration = discriminatedUnion(
   'category',

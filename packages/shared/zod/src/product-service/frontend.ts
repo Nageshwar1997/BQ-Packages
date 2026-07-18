@@ -1,4 +1,3 @@
-import { REGEX, VARIANT_TYPES_MAP } from '@beautinique/shared-constants';
 import { array, discriminatedUnion, literal, object, union } from 'zod';
 
 import {
@@ -25,70 +24,15 @@ export const productMediaAndGallerySchema = object({
   video: videoZodSchema.optional(),
 });
 
-const variantSchema = baseVariantZodSchema
-  .extend({
+// Cross-field checks (price, stock threshold, hex/text `value` rules) already
+// run as part of `baseVariantZodSchema` itself - `.extend()` carries them
+// forward, so they don't need to be (and shouldn't be duplicated) here too.
+const variantSchema = baseVariantZodSchema.and(
+  object({
     thumbnail: thumbnailZodSchema.optional(),
     images: imagesSchema,
-  })
-  .superRefine((data, ctx) => {
-    /* -------------------------------------------------------------------------- */
-    /*                               COMMON CHECKS                                 */
-    /* -------------------------------------------------------------------------- */
-
-    const value = data.value.trim();
-
-    if (data.sellingPrice > data.originalPrice) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['sellingPrice'],
-        message: 'Selling price cannot be greater than original price.',
-      });
-    }
-
-    if (data.stockThreshold >= data.stock) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['stockThreshold'],
-        message: 'Stock threshold must be less than stock.',
-      });
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*                               COLOR VARIANT                                */
-    /* -------------------------------------------------------------------------- */
-
-    if (data.type === VARIANT_TYPES_MAP.Color && value) {
-      const isValidHex = REGEX.HEX_CODE.test(value);
-      if (!isValidHex) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['value'],
-          message: 'Invalid hex color code.',
-        });
-      }
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*                                TEXT VARIANT                                */
-    /* -------------------------------------------------------------------------- */
-
-    if (data.type === VARIANT_TYPES_MAP.Text && value) {
-      if (value.trim().length > 50) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['value'],
-          message: 'Variant value cannot exceed 50 characters.',
-        });
-      }
-      if (value.trim().length < 2) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['value'],
-          message: 'Variant value must be at least 2 character.',
-        });
-      }
-    }
-  });
+  }),
+);
 
 export const withVariantsSchema = object({
   hasVariants: literal(true),
