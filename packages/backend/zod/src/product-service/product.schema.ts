@@ -1,11 +1,11 @@
-import { array, discriminatedUnion, literal, object } from 'zod';
-
 import {
+  baseVariantZodSchema,
   imageUrlValidation,
   thumbnailUrlValidation,
   videoUrlValidation,
-} from '../constants/index.js';
-import { baseVariantZodSchema, withoutVariantsSchema } from './product.schema.js';
+  withoutVariantsSchema,
+} from '@beautinique/shared-zod';
+import { array, discriminatedUnion, literal, object } from 'zod';
 
 const imagesSchema = array(imageUrlValidation, 'Images are required.')
   .min(1, 'At least one image is required.')
@@ -17,7 +17,7 @@ export const productMediaAndGallerySchema = object({
   video: videoUrlValidation.optional(),
 });
 
-const variantSchema = baseVariantZodSchema.and(
+export const variantSchema = baseVariantZodSchema.and(
   object({
     thumbnail: thumbnailUrlValidation.optional(),
     images: imagesSchema,
