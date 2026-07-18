@@ -7,26 +7,19 @@ import {
 } from '../constants/index.js';
 import { baseVariantZodSchema, withoutVariantsSchema } from './product.schema.js';
 
-export const thumbnailZodSchema = thumbnailUrlValidation;
-export const videoZodSchema = videoUrlValidation;
-export const imageZodSchema = imageUrlValidation;
-
-const imagesSchema = array(imageZodSchema, 'Images are required.')
+const imagesSchema = array(imageUrlValidation, 'Images are required.')
   .min(1, 'At least one image is required.')
   .max(10, 'Maximum of 10 images are allowed.');
 
 export const productMediaAndGallerySchema = object({
-  thumbnail: thumbnailZodSchema,
+  thumbnail: thumbnailUrlValidation,
   images: imagesSchema,
-  video: videoZodSchema.optional(),
+  video: videoUrlValidation.optional(),
 });
 
-// Cross-field checks (price, stock threshold, hex/text `value` rules) already
-// run as part of `baseVariantZodSchema` itself - `.extend()` carries them
-// forward, so they don't need to be (and shouldn't be duplicated) here too.
 const variantSchema = baseVariantZodSchema.and(
   object({
-    thumbnail: thumbnailZodSchema.optional(),
+    thumbnail: thumbnailUrlValidation.optional(),
     images: imagesSchema,
   }),
 );
