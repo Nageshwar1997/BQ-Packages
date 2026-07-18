@@ -136,21 +136,27 @@ export const stocksSchema = object({
     .max(10, 'Stock threshold cannot exceed 10.'),
 });
 
-export const baseVariantZodSchema = stocksSchema
-  .extend({
-    type: enum_z(VARIANT_TYPES, 'Variant type is required.'),
+export const baseVariantZodSchema = object({
+  stock: stocksSchema.shape.stock,
 
-    label: string('Variant label is required.')
-      .nonempty('Variant label is required.')
-      .min(2, 'Variant label must be at least 2 characters.')
-      .max(100, 'Variant label cannot exceed 100 characters.')
-      .regex(REGEX.SINGLE_SPACE, 'Variant label cannot contain consecutive spaces.'),
+  stockThreshold: stocksSchema.shape.stockThreshold,
 
-    value: string('Variant value is required.')
-      .nonempty('Variant value is required.')
-      .regex(REGEX.SINGLE_SPACE, 'Variant value cannot contain consecutive spaces.'),
-  })
-  .and(pricesSchema);
+  originalPrice: pricesSchema.shape.originalPrice,
+
+  sellingPrice: pricesSchema.shape.sellingPrice,
+
+  type: enum_z(VARIANT_TYPES, 'Variant type is required.'),
+
+  label: string('Variant label is required.')
+    .nonempty('Variant label is required.')
+    .min(2, 'Variant label must be at least 2 characters.')
+    .max(100, 'Variant label cannot exceed 100 characters.')
+    .regex(REGEX.SINGLE_SPACE, 'Variant label cannot contain consecutive spaces.'),
+
+  value: string('Variant value is required.')
+    .nonempty('Variant value is required.')
+    .regex(REGEX.SINGLE_SPACE, 'Variant value cannot contain consecutive spaces.'),
+});
 
 export const withoutVariantsSchema = stocksSchema
   .extend({ hasVariants: literal(false) })

@@ -1,5 +1,14 @@
-import { REGEX } from '@beautinique/shared-constants';
-import { object, string } from 'zod';
+import {
+  IMAGE_FORMATS,
+  IMAGE_MIMES,
+  MAX_IMAGE_SIZE,
+  MAX_VIDEO_SIZE,
+  REGEX,
+  VIDEO_FORMATS,
+  VIDEO_MIMES,
+} from '@beautinique/shared-constants';
+import { formatFileSize } from '@beautinique/shared-utils';
+import { file, object, string, url } from 'zod';
 
 export const emailValidation = string('Email is required')
   .trim()
@@ -90,3 +99,42 @@ export const otpValidation = string('OTP is required')
   .trim()
   .nonempty('OTP is required')
   .length(6, 'OTP must be 6 digits long');
+
+export const thumbnailFileValidation = file('Thumbnail is required.')
+  .mime(
+    IMAGE_MIMES as never,
+    `Invalid thumbnail type. type must be one of: ${IMAGE_FORMATS.join(', ')}.`,
+  )
+  .max(
+    MAX_IMAGE_SIZE,
+    `Thumbnail size exceed. Max allowed thumbnail size is ${formatFileSize(MAX_IMAGE_SIZE)}.`,
+  );
+
+export const thumbnailUrlValidation = url('Thumbnail is required.').regex(
+  REGEX.URL,
+  'Invalid thumbnail URL.',
+);
+
+export const videoFileValidation = file('Video is required.')
+  .mime(
+    VIDEO_MIMES as never,
+    `Invalid video type. type must be one of: ${VIDEO_FORMATS.join(', ')}.`,
+  )
+  .max(
+    MAX_VIDEO_SIZE,
+    `Video size exceed. Max allowed video size is ${formatFileSize(MAX_VIDEO_SIZE)}.`,
+  );
+
+export const videoUrlValidation = url('Video is required.').regex(REGEX.URL, 'Invalid video URL.');
+
+export const imageFileValidation = file('Image is required.')
+  .mime(
+    IMAGE_MIMES as never,
+    `Invalid image type. type must be one of: ${IMAGE_FORMATS.join(', ')}.`,
+  )
+  .max(
+    MAX_IMAGE_SIZE,
+    `Image size exceed. Max allowed image size is ${formatFileSize(MAX_IMAGE_SIZE)}.`,
+  );
+
+export const imageUrlValidation = url('Image is required.').regex(REGEX.URL, 'Invalid image URL.');
