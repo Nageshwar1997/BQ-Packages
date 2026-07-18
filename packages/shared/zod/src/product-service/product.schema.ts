@@ -155,7 +155,8 @@ export const productDescriptionAndContentSchema = object({
     .nonempty('Description is required.')
     .refine((value) => value !== '<p><br></p>', 'Description is required.')
     .min(107, 'Description must be at least 100 characters.')
-    .regex(REGEX.SINGLE_SPACE, 'Description cannot contain consecutive spaces.'),
+    .regex(REGEX.SINGLE_SPACE, 'Description cannot contain consecutive spaces.')
+    .transform((value) => (value === '<p><br></p>' ? '' : value)),
 
   instructions: string()
     .trim()
@@ -163,7 +164,8 @@ export const productDescriptionAndContentSchema = object({
     .refine(
       (value) => satisfyContentCondition(value),
       'Usage instructions must be at least 10 characters.',
-    ),
+    )
+    .transform((value) => (value === '<p><br></p>' ? undefined : value)),
 
   ingredients: string()
     .trim()
@@ -171,7 +173,8 @@ export const productDescriptionAndContentSchema = object({
     .refine(
       (value) => satisfyContentCondition(value),
       'Ingredients must be at least 10 characters.',
-    ),
+    )
+    .transform((value) => (value === '<p><br></p>' ? undefined : value)),
 
   additional: string()
     .trim()
@@ -179,7 +182,8 @@ export const productDescriptionAndContentSchema = object({
     .refine(
       (value) => satisfyContentCondition(value),
       'Additional details must be at least 10 characters.',
-    ),
+    )
+    .transform((value) => (value === '<p><br></p>' ? undefined : value)),
 });
 
 export const baseVariantZodSchema = labelAndValueAndTypeSchema.and(pricesSchema).and(stocksSchema);
