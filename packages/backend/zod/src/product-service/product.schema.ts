@@ -1,38 +1,43 @@
 import {
-  baseVariantZodSchema,
   imageUrlValidation,
+  productBaseVariantZodSchema,
+  productWithoutVariantsZodSchema,
   thumbnailUrlValidation,
   videoUrlValidation,
-  withoutVariantsSchema,
 } from '@beautinique/shared-zod';
 import { array, discriminatedUnion, literal, object } from 'zod';
 
-const imagesSchema = array(imageUrlValidation, 'Images are required.')
+export const imagesZodSchema = array(imageUrlValidation, 'Images are required.')
   .min(1, 'At least one image is required.')
   .max(10, 'Maximum of 10 images are allowed.');
 
 export const productMediaAndGallerySchema = object({
   thumbnail: thumbnailUrlValidation,
-  images: imagesSchema,
+  images: imagesZodSchema,
   video: videoUrlValidation.optional(),
 });
 
-export const variantSchema = baseVariantZodSchema.and(
+export const productVariantZodSchema = productBaseVariantZodSchema.and(
   object({
     thumbnail: thumbnailUrlValidation.optional(),
-    images: imagesSchema,
+    images: imagesZodSchema,
   }),
 );
 
-export const withVariantsSchema = object({
+export const productVariantsZodSchema = array(
+  productVariantZodSchema,
+  'At least one variant is required.',
+)
+  .nonempty('At least one variant is required.')
+  .min(1, 'Minimum one variant is required.');
+
+export const productWithVariantsSchema = object({
   hasVariants: literal(true),
-  variants: array(variantSchema, 'At least one variant is required.')
-    .nonempty('At least one variant is required.')
-    .min(1, 'Minimum one variant is required.'),
+  variants: productVariantsZodSchema,
 });
 
 export const productStockAndVariantsSchema = discriminatedUnion(
   'hasVariants',
-  [withoutVariantsSchema, withVariantsSchema],
+  [productWithoutVariantsZodSchema, productWithVariantsSchema],
   'Please specify whether product has variants.',
 );

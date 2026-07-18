@@ -5,34 +5,39 @@ import {
   thumbnailUnionZodSchema,
   videoUnionZodSchema,
 } from '../common/index.js';
-import { baseVariantZodSchema, withoutVariantsSchema } from './product.schema.js';
+import { productBaseVariantZodSchema, productWithoutVariantsZodSchema } from './product.schema.js';
 
-const imagesSchema = array(imageUnionZodSchema, 'Images are required.')
+export const imagesZodSchema = array(imageUnionZodSchema, 'Images are required.')
   .min(1, 'At least one image is required.')
   .max(10, 'Maximum of 10 images are allowed.');
 
 export const productMediaAndGallerySchema = object({
   thumbnail: thumbnailUnionZodSchema,
-  images: imagesSchema,
+  images: imagesZodSchema,
   video: videoUnionZodSchema.optional(),
 });
 
-const variantSchema = baseVariantZodSchema.and(
+export const productVariantZodSchema = productBaseVariantZodSchema.and(
   object({
     thumbnail: thumbnailUnionZodSchema.optional(),
-    images: imagesSchema,
+    images: imagesZodSchema,
   }),
 );
 
-export const withVariantsSchema = object({
+export const productVariantsZodSchema = array(
+  productVariantZodSchema,
+  'At least one variant is required.',
+)
+  .nonempty('At least one variant is required.')
+  .min(1, 'Minimum one variant is required.');
+
+export const productWithVariantsSchema = object({
   hasVariants: literal(true),
-  variants: array(variantSchema, 'At least one variant is required.')
-    .nonempty('At least one variant is required.')
-    .min(1, 'Minimum one variant is required.'),
+  variants: productVariantsZodSchema,
 });
 
 export const productStockAndVariantsSchema = discriminatedUnion(
   'hasVariants',
-  [withoutVariantsSchema, withVariantsSchema],
+  [productWithoutVariantsZodSchema, productWithVariantsSchema],
   'Please specify whether product has variants.',
 );

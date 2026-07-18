@@ -10,7 +10,7 @@ import { discriminatedUnion, enum as enum_z, literal, number, object, string } f
 
 import { appendCustomIssue } from '../utils/index.js';
 
-export const pricesSchema = object({
+const pricesSchema = object({
   originalPrice: number('Original price is required.')
     .nonnegative('Original price cannot be negative.')
     .positive('Original price must be greater than 0.'),
@@ -24,7 +24,7 @@ export const pricesSchema = object({
   }
 });
 
-export const stocksSchema = object({
+const stocksSchema = object({
   stock: number('Stock is required')
     .int('Stock must be a whole number.')
     .nonnegative('Stock cannot be negative.')
@@ -84,7 +84,7 @@ const labelAndValueAndTypeSchema = object({
   }
 });
 
-export const productBasicInfoSchema = pricesSchema.and(
+export const productBasicInfoZodSchema = pricesSchema.and(
   object({
     title: string('Title is required.')
       .nonempty('Title is required.')
@@ -142,7 +142,7 @@ const satisfyContentCondition = (value: string | undefined) => {
   return trimmed === '' || trimmed === '<p><br></p>' || trimmed.length >= 20;
 };
 
-export const productDescriptionAndContentSchema = object({
+export const productDescriptionAndContentZodSchema = object({
   shortDescription: string('Short description is required.')
     .trim()
     .nonempty('Short description is required.')
@@ -186,11 +186,13 @@ export const productDescriptionAndContentSchema = object({
     .transform((value) => (value === '<p><br></p>' ? undefined : value)),
 });
 
-export const baseVariantZodSchema = labelAndValueAndTypeSchema.and(pricesSchema).and(stocksSchema);
+export const productBaseVariantZodSchema = labelAndValueAndTypeSchema
+  .and(pricesSchema)
+  .and(stocksSchema);
 
-export const withoutVariantsSchema = stocksSchema.extend({ hasVariants: literal(false) });
+export const productWithoutVariantsZodSchema = stocksSchema.extend({ hasVariants: literal(false) });
 
-const tryonConfiguration = discriminatedUnion(
+const productTryonConfiguration = discriminatedUnion(
   'category',
   [
     object({
@@ -226,11 +228,11 @@ const tryonConfiguration = discriminatedUnion(
   'TryOn category is required.',
 );
 
-export const productTryOnConfigurationSchema = discriminatedUnion(
+export const productTryOnConfigurationZodSchema = discriminatedUnion(
   'enabled',
   [
-    object({ enabled: literal(false), tryOn: tryonConfiguration.optional() }),
-    object({ enabled: literal(true), tryOn: tryonConfiguration }),
+    object({ enabled: literal(false), tryOn: productTryonConfiguration.optional() }),
+    object({ enabled: literal(true), tryOn: productTryonConfiguration }),
   ],
   'TryOn is required.',
 );
