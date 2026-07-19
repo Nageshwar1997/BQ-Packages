@@ -1,4 +1,5 @@
 import {
+  DRAFT_PRODUCT_STEP_MAP,
   REGEX,
   TRY_ON_CATEGORY_MAP,
   TRY_ON_MAP,
@@ -6,9 +7,25 @@ import {
   VARIANT_TYPES_MAP,
 } from '@beautinique/shared-constants';
 import { isNullOrUndefined } from '@beautinique/shared-utils';
-import { discriminatedUnion, enum as enum_z, literal, number, object, string } from 'zod';
+import {
+  discriminatedUnion,
+  enum as enum_z,
+  literal,
+  number,
+  object,
+  string,
+  type ZodLiteral,
+} from 'zod';
 
 import { appendCustomIssue } from '../utils/index.js';
+
+const draftProductStepZodShape = Object.fromEntries(
+  Object.values(DRAFT_PRODUCT_STEP_MAP).map((value) => [value, literal(value)]),
+) as {
+  readonly [
+    K in (typeof DRAFT_PRODUCT_STEP_MAP)[keyof typeof DRAFT_PRODUCT_STEP_MAP]
+  ]: ZodLiteral<K>;
+};
 
 const pricesSchema = object({
   originalPrice: number('Original price is required.')
@@ -84,8 +101,11 @@ const labelAndValueAndTypeSchema = object({
   }
 });
 
+export const draftProductStepZodSchema = object(draftProductStepZodShape);
+
 export const productBasicInfoZodSchema = pricesSchema.and(
   object({
+    step: draftProductStepZodSchema.shape.basicInfo,
     title: string('Title is required.')
       .nonempty('Title is required.')
       .min(2, 'Title must be at least 2 characters.')
@@ -143,6 +163,7 @@ const satisfyContentCondition = (value: string | undefined) => {
 };
 
 export const productDescriptionAndContentZodSchema = object({
+  step: draftProductStepZodSchema.shape.descriptionAndContent,
   shortDescription: string('Short description is required.')
     .trim()
     .nonempty('Short description is required.')
@@ -190,7 +211,10 @@ export const productBaseVariantZodSchema = labelAndValueAndTypeSchema
   .and(pricesSchema)
   .and(stocksSchema);
 
-export const productWithoutVariantsZodSchema = stocksSchema.extend({ hasVariants: literal(false) });
+export const productWithoutVariantsZodSchema = stocksSchema.extend({
+  step: draftProductStepZodSchema.shape.stockAndVariants,
+  hasVariants: literal(false),
+});
 
 const productTryonConfiguration = discriminatedUnion(
   'category',
@@ -228,11 +252,20 @@ const productTryonConfiguration = discriminatedUnion(
   'TryOn category is required.',
 );
 
+const productDisabledTryOnConfigurationZodSchema = object({
+  step: draftProductStepZodSchema.shape.tryOnConfiguration,
+  enabled: literal(false),
+  tryOn: productTryonConfiguration.optional(),
+});
+
+const productEnabledTryOnConfigurationZodSchema = object({
+  step: draftProductStepZodSchema.shape.tryOnConfiguration,
+  enabled: literal(false),
+  tryOn: productTryonConfiguration,
+});
+
 export const productTryOnConfigurationZodSchema = discriminatedUnion(
   'enabled',
-  [
-    object({ enabled: literal(false), tryOn: productTryonConfiguration.optional() }),
-    object({ enabled: literal(true), tryOn: productTryonConfiguration }),
-  ],
+  [productDisabledTryOnConfigurationZodSchema, productEnabledTryOnConfigurationZodSchema],
   'TryOn is required.',
 );

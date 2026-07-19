@@ -41,3 +41,11 @@ export const productStockAndVariantsSchema = discriminatedUnion(
   [productWithoutVariantsZodSchema, productWithVariantsSchema],
   'Please specify whether product has variants.',
 );
+
+// export const draftProductDetailsZodSchema = object({
+//   basicInfo: productBasicInfoZodSchema,
+//   mediaAndGallery: productMediaAndGallerySchema,
+//   descriptionAndContent: productDescriptionAndContentZodSchema,
+//   stockAndVariants: productStockAndVariantsSchema,
+//   tryOnConfiguration: productTryOnConfigurationZodSchema,
+// });
