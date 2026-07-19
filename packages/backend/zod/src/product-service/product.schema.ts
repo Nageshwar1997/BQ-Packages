@@ -55,3 +55,9 @@ export const draftProductDetailsZodSchema = object({
   stockAndVariants: productStockAndVariantsSchema,
   tryOnConfiguration: productTryOnConfigurationZodSchema,
 });
+
+export const draftProductStepBodyZodSchema = productBasicInfoZodSchema
+  .or(productMediaAndGallerySchema)
+  .or(productDescriptionAndContentZodSchema)
+  .or(productStockAndVariantsSchema)
+  .or(productTryOnConfigurationZodSchema);

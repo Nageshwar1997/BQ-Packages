@@ -260,7 +260,7 @@ const productDisabledTryOnConfigurationZodSchema = object({
 
 const productEnabledTryOnConfigurationZodSchema = object({
   step: draftProductStepZodSchema.shape.tryOnConfiguration,
-  enabled: literal(false),
+  enabled: literal(true),
   tryOn: productTryonConfiguration,
 });
 
