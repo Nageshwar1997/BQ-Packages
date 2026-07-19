@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/shared-types",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Shared types for Beautinique project",
   "keywords": [
     "shared",
@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "@beautinique/shared-constants": "^1.0.7",
-    "@beautinique/shared-zod": "^1.0.9"
+    "@beautinique/shared-zod": "^1.0.10"
   },
   "devDependencies": {
     "typescript": "^6.0.3"
