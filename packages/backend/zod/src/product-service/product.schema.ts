@@ -1,6 +1,10 @@
 import {
+  draftProductStepZodSchema,
   imageUrlValidation,
   productBaseVariantZodSchema,
+  productBasicInfoZodSchema,
+  productDescriptionAndContentZodSchema,
+  productTryOnConfigurationZodSchema,
   productWithoutVariantsZodSchema,
   thumbnailUrlValidation,
   videoUrlValidation,
@@ -12,6 +16,7 @@ export const imagesZodSchema = array(imageUrlValidation, 'Images are required.')
   .max(10, 'Maximum of 10 images are allowed.');
 
 export const productMediaAndGallerySchema = object({
+  step: draftProductStepZodSchema.shape.mediaAndGallery,
   thumbnail: thumbnailUrlValidation,
   images: imagesZodSchema,
   video: videoUrlValidation.optional(),
@@ -33,6 +38,7 @@ export const productVariantsZodSchema = array(
 
 export const productWithVariantsSchema = object({
   hasVariants: literal(true),
+  step: draftProductStepZodSchema.shape.stockAndVariants,
   variants: productVariantsZodSchema,
 });
 
@@ -42,10 +48,10 @@ export const productStockAndVariantsSchema = discriminatedUnion(
   'Please specify whether product has variants.',
 );
 
-// export const draftProductDetailsZodSchema = object({
-//   basicInfo: productBasicInfoZodSchema,
-//   mediaAndGallery: productMediaAndGallerySchema,
-//   descriptionAndContent: productDescriptionAndContentZodSchema,
-//   stockAndVariants: productStockAndVariantsSchema,
-//   tryOnConfiguration: productTryOnConfigurationZodSchema,
-// });
+export const draftProductDetailsZodSchema = object({
+  basicInfo: productBasicInfoZodSchema,
+  mediaAndGallery: productMediaAndGallerySchema,
+  descriptionAndContent: productDescriptionAndContentZodSchema,
+  stockAndVariants: productStockAndVariantsSchema,
+  tryOnConfiguration: productTryOnConfigurationZodSchema,
+});

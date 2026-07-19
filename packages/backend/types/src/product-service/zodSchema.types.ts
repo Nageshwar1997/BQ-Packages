@@ -1,6 +1,7 @@
 import type {
   categoryUpdateZodSchema,
   categoryZodSchema,
+  draftProductDetailsZodSchema,
   imagesZodSchema,
   l1CategoryZodSchema,
   l2CategoryZodSchema,
@@ -40,3 +41,5 @@ export type TProductVariantsZodSchema = TInfer<typeof productVariantsZodSchema>;
 export type TProductWithVariantsSchema = TInfer<typeof productWithVariantsSchema>;
 
 export type TProductStockAndVariantsSchema = TInfer<typeof productStockAndVariantsSchema>;
+
+export type TDraftProductDetailsZodSchema = TInfer<typeof draftProductDetailsZodSchema>;
