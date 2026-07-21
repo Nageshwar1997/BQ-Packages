@@ -1,10 +1,10 @@
 import type { TUserRole } from '../user-service/constants.types.js';
 import type { TServiceName } from './common.types.js';
 
-export interface TApiResponse {
+export interface TApiResponse<T = unknown> {
   statusCode: number;
   message: string;
-  data?: unknown;
+  data?: T;
   [key: string]: unknown;
 }
 

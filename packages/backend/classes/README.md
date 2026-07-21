@@ -60,6 +60,20 @@ throw new AppError({
 
 Using specialized error classes makes the code more readable and allows the global error handler to produce consistent API responses.
 
+## Dynamic construction - `createError` / `ERROR_CLASS_MAP`
+
+Prefer throwing a specific class directly (as above) whenever the error site knows which one it means. `createError` and `ERROR_CLASS_MAP` exist for the other case - code that only has an error **code** (a string) at hand and needs to construct the matching class dynamically, e.g. translating a third-party validation library's error code, or a generic error-response builder:
+
+```ts
+import { createError, ERROR_CLASS_MAP } from '@beautinique/backend-classes';
+
+throw createError({ message: 'Validation failed.', payload: { code: 'VALIDATION_ERROR', fieldErrors } });
+
+// ERROR_CLASS_MAP itself is available for advanced use, e.g. iterating every known code
+Object.keys(ERROR_CLASS_MAP); // every TErrorCode
+```
+
+`payload.code` defaults to `'INTERNAL_SERVER_ERROR'` when omitted.
 
 # Error Hierarchy
 

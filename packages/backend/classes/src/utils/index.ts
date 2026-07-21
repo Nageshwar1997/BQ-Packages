@@ -23,7 +23,7 @@ import {
 } from '../classes/index.js';
 import type { TCreateErrorOptions } from '../types/index.js';
 
-const ERROR_CLASS_MAP = {
+export const ERROR_CLASS_MAP = {
   // ========================================
   // 5xx - Server Errors
   // Unexpected failures within the application

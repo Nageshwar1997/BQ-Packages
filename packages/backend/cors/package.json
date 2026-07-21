@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/backend-cors",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Cors middleware for Beautinique project.",
   "keywords": [
     "cors",
@@ -50,7 +50,7 @@
     "node": ">=24"
   },
   "dependencies": {
-    "@beautinique/backend-classes": "^1.0.1",
+    "@beautinique/backend-classes": "^1.0.2",
     "cors": "^2.8.6"
   },
   "peerDependencies": {
