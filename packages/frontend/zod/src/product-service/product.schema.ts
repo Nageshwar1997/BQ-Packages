@@ -18,7 +18,7 @@ export const imagesZodSchema = array(imageUnionZodSchema, 'Images are required.'
   .min(1, 'At least one image is required.')
   .max(10, 'Maximum of 10 images are allowed.');
 
-export const productMediaAndGallerySchema = object({
+export const productMediaAndGalleryZodSchema = object({
   step: draftProductStepZodSchema.shape.mediaAndGallery,
   thumbnail: thumbnailUnionZodSchema,
   images: imagesZodSchema,
@@ -50,14 +50,14 @@ export const productStockAndVariantsSchema = discriminatedUnion(
 
 export const draftProductDetailsZodSchema = object({
   basicInfo: productBasicInfoZodSchema,
-  mediaAndGallery: productMediaAndGallerySchema,
+  mediaAndGallery: productMediaAndGalleryZodSchema,
   descriptionAndContent: productDescriptionAndContentZodSchema,
   stockAndVariants: productStockAndVariantsSchema,
   tryOnConfiguration: productTryOnConfigurationZodSchema,
 });
 
 export const draftProductStepBodyZodSchema = productBasicInfoZodSchema
-  .or(productMediaAndGallerySchema)
+  .or(productMediaAndGalleryZodSchema)
   .or(productDescriptionAndContentZodSchema)
   .or(productStockAndVariantsSchema)
   .or(productTryOnConfigurationZodSchema);

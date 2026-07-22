@@ -9,7 +9,7 @@ import type {
   l1CategoryZodSchema,
   l2CategoryZodSchema,
   l3CategoryZodSchema,
-  productMediaAndGallerySchema,
+  productMediaAndGalleryZodSchema,
   productStockAndVariantsSchema,
   productVariantsZodSchema,
   productVariantZodSchema,
@@ -33,7 +33,7 @@ export type TImagesZodSchema = TInfer<typeof imagesZodSchema>;
 
 /* ================== PRODUCT ================== */
 
-export type TProductMediaAndGallerySchema = TInfer<typeof productMediaAndGallerySchema>;
+export type TProductMediaAndGalleryZodSchema = TInfer<typeof productMediaAndGalleryZodSchema>;
 
 export type TProductVariantZodSchema = TInfer<typeof productVariantZodSchema>;
 
