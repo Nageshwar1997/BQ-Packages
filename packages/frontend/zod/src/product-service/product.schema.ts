@@ -42,7 +42,7 @@ export const productWithVariantsZodSchema = object({
   variants: productVariantsZodSchema,
 });
 
-export const productStockAndVariantsSchema = discriminatedUnion(
+export const productStockAndVariantsZodSchema = discriminatedUnion(
   'hasVariants',
   [productWithoutVariantsZodSchema, productWithVariantsZodSchema],
   'Please specify whether product has variants.',
@@ -52,12 +52,12 @@ export const draftProductDetailsZodSchema = object({
   basicInfo: productBasicInfoZodSchema,
   mediaAndGallery: productMediaAndGalleryZodSchema,
   descriptionAndContent: productDescriptionAndContentZodSchema,
-  stockAndVariants: productStockAndVariantsSchema,
+  stockAndVariants: productStockAndVariantsZodSchema,
   tryOnConfiguration: productTryOnConfigurationZodSchema,
 });
 
 export const draftProductStepBodyZodSchema = productBasicInfoZodSchema
   .or(productMediaAndGalleryZodSchema)
   .or(productDescriptionAndContentZodSchema)
-  .or(productStockAndVariantsSchema)
+  .or(productStockAndVariantsZodSchema)
   .or(productTryOnConfigurationZodSchema);
