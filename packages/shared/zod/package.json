@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/shared-zod",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Shared zod for Beautinique project.",
   "keywords": [
     "shared",
