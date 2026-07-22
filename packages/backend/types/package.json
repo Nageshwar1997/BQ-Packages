@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/backend-types",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "Backend types for Beautinique project.",
   "keywords": [
     "backend",
@@ -50,11 +50,11 @@
     "node": ">=24"
   },
   "devDependencies": {
-    "@beautinique/backend-zod": "^1.0.17",
+    "@beautinique/backend-zod": "^1.0.19",
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "@beautinique/backend-zod": "^1.0.17",
-    "@beautinique/shared-types": "^1.0.11"
+    "@beautinique/backend-zod": "^1.0.19",
+    "@beautinique/shared-types": "^1.0.12"
   }
 }
