@@ -181,30 +181,30 @@ export const productDescriptionAndContentZodSchema = object({
 
   instructions: string()
     .trim()
-    .optional()
     .refine(
       (value) => satisfyContentCondition(value),
       'Usage instructions must be at least 10 characters.',
     )
-    .transform((value) => (value === '<p><br></p>' ? undefined : value)),
+    .transform((value) => (value === '<p><br></p>' ? undefined : value))
+    .optional(),
 
   ingredients: string()
     .trim()
-    .optional()
     .refine(
       (value) => satisfyContentCondition(value),
       'Ingredients must be at least 10 characters.',
     )
-    .transform((value) => (value === '<p><br></p>' ? undefined : value)),
+    .transform((value) => (value === '<p><br></p>' ? undefined : value))
+    .optional(),
 
   additional: string()
     .trim()
-    .optional()
     .refine(
       (value) => satisfyContentCondition(value),
       'Additional details must be at least 10 characters.',
     )
-    .transform((value) => (value === '<p><br></p>' ? undefined : value)),
+    .transform((value) => (value === '<p><br></p>' ? undefined : value))
+    .optional(),
 });
 
 export const productBaseVariantZodSchema = labelAndValueAndTypeSchema
