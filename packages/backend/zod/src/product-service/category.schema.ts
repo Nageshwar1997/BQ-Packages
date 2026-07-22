@@ -9,12 +9,12 @@ import { object, string, union } from 'zod';
 /*                               COMMON SCHEMA                                */
 /* -------------------------------------------------------------------------- */
 
-const parentCategoryZodSchema = string('Parent category is required')
+const parentCategoryZodSchema = string('Parent category is required.')
   .trim()
-  .nonempty('Parent category is required')
-  .length(24, 'Parent category is invalid. e.g. 63e5b8a5a4b0c2dabccce3f9')
-  .regex(REGEX.NO_SPACE, 'Parent category is invalid. e.g. 63e5b8a5a4b0c2dabccce3f9')
-  .regex(REGEX.MONGODB_ID, 'Parent category is invalid. e.g. 63e5b8a5a4b0c2dabccce3f9');
+  .nonempty('Parent category is required.')
+  .length(24, 'Parent category is invalid. e.g. 63e5b8a5a4b0c2dabccce3f9.')
+  .regex(REGEX.NO_SPACE, 'Parent category is invalid. e.g. 63e5b8a5a4b0c2dabccce3f9.')
+  .regex(REGEX.MONGODB_ID, 'Parent category is invalid. e.g. 63e5b8a5a4b0c2dabccce3f9.');
 
 /* -------------------------------------------------------------------------- */
 /*                               LEVEL 1 SCHEMA                               */
