@@ -47,5 +47,11 @@
   },
   "engines": {
     "node": ">=24"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  },
+  "peerDependencies": {
+    "@beautinique/shared-types": "^1.0.11"
   }
 }
