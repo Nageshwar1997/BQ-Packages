@@ -53,6 +53,7 @@ export const l3CategoryZodSchema = object({
   name: categoryNameAndDescriptionZodSchema.shape.name,
   mainCategory: mainCategoryValidation,
   subCategory: subCategoryValidation,
+  description: categoryNameAndDescriptionZodSchema.shape.description,
 });
 
 /* -------------------------------------------------------------------------- */
