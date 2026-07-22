@@ -36,7 +36,7 @@ export const productVariantsZodSchema = array(
   .nonempty('At least one variant is required.')
   .min(1, 'Minimum one variant is required.');
 
-export const productWithVariantsSchema = object({
+export const productWithVariantsZodSchema = object({
   hasVariants: literal(true),
   step: draftProductStepZodSchema.shape.stockAndVariants,
   variants: productVariantsZodSchema,
@@ -44,7 +44,7 @@ export const productWithVariantsSchema = object({
 
 export const productStockAndVariantsSchema = discriminatedUnion(
   'hasVariants',
-  [productWithoutVariantsZodSchema, productWithVariantsSchema],
+  [productWithoutVariantsZodSchema, productWithVariantsZodSchema],
   'Please specify whether product has variants.',
 );
 
