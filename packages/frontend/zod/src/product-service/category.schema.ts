@@ -29,7 +29,7 @@ const subCategoryValidation = string('Sub-category is required.')
 /*                               LEVEL 1 SCHEMA                               */
 /* -------------------------------------------------------------------------- */
 
-export const l1CategorySchema = object({
+export const l1CategoryZodSchema = object({
   level: categoryLevelZodSchema.shape[1],
   name: categoryNameAndDescriptionZodSchema.shape.name,
 });
@@ -38,7 +38,7 @@ export const l1CategorySchema = object({
 /*                               LEVEL 2 SCHEMA                               */
 /* -------------------------------------------------------------------------- */
 
-export const l2CategorySchema = object({
+export const l2CategoryZodSchema = object({
   level: categoryLevelZodSchema.shape[2],
   name: categoryNameAndDescriptionZodSchema.shape.name,
   mainCategory: mainCategoryValidation,
@@ -48,7 +48,7 @@ export const l2CategorySchema = object({
 /*                               LEVEL 3 SCHEMA                               */
 /* -------------------------------------------------------------------------- */
 
-export const l3CategorySchema = object({
+export const l3CategoryZodSchema = object({
   level: categoryLevelZodSchema.shape[3],
   name: categoryNameAndDescriptionZodSchema.shape.name,
   mainCategory: mainCategoryValidation,
@@ -59,4 +59,8 @@ export const l3CategorySchema = object({
 /*                              COMBINED SCHEMA                               */
 /* -------------------------------------------------------------------------- */
 
-export const categorySchema = union([l1CategorySchema, l2CategorySchema, l3CategorySchema]);
+export const categoryZodSchema = union([
+  l1CategoryZodSchema,
+  l2CategoryZodSchema,
+  l3CategoryZodSchema,
+]);
