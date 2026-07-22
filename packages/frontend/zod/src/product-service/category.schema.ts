@@ -64,3 +64,13 @@ export const categoryZodSchema = union([
   l2CategoryZodSchema,
   l3CategoryZodSchema,
 ]);
+
+/* -------------------------------------------------------------------------- */
+/*                               UPDATE SCHEMA                                */
+/* -------------------------------------------------------------------------- */
+
+export const categoryUpdateZodSchema = union([
+  l1CategoryZodSchema.partial().extend({ level: l1CategoryZodSchema.shape.level }),
+  l2CategoryZodSchema.partial().extend({ level: l2CategoryZodSchema.shape.level }),
+  l3CategoryZodSchema.partial().extend({ level: l3CategoryZodSchema.shape.level }),
+]);
