@@ -1,4 +1,4 @@
-import { discriminatedUnion, literal, object, type RefinementCtx } from 'zod';
+import { discriminatedUnion, literal, object } from 'zod';
 
 import {
   currentPasswordValidation,
@@ -11,33 +11,21 @@ import {
 } from '../constants/index.js';
 import { appendCustomIssue } from '../utils/index.js';
 
-const passwordMatchValidation = (
-  data: { password: string; confirmPassword: string; oldPassword?: string },
-  ctx: RefinementCtx,
-) => {
-  if (data.password !== data.confirmPassword) {
-    appendCustomIssue(ctx, 'Passwords do not match', 'confirmPassword');
-  }
-  if ('oldPassword' in data && data.password === data.oldPassword) {
-    appendCustomIssue(ctx, 'New password cannot be same as old password', 'password');
-  }
-};
-
 export const loginZodSchema = discriminatedUnion('loginMethod', [
   object({
-    loginMethod: literal('email', 'Invalid login method, must be email'),
+    loginMethod: literal('email', 'Invalid login method, must be email.'),
     email: emailValidation,
     password: passwordValidation,
   }).strict(),
 
   object({
-    loginMethod: literal('phoneNumber', 'Invalid login method, must be phoneNumber'),
+    loginMethod: literal('phoneNumber', 'Invalid login method, must be phoneNumber.'),
     phoneNumber: phoneNumberValidation,
     password: passwordValidation,
   }).strict(),
 ]);
 
-export const passwordsZodSchema = passwordsValidation.superRefine(passwordMatchValidation);
+export const passwordsZodSchema = passwordsValidation;
 
 const baseUserZodSchema = object({
   email: emailValidation,
@@ -46,14 +34,16 @@ const baseUserZodSchema = object({
   lastName: lastNameValidation,
 });
 
-export const registerZodSchema = passwordsZodSchema
-  .and(baseUserZodSchema)
-  .superRefine(passwordMatchValidation);
+export const registerZodSchema = passwordsZodSchema.and(baseUserZodSchema);
 
-export const setPasswordZodSchema = passwordsValidation.superRefine(passwordMatchValidation);
+export const setPasswordZodSchema = passwordsValidation;
 
 export const changePasswordZodSchema = passwordsValidation
   .extend({ currentPassword: currentPasswordValidation })
-  .superRefine(passwordMatchValidation);
+  .superRefine((data, ctx) => {
+    if (data.password === data.currentPassword) {
+      appendCustomIssue(ctx, 'New password cannot be same as current password.', 'password');
+    }
+  });
 
 export const updateUserSchema = baseUserZodSchema.partial();
