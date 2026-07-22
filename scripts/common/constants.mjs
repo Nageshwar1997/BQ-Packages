@@ -10,6 +10,17 @@ export const PACKAGE_SCOPE = '@beautinique';
 export const BUILD_ARTIFACTS = new Set(['dist', '.tsbuildinfo']);
 
 /**
+ * Directories the `clean` script's recursive walk must never descend into.
+ *
+ * `node_modules` in particular commonly contains a `dist` folder as part of
+ * a third-party package's own published structure (that's just its real
+ * code, not a build artifact of ours) - recursing into it would delete
+ * installed dependencies' actual runtime files, not just our own build
+ * output.
+ */
+export const IGNORED_CLEAN_DIRECTORIES = new Set(['node_modules', '.git']);
+
+/**
  * Exit codes.
  */
 export const EXIT_CODES = Object.freeze({ SUCCESS: 0, FAILURE: 1 });

@@ -1,7 +1,7 @@
 import { readdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { BUILD_ARTIFACTS, EXIT_CODES } from '../common/constants.mjs';
+import { BUILD_ARTIFACTS, EXIT_CODES, IGNORED_CLEAN_DIRECTORIES } from '../common/constants.mjs';
 import { ROOT_DIRECTORY } from '../common/paths.mjs';
 import { reportInfo, reportSuccess } from '../common/reporter.mjs';
 
@@ -19,7 +19,7 @@ async function clean(directory) {
         return;
       }
 
-      if (entry.isDirectory()) {
+      if (entry.isDirectory() && !IGNORED_CLEAN_DIRECTORIES.has(entry.name)) {
         await clean(fullPath);
       }
     }),
