@@ -10,10 +10,10 @@ import type {
   l2CategoryZodSchema,
   l3CategoryZodSchema,
   productMediaAndGalleryZodSchema,
-  productStockAndVariantsSchema,
+  productStockAndVariantsZodSchema,
   productVariantsZodSchema,
   productVariantZodSchema,
-  productWithVariantsSchema,
+  productWithVariantsZodSchema,
   TInfer,
 } from '@beautinique/frontend-zod';
 
@@ -39,9 +39,9 @@ export type TProductVariantZodSchema = TInfer<typeof productVariantZodSchema>;
 
 export type TProductVariantsZodSchema = TInfer<typeof productVariantsZodSchema>;
 
-export type TProductWithVariantsSchema = TInfer<typeof productWithVariantsSchema>;
+export type TProductWithVariantsZodSchema = TInfer<typeof productWithVariantsZodSchema>;
 
-export type TProductStockAndVariantsSchema = TInfer<typeof productStockAndVariantsSchema>;
+export type TProductStockAndVariantsZodSchema = TInfer<typeof productStockAndVariantsZodSchema>;
 
 export type TDraftProductDetailsZodSchema = TInfer<typeof draftProductDetailsZodSchema>;
 
