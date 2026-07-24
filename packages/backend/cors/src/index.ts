@@ -1,15 +1,60 @@
 import { ConfigurationError } from '@beautinique/backend-classes';
-import type { CorsOptions } from 'cors';
 import cors from 'cors';
 import type { RequestHandler } from 'express';
 
+type TStaticOrigin = boolean | string | RegExp | (boolean | string | RegExp)[];
+
+type TCustomOrigin = (
+  requestOrigin: string | undefined,
+  callback: (err: Error | null, origin?: TStaticOrigin) => void,
+) => void;
+
 /**
- * Options accepted by `corsMiddleware`.
+ * A hand-mirrored copy of `@types/cors`'s own `CorsOptions` shape - not
+ * imported from `cors`, deliberately. `cors` (the npm package) ships no
+ * types of its own; resolving them requires the separate `@types/cors`
+ * package, and re-exporting a type built on top of it (via `ICorsOptions
+ * extends CorsOptions` below) would leak that requirement onto every
+ * consumer of this package too - they'd need `@types/cors` installed just
+ * to typecheck `checkCors(...)`, exactly the kind of easy-to-forget peer
+ * dependency that broke a real deploy once `@types/cors` was only a peer.
+ * `@types/cors` stays a devDependency here (only needed to typecheck the
+ * `cors(...)` call below), and this mirrored shape means consumers never
+ * need to know it exists.
  *
- * Picked directly from `cors`'s own `CorsOptions` - same names, same
- * types, same defaults when a field is omitted (`cors` applies its own,
- * e.g. `origin: '*'`, `methods: 'GET,HEAD,PUT,PATCH,POST,DELETE'`) - so
- * upgrading the `cors` dependency never requires a change here.
+ * If `cors` adds/changes an option in a future version, mirror the change
+ * here too - this won't happen automatically anymore.
+ */
+interface CorsOptions {
+  /**
+   * @default '*'
+   */
+  origin?: TStaticOrigin | TCustomOrigin | undefined;
+  /**
+   * @default 'GET,HEAD,PUT,PATCH,POST,DELETE'
+   */
+  methods?: string | string[] | undefined;
+  allowedHeaders?: string | string[] | undefined;
+  exposedHeaders?: string | string[] | undefined;
+  credentials?: boolean | undefined;
+  maxAge?: number | undefined;
+  /**
+   * @default false
+   */
+  preflightContinue?: boolean | undefined;
+  /**
+   * @default 204
+   */
+  optionsSuccessStatus?: number | undefined;
+}
+
+/**
+ * Options accepted by `checkCors`.
+ *
+ * Same names, same types, same defaults when a field is omitted (`cors`
+ * applies its own, e.g. `origin: '*'`, `methods: 'GET,HEAD,PUT,PATCH,POST,DELETE'`)
+ * as `cors`'s own `CorsOptions` - see the comment on `CorsOptions` above for
+ * why this is a mirrored copy rather than an import.
  */
 export interface ICorsOptions extends CorsOptions {
   /**
