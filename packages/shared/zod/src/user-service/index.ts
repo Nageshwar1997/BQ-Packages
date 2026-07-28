@@ -27,7 +27,7 @@ export const loginZodSchema = discriminatedUnion('loginMethod', [
 
 export const passwordsZodSchema = passwordsValidation;
 
-const baseUserZodSchema = object({
+export const baseUserZodSchema = object({
   email: emailValidation,
   phoneNumber: phoneNumberValidation,
   firstName: firstNameValidation,
@@ -45,5 +45,3 @@ export const changePasswordZodSchema = passwordsValidation
       appendCustomIssue(ctx, 'New password cannot be same as current password.', 'password');
     }
   });
-
-export const updateUserSchema = baseUserZodSchema.partial();

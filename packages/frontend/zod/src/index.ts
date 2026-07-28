@@ -2,4 +2,4 @@
 export * from '@beautinique/shared-zod';
 export * from './common/index.js';
 export * from './product-service/index.js';
-export type * from './types/index.js';
+export * from './user-service/index.js';
