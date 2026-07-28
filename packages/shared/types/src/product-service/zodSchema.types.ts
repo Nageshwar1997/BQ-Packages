@@ -1,20 +1,20 @@
 import type {
-  infer as Infer,
   productBaseVariantZodSchema,
   productBasicInfoZodSchema,
   productDescriptionAndContentZodSchema,
   productTryOnConfigurationZodSchema,
   productWithoutVariantsZodSchema,
+  TInfer,
 } from '@beautinique/shared-zod';
 
-export type TProductBasicInfoZodSchema = Infer<typeof productBasicInfoZodSchema>;
+export type TProductBasicInfoZodSchema = TInfer<typeof productBasicInfoZodSchema>;
 
-export type TProductDescriptionAndContentZodSchema = Infer<
+export type TProductDescriptionAndContentZodSchema = TInfer<
   typeof productDescriptionAndContentZodSchema
 >;
 
-export type TProductBaseVariantZodSchema = Infer<typeof productBaseVariantZodSchema>;
+export type TProductBaseVariantZodSchema = TInfer<typeof productBaseVariantZodSchema>;
 
-export type TProductWithoutVariantsZodSchema = Infer<typeof productWithoutVariantsZodSchema>;
+export type TProductWithoutVariantsZodSchema = TInfer<typeof productWithoutVariantsZodSchema>;
 
-export type TProductTryOnConfigurationZodSchema = Infer<typeof productTryOnConfigurationZodSchema>;
+export type TProductTryOnConfigurationZodSchema = TInfer<typeof productTryOnConfigurationZodSchema>;
