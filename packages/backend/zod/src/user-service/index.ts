@@ -1,3 +1,5 @@
 import { baseUserZodSchema, imageUrlValidation } from '@beautinique/shared-zod';
 
-export const updateUserSchema = baseUserZodSchema.extend({ avatar: imageUrlValidation }).partial();
+export const updateUserZodSchema = baseUserZodSchema
+  .extend({ avatar: imageUrlValidation })
+  .partial();

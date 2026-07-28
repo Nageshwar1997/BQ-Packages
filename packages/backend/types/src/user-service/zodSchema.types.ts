@@ -1,3 +1,3 @@
-import type { TInfer, updateUserSchema } from '@beautinique/backend-zod';
+import type { TInfer, updateUserZodSchema } from '@beautinique/backend-zod';
 
-export type TUpdateUserZodSchema = TInfer<typeof updateUserSchema>;
+export type TUpdateUserZodSchema = TInfer<typeof updateUserZodSchema>;
