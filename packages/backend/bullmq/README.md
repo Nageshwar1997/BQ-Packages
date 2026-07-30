@@ -20,16 +20,16 @@ Every queue and job this package (and everything built on it) knows about lives 
 ```ts
 export const QUEUE_SCHEMA = {
   'mail-queue': {
-    'send-otp': {} as TEmailOtp,
+    'send-otp': {} as IEmailOtp,
   },
   'media-queue': {
-    'delete-single-media': {} as TSingleMedia,
+    'delete-single-media': {} as ISingleMedia,
     // ...
   },
 } as const;
 ```
 
-The value on the right of each job name is only ever used for its *type* (`as TEmailOtp`) - it drives `TJobData<Q, J>`, which both `JobProducer.addJob` and `JobWorker`'s `handlers` are checked against. Adding a queue or job here is the only change needed for it to show up, fully typed, everywhere this package is used.
+The value on the right of each job name is only ever used for its *type* (`as IEmailOtp`) - it drives `TJobData<Q, J>`, which both `JobProducer.addJob` and `JobWorker`'s `handlers` are checked against. Adding a queue or job here is the only change needed for it to show up, fully typed, everywhere this package is used.
 
 ## Adding jobs - `JobProducer`
 
@@ -56,12 +56,12 @@ await jobProducer.addBulkJobs('media-queue', [
 
 One `JobProducer` lazily opens (and caches) one BullMQ `Queue` per distinct queue name it's asked to add jobs to - create it once per process, not per request.
 
-| Option               | Default              | Description                                                                 |
-| -------------------- | --------------------- | ---------------------------------------------------------------------------- |
-| `connection`         | _(required)_          | Redis connection - `RedisOptions`, an `ioredis`/`Cluster` instance, or a URL. |
-| `defaultJobOptions`   | `DEFAULT_JOB_OPTIONS`  | Merged with (and overridable by) per-call `options`. See below.              |
-| `queueOptions`        | `undefined`            | Extra options forwarded to every underlying `Queue`.                        |
-| `logger`              | `undefined`            | Structured logs for enqueue calls and queue-level connection errors.        |
+| Option              | Default               | Description                                                                   |
+| ------------------- | --------------------- | ----------------------------------------------------------------------------- |
+| `connection`        | _(required)_          | Redis connection - `RedisOptions`, an `ioredis`/`Cluster` instance, or a URL. |
+| `defaultJobOptions` | `DEFAULT_JOB_OPTIONS` | Merged with (and overridable by) per-call `options`. See below.               |
+| `queueOptions`      | `undefined`           | Extra options forwarded to every underlying `Queue`.                          |
+| `logger`            | `undefined`           | Structured logs for enqueue calls and queue-level connection errors.          |
 
 ## Running workers - `JobWorker`
 
@@ -84,14 +84,14 @@ new JobWorker({
 
 Each `JobWorker` instance runs exactly one queue - create one per queue a given process handles. `completed`/`failed`/`error`/`stalled` events are logged automatically when a `logger` is provided.
 
-| Option           | Default                     | Description                                                   |
-| ---------------- | ---------------------------- | --------------------------------------------------------------- |
-| `queueName`      | _(required)_                  | Which queue (from `QUEUE_SCHEMA`) this worker processes.       |
-| `handlers`       | _(required)_                  | One handler per job name declared for that queue.              |
-| `connection`     | _(required)_                  | Redis connection, same shape as `JobProducer`.                 |
-| `concurrency`    | `DEFAULT_WORKER_CONCURRENCY`  | Jobs processed in parallel by this worker.                     |
-| `workerOptions`  | `undefined`                   | Extra options forwarded to the underlying BullMQ `Worker`.     |
-| `logger`         | `undefined`                   | Structured logs for job completion/failure/stall/worker errors.|
+| Option          | Default                      | Description                                                     |
+| --------------- | ---------------------------- | --------------------------------------------------------------- |
+| `queueName`     | _(required)_                 | Which queue (from `QUEUE_SCHEMA`) this worker processes.        |
+| `handlers`      | _(required)_                 | One handler per job name declared for that queue.               |
+| `connection`    | _(required)_                 | Redis connection, same shape as `JobProducer`.                  |
+| `concurrency`   | `DEFAULT_WORKER_CONCURRENCY` | Jobs processed in parallel by this worker.                      |
+| `workerOptions` | `undefined`                  | Extra options forwarded to the underlying BullMQ `Worker`.      |
+| `logger`        | `undefined`                  | Structured logs for job completion/failure/stall/worker errors. |
 
 ## Graceful shutdown
 

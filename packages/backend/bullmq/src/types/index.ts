@@ -69,23 +69,54 @@ export interface IJobWorkerOptions<Q extends TQueueName> {
   logger?: TLogger;
 }
 
-export interface TEmailOtp {
+export interface IEmailOtp {
   email: string;
   otp: string;
 }
 
-export interface TContact {
-  to: string;
-  subject: string;
-  data: Record<string, unknown>;
+export interface IContactAcknowledgementData {
+  ticketId: string;
+  queryType: string;
 }
 
-export interface TSingleMedia {
+export interface IContactAdminNotificationData extends IContactAcknowledgementData {
+  name: string;
+  email: string;
+  phoneNumber?: string;
+  message: string;
+}
+
+export interface IMail {
+  to: string;
+  subject: string;
+}
+
+export interface IContactAcknowledgement extends IMail {
+  data: IContactAcknowledgementData;
+}
+
+export interface IContactAdminNotification extends IMail {
+  data: IContactAdminNotificationData;
+}
+
+export interface ISingleMedia {
   publicId: string;
 }
-export interface TMultipleMedia {
+export interface IMultipleMedia {
   publicIds: string[];
   retryCount?: number;
 }
 
-export type TCreateMedia = TSingleMedia & Record<string, unknown>;
+export interface ICreateMedia extends ISingleMedia {
+  userId: string;
+  url: string;
+  resourceType: string;
+  createdAt: string;
+  metadata: {
+    width: number;
+    height: number;
+    format: string;
+    size: number;
+    folder: string;
+  };
+}

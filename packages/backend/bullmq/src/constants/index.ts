@@ -1,42 +1,43 @@
 import type { JobsOptions } from 'bullmq';
 
 import type {
-  TContact,
-  TCreateMedia,
-  TEmailOtp,
-  TMultipleMedia,
-  TSingleMedia,
+  IContactAcknowledgement,
+  IContactAdminNotification,
+  ICreateMedia,
+  IEmailOtp,
+  IMultipleMedia,
+  ISingleMedia,
 } from '../types/index.js';
 
 export const QUEUE_SCHEMA = {
   /* ---------------- MAIL QUEUES ---------------- */
   'mail-queue': {
-    'send-otp': {} as TEmailOtp,
-    'send-contact-acknowledgement': {} as TContact,
-    'send-contact-admin-notification': {} as TContact,
+    'send-otp': {} as IEmailOtp,
+    'send-contact-acknowledgement': {} as IContactAcknowledgement,
+    'send-contact-admin-notification': {} as IContactAdminNotification,
   },
 
   /* ---------------- MEDIA QUEUES ---------------- */
   'media-queue': {
     /* ---------------- CLOUDINARY JOBS ---------------- */
 
-    'remove-single-media-directly': {} as TSingleMedia,
-    'remove-multiple-media-directly': {} as TMultipleMedia,
+    'remove-single-media-directly': {} as ISingleMedia,
+    'remove-multiple-media-directly': {} as IMultipleMedia,
 
     /* ---------------- MEDIA CREATE JOBS ---------------- */
 
-    'create-single-unused-media': {} as TCreateMedia,
-    'create-multiple-unused-media': [] as TCreateMedia[],
+    'create-single-unused-media': {} as ICreateMedia,
+    'create-multiple-unused-media': [] as ICreateMedia[],
 
     /* ---------------- MEDIA UPDATE JOBS ---------------- */
 
-    'mark-single-media-as-used': {} as TSingleMedia,
-    'mark-multiple-media-as-used': {} as Pick<TMultipleMedia, 'publicIds'>,
+    'mark-single-media-as-used': {} as ISingleMedia,
+    'mark-multiple-media-as-used': {} as Pick<IMultipleMedia, 'publicIds'>,
 
     /* ---------------- MEDIA DELETE JOBS ---------------- */
 
-    'delete-single-media': {} as TSingleMedia,
-    'delete-multiple-media': {} as Pick<TMultipleMedia, 'publicIds'>,
+    'delete-single-media': {} as ISingleMedia,
+    'delete-multiple-media': {} as Pick<IMultipleMedia, 'publicIds'>,
   },
 } as const;
 

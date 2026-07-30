@@ -11,7 +11,7 @@ This project follows Semantic Versioning.
 - `mail-queue` gained two new job names: `send-contact-acknowledgement` and
   `send-contact-admin-notification`, for the "Contact Us" feature's
   acknowledgement/admin-notification emails - both carry a pre-rendered
-  `{ to, subject, data }` payload, exported as `TContact`.
+  `{ to, subject, data }` payload, exported as `IContact`.
 
 ## [1.0.0]
 
