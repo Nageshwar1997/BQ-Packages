@@ -121,9 +121,11 @@ export const productBasicInfoZodSchema = pricesSchema.and(
     l1Category: object(
       {
         _id: string('(L1) Main category is required.')
+          .trim()
           .nonempty('(L1) Main category is required.')
           .regex(REGEX.MONGODB_ID, '(L1) Main category must be a valid ID.'),
         name: string('(L1) Main category is required.')
+          .trim()
           .nonempty('(L1) Main category is required.')
           .regex(REGEX.SINGLE_SPACE, '(L1) Main category cannot contain consecutive spaces.'),
       },
@@ -133,9 +135,11 @@ export const productBasicInfoZodSchema = pricesSchema.and(
     l2Category: object(
       {
         _id: string('(L2) Sub-category is required.')
+          .trim()
           .nonempty('(L2) Sub-category is required.')
           .regex(REGEX.MONGODB_ID, '(L2) Sub-category must be a valid ID.'),
         name: string('(L2) Sub-category is required.')
+          .trim()
           .nonempty('(L2) Sub-category is required.')
           .regex(REGEX.SINGLE_SPACE, '(L2) Sub-category cannot contain consecutive spaces.'),
       },
@@ -145,9 +149,11 @@ export const productBasicInfoZodSchema = pricesSchema.and(
     l3Category: object(
       {
         _id: string('(L3) Product category is required.')
+          .trim()
           .nonempty('(L3) Product category is required.')
           .regex(REGEX.MONGODB_ID, '(L3) Product category must be a valid ID.'),
         name: string('(L3) Product category is required.')
+          .trim()
           .nonempty('(L3) Product category is required.')
           .regex(REGEX.SINGLE_SPACE, '(L3) Product category cannot contain consecutive spaces.'),
       },

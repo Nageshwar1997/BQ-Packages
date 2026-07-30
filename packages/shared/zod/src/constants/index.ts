@@ -86,15 +86,27 @@ export const currentPasswordValidation = string('Current password is required.')
     'Current password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
   );
 
+export const nameValidation = string('Name is required.')
+  .trim()
+  .nonempty('Name is required.')
+  .min(2, 'Name must be at least 2 characters long.')
+  .max(100, 'Name must be at most 100 characters long.')
+  .regex(REGEX.SINGLE_SPACE, "Name can't contain multiple spaces.")
+  .regex(REGEX.ONLY_LETTERS_AND_SPACES, 'Name is invalid. e.g. "John Doe".');
+
 export const firstNameValidation = string('First name is required.')
   .trim()
   .nonempty('First name is required.')
+  .min(2, 'First name must be at least 2 characters long.')
+  .max(50, 'First name must be at most 50 characters long.')
   .regex(REGEX.SINGLE_SPACE, "First name can't contain multiple spaces.")
   .regex(REGEX.ONLY_LETTERS_AND_SPACES, 'First name is invalid. e.g. "John".');
 
 export const lastNameValidation = string('Last name is required.')
   .trim()
   .nonempty('Last name is required.')
+  .min(2, 'Last name must be at least 2 characters long.')
+  .max(50, 'Last name must be at most 50 characters long.')
   .regex(REGEX.SINGLE_SPACE, "Last name can't contain multiple spaces.")
   .regex(REGEX.ONLY_LETTERS_AND_SPACES, 'Last name is invalid. e.g. "John".');
 

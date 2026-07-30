@@ -2,5 +2,6 @@
 export * from '@beautinique/shared-zod';
 export * from './media-service/index.js';
 export * from './middlewares/index.js';
+export * from './organization-service/index.js';
 export * from './product-service/index.js';
 export * from './user-service/index.js';
