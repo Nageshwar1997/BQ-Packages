@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/frontend-types",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Frontend types for Beautinique project.",
   "keywords": [
     "frontend",
@@ -53,6 +53,6 @@
   },
   "dependencies": {
     "@beautinique/frontend-zod": "^1.0.12",
-    "@beautinique/shared-types": "^1.0.14"
+    "@beautinique/shared-types": "^1.0.15"
   }
 }
