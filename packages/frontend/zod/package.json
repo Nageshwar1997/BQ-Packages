@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/frontend-zod",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "Frontend zod for Beautinique project.",
   "keywords": [
     "frontend",
@@ -49,7 +49,7 @@
     "node": ">=24"
   },
   "dependencies": {
-    "@beautinique/shared-constants": "^1.0.7",
-    "@beautinique/shared-zod": "^1.0.16"
+    "@beautinique/shared-constants": "^1.0.11",
+    "@beautinique/shared-zod": "^1.0.17"
   }
 }

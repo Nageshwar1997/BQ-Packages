@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/shared-zod",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "Shared zod for Beautinique project.",
   "keywords": [
     "shared",
@@ -52,8 +52,8 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
-    "@beautinique/shared-constants": "^1.0.7",
-    "@beautinique/shared-utils": "^1.0.4",
+    "@beautinique/shared-constants": "^1.0.11",
+    "@beautinique/shared-utils": "^1.0.5",
     "zod": "^4.4.3"
   }
 }

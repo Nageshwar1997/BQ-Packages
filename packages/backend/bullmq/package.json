@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/backend-bullmq",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Backend Queues, Jobs for Beautinique project.",
   "keywords": [
     "backend",
