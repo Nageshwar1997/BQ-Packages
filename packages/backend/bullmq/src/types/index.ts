@@ -1,4 +1,4 @@
-import type { ConnectionOptions, Job as TBullJob, JobsOptions, QueueOptions, WorkerOptions } from 'bullmq';
+import type { ConnectionOptions, Job, JobsOptions, QueueOptions, WorkerOptions } from 'bullmq';
 
 import type { QUEUE_SCHEMA } from '../constants/index.js';
 
@@ -39,7 +39,7 @@ export interface TLogger {
 /** Handler for a single job within a queue, dispatched to by `JobWorker`. */
 export type TJobHandler<Q extends TQueueName, J extends TJobName<Q>> = (
   data: TJobData<Q, J>,
-  job: TBullJob<TJobData<Q, J>, unknown, J & string>,
+  job: Job<TJobData<Q, J>, unknown, J & string>,
 ) => Promise<unknown>;
 
 /** One handler per job name declared for the queue in `QUEUE_SCHEMA` - enforced at compile time. */
@@ -72,6 +72,12 @@ export interface IJobWorkerOptions<Q extends TQueueName> {
 export interface TEmailOtp {
   email: string;
   otp: string;
+}
+
+export interface TContact {
+  to: string;
+  subject: string;
+  data: Record<string, unknown>;
 }
 
 export interface TSingleMedia {

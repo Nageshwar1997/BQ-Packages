@@ -1,10 +1,20 @@
 import type { JobsOptions } from 'bullmq';
 
-import type { TCreateMedia, TEmailOtp, TMultipleMedia, TSingleMedia } from '../types/index.js';
+import type {
+  TContact,
+  TCreateMedia,
+  TEmailOtp,
+  TMultipleMedia,
+  TSingleMedia,
+} from '../types/index.js';
 
 export const QUEUE_SCHEMA = {
   /* ---------------- MAIL QUEUES ---------------- */
-  'mail-queue': { 'send-otp': {} as TEmailOtp },
+  'mail-queue': {
+    'send-otp': {} as TEmailOtp,
+    'send-contact-acknowledgement': {} as TContact,
+    'send-contact-admin-notification': {} as TContact,
+  },
 
   /* ---------------- MEDIA QUEUES ---------------- */
   'media-queue': {
