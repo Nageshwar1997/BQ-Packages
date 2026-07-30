@@ -7,7 +7,7 @@ export const CONTACT_QUERY_TYPES = [
   'Account Help',
   'Feedback / Suggestion',
   'Something Else / Other',
-];
+] as const;
 
 export const CONTACT_QUERY_TYPE_MAP = Object.fromEntries(
   CONTACT_QUERY_TYPES.map((type) => [type, type]),
