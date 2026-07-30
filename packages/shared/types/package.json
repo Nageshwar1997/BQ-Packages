@@ -49,8 +49,8 @@
     "node": ">=24"
   },
   "dependencies": {
-    "@beautinique/shared-constants": "^1.0.7",
-    "@beautinique/shared-zod": "^1.0.12"
+    "@beautinique/shared-constants": "^1.0.9",
+    "@beautinique/shared-zod": "^1.0.15"
   },
   "devDependencies": {
     "typescript": "^6.0.3"

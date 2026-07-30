@@ -2,6 +2,7 @@
 export * from 'zod';
 export * from './common/index.js';
 export * from './constants/index.js';
+export * from './organization-service/index.js';
 export * from './product-service/index.js';
 export type * from './types/index.js';
 export * from './user-service/index.js';
