@@ -3,6 +3,7 @@ export const SERVICE_NAMES = [
   'product-service',
   'media-service',
   'mail-service',
+  'organization-service',
 ] as const;
 
 export const SERVICE_NAMES_MAP = Object.fromEntries(
