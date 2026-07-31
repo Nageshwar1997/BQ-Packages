@@ -6,7 +6,7 @@ import { emailValidation, nameValidation, phoneNumberValidation } from '../const
 export const createContactQueryZodSchema = object({
   name: nameValidation,
   email: emailValidation,
-  phoneNumber: phoneNumberValidation.optional(),
+  phoneNumber: phoneNumberValidation,
   queryType: enum_z(CONTACT_QUERY_TYPES, 'Invalid query type'),
   message: string('Message is required')
     .trim()
