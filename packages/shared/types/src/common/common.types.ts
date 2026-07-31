@@ -16,3 +16,8 @@ export type TSortMap = typeof SORT_MAP;
 
 export type TFieldErrors = Record<string, string[]>;
 export type TGlobalErrors = string[];
+
+export interface IPagination {
+  page?: string;
+  limit?: string;
+}

@@ -11,7 +11,9 @@ export const CONTACT_QUERY_TYPES = [
 
 export const CONTACT_QUERY_TYPE_MAP = Object.fromEntries(
   CONTACT_QUERY_TYPES.map((type) => [type, type]),
-);
+) as {
+  readonly [K in (typeof CONTACT_QUERY_TYPES)[number]]: K;
+};
 
 export const CONTACT_QUERY_STATUS = ['OPENED', 'ANSWERED', 'CLOSED', 'REJECTED'] as const;
 
