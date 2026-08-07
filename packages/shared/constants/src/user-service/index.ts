@@ -6,6 +6,11 @@ export const USER_ROLE_MAP = Object.fromEntries(
 
 export const SELLER_TYPES = [
   'Individual',
+  'Sole Proprietorship',
+  'Partnership',
+  'Private Limited Company',
+  'Public Limited Company',
+  'LLP',
   'Freelance Seller',
   'Small Business',
   'Home-based Seller',
