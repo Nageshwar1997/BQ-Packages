@@ -1,30 +1,30 @@
 export const SELLER_TYPES = [
+  'Brand',
+  'Clinic',
+  'Freelance Seller',
+  'Home-based Seller',
   'Individual',
-  'Sole Proprietorship',
+  'LLP',
   'Partnership',
   'Private Limited Company',
   'Public Limited Company',
-  'LLP',
-  'Freelance Seller',
-  'Small Business',
-  'Home-based Seller',
   'Retail Store',
   'Salon',
-  'Wholesale Distributor',
+  'Small Business',
+  'Sole Proprietorship',
   'Spa',
-  'Clinic',
-  'Brand',
+  'Wholesale Distributor',
 ] as const;
 
 export const SELLER_TYPE_MAP = Object.fromEntries(
   SELLER_TYPES.map((seller) => [seller, seller] as const),
 ) as { readonly [K in (typeof SELLER_TYPES)[number]]: K };
 
-export const SELLER_APPROVAL_STATUS = ['PENDING', 'APPROVED', 'REJECTED'] as const;
+export const SELLER_APPROVAL_STATUSES = ['PENDING', 'APPROVED', 'REJECTED'] as const;
 
 export const SELLER_APPROVAL_STATUS_MAP = Object.fromEntries(
-  SELLER_APPROVAL_STATUS.map((status) => [status, status]),
-) as { readonly [K in (typeof SELLER_APPROVAL_STATUS)[number]]: K };
+  SELLER_APPROVAL_STATUSES.map((status) => [status, status]),
+) as { readonly [K in (typeof SELLER_APPROVAL_STATUSES)[number]]: K };
 
 export const SELLER_STATUSES = ['ACTIVE', 'SUSPENDED'] as const;
 
