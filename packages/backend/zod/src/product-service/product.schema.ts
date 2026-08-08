@@ -1,3 +1,4 @@
+import { DRAFT_PRODUCT_STEP_MAP } from '@beautinique/backend-constants';
 import {
   draftProductStepZodSchema,
   imageUrlValidation,
@@ -49,11 +50,11 @@ export const productStockAndVariantsZodSchema = discriminatedUnion(
 );
 
 export const draftProductDetailsZodSchema = object({
-  basicInfo: productBasicInfoZodSchema,
-  mediaAndGallery: productMediaAndGalleryZodSchema,
-  descriptionAndContent: productDescriptionAndContentZodSchema,
-  stockAndVariants: productStockAndVariantsZodSchema,
-  tryOnConfiguration: productTryOnConfigurationZodSchema,
+  [DRAFT_PRODUCT_STEP_MAP[0]]: productBasicInfoZodSchema,
+  [DRAFT_PRODUCT_STEP_MAP[1]]: productMediaAndGalleryZodSchema,
+  [DRAFT_PRODUCT_STEP_MAP[2]]: productDescriptionAndContentZodSchema,
+  [DRAFT_PRODUCT_STEP_MAP[3]]: productStockAndVariantsZodSchema,
+  [DRAFT_PRODUCT_STEP_MAP[4]]: productTryOnConfigurationZodSchema,
 });
 
 export const draftProductStepBodyZodSchema = productBasicInfoZodSchema
