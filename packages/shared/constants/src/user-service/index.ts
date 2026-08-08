@@ -10,8 +10,6 @@ export const USER_STATUS_MAP = Object.fromEntries(
   USER_STATUSES.map((role) => [role, role] as const),
 ) as { [K in (typeof USER_STATUSES)[number]]: K };
 
-
-
 export const AUTH_PROVIDERS = ['MANUAL', 'GOOGLE', 'LINKEDIN', 'GITHUB'] as const;
 
 export const AUTH_PROVIDER_MAP = Object.fromEntries(
