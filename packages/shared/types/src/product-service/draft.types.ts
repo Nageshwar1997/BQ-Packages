@@ -1,7 +1,7 @@
-import type { DRAFT_PRODUCT_STEP_MAP } from '@beautinique/shared-constants';
+import type {
+  DRAFT_PRODUCT_STEPPER_STEPS,
+  DRAFT_PRODUCT_STEPPER_STEPS_MAP,
+} from '@beautinique/shared-constants';
 
-export type TDraftProductStep = keyof typeof DRAFT_PRODUCT_STEP_MAP;
-
-export type TDraftProductFormKeys = {
-  [K in TDraftProductStep]: (typeof DRAFT_PRODUCT_STEP_MAP)[K];
-}[TDraftProductStep];
+export type TDraftProductStepperStep = (typeof DRAFT_PRODUCT_STEPPER_STEPS)[number];
+export type TDraftProductStepperStepMap = typeof DRAFT_PRODUCT_STEPPER_STEPS_MAP;
