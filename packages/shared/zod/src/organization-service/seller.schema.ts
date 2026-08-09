@@ -2,10 +2,11 @@ import {
   COUNTRIES,
   DRAFT_SELLER_STEP_MAP,
   REGEX,
+  SELLER_APPROVAL_STATUS_MAP,
   SELLER_TYPES,
   STATES_AND_UTS,
 } from '@beautinique/shared-constants';
-import { enum as enum_z, literal, object, string, type ZodLiteral } from 'zod';
+import { discriminatedUnion, enum as enum_z, literal, object, string, type ZodLiteral } from 'zod';
 
 import { emailValidation, phoneNumberValidation } from '../constants/index.js';
 
@@ -85,3 +86,18 @@ export const sellerAddressZodSchema = object({
     .regex(REGEX.PIN_CODE, 'Enter a valid 6-digit pincode'),
   country: enum_z(COUNTRIES, 'Country is required'),
 });
+
+export const sellerIdParamsZodSchema = object({
+  sellerId: string('Seller id is required')
+    .trim()
+    .nonempty('Seller id is required')
+    .regex(REGEX.MONGODB_ID, 'Invalid seller id'),
+});
+
+export const updateSellerApprovalStatusZodSchema = discriminatedUnion('approvalStatus', [
+  object({ approvalStatus: literal(SELLER_APPROVAL_STATUS_MAP.APPROVED) }),
+  object({
+    approvalStatus: literal(SELLER_APPROVAL_STATUS_MAP.REJECTED),
+    rejectReason: string('Reject reason is required').trim().nonempty('Reject reason is required'),
+  }),
+]);
