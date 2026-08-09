@@ -3,7 +3,7 @@ import type {
   draftSellerStepBodyZodSchema,
   sellerDocumentsZodSchema,
   TInfer,
-} from '@beautinique/backend-zod';
+} from '@beautinique/frontend-zod';
 
 /* ======================== SELLER ======================== */
 export type TSellerDocumentsZodSchema = TInfer<typeof sellerDocumentsZodSchema>;

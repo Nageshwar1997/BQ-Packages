@@ -87,13 +87,6 @@ export const sellerAddressZodSchema = object({
   country: enum_z(COUNTRIES, 'Country is required'),
 });
 
-export const sellerIdParamsZodSchema = object({
-  sellerId: string('Seller id is required')
-    .trim()
-    .nonempty('Seller id is required')
-    .regex(REGEX.MONGODB_ID, 'Invalid seller id'),
-});
-
 export const updateSellerApprovalStatusZodSchema = discriminatedUnion('approvalStatus', [
   object({ approvalStatus: literal(SELLER_APPROVAL_STATUS_MAP.APPROVED) }),
   object({
