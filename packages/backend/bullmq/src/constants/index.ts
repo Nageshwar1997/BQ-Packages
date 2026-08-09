@@ -44,7 +44,7 @@ export const QUEUE_SCHEMA = {
   /* ---------------- USER SERVICE QUEUES ---------------- */
   'user-service-queue': {
     /* ---------------- USER JOBS ---------------- */
-    'update-role': '' as TUserRole,
+    'update-role': {} as { role: TUserRole; userId: string },
   },
 } as const;
 
