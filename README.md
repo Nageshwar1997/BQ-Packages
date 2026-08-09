@@ -121,7 +121,7 @@ BQ-Packages/
 
 | Script         | Command                                      | Description                                 |
 | -------------- | -------------------------------------------- | ------------------------------------------- |
-| `build`        | `npm run build --workspaces`                 | Build all workspace packages                |
+| `build`        | `node ./scripts/build-order/index.mjs`       | Build all workspace packages in dependency order |
 | `lint`         | `npm run lint --workspaces`                  | Lint all workspace packages                 |
 | `lint:fix`     | `npm run lint:fix --workspaces`              | Lint and fix all workspace packages         |
 | `typecheck`    | `npm run typecheck --workspaces`             | Type-check all workspace packages           |

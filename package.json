@@ -17,7 +17,7 @@
     "packages/*/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "node ./scripts/build-order/index.mjs",
     "lint": "npm run lint --workspaces",
     "lint:fix": "npm run lint:fix --workspaces",
     "typecheck": "npm run typecheck --workspaces",
