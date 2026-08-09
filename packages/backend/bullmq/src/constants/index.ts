@@ -1,24 +1,25 @@
+import type { TEmailZodSchema, TOtpZodSchema, TUserRole } from '@beautinique/backend-types';
 import type { JobsOptions } from 'bullmq';
 
 import type {
   IContactAcknowledgement,
   IContactAdminNotification,
   ICreateMedia,
-  IEmailOtp,
   IMultipleMedia,
   ISingleMedia,
 } from '../types/index.js';
 
 export const QUEUE_SCHEMA = {
-  /* ---------------- MAIL QUEUES ---------------- */
-  'mail-queue': {
-    'send-otp': {} as IEmailOtp,
+  /* ---------------- MAIL SERVICE QUEUES ---------------- */
+  'mail-service-queue': {
+    /* ---------------- MAIL JOBS ---------------- */
+    'send-otp': {} as TOtpZodSchema & TEmailZodSchema,
     'send-contact-acknowledgement': {} as IContactAcknowledgement,
     'send-contact-admin-notification': {} as IContactAdminNotification,
   },
 
-  /* ---------------- MEDIA QUEUES ---------------- */
-  'media-queue': {
+  /* ---------------- MEDIA SERVICE QUEUES ---------------- */
+  'media-service-queue': {
     /* ---------------- CLOUDINARY JOBS ---------------- */
 
     'remove-single-media-directly': {} as ISingleMedia,
@@ -38,6 +39,12 @@ export const QUEUE_SCHEMA = {
 
     'delete-single-media': {} as ISingleMedia,
     'delete-multiple-media': {} as Pick<IMultipleMedia, 'publicIds'>,
+  },
+
+  /* ---------------- USER SERVICE QUEUES ---------------- */
+  'user-service-queue': {
+    /* ---------------- USER JOBS ---------------- */
+    'update-role': '' as TUserRole,
   },
 } as const;
 

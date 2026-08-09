@@ -1,3 +1,4 @@
+import type { TCreateContactQueryZodSchema, TMediaResource } from '@beautinique/backend-types';
 import type { ConnectionOptions, Job, JobsOptions, QueueOptions, WorkerOptions } from 'bullmq';
 
 import type { QUEUE_SCHEMA } from '../constants/index.js';
@@ -69,22 +70,13 @@ export interface IJobWorkerOptions<Q extends TQueueName> {
   logger?: TLogger;
 }
 
-export interface IEmailOtp {
-  email: string;
-  otp: string;
-}
-
-export interface IContactAcknowledgementData {
+export interface IContactAdminNotificationData extends TCreateContactQueryZodSchema {
   ticketId: string;
-  queryType: string;
 }
-
-export interface IContactAdminNotificationData extends IContactAcknowledgementData {
-  name: string;
-  email: string;
-  phoneNumber?: string;
-  message: string;
-}
+export type TContactAcknowledgementData = Pick<
+  IContactAdminNotificationData,
+  'queryType' | 'ticketId'
+>;
 
 export interface IMail {
   to: string;
@@ -92,7 +84,7 @@ export interface IMail {
 }
 
 export interface IContactAcknowledgement extends IMail {
-  data: IContactAcknowledgementData;
+  data: TContactAcknowledgementData;
 }
 
 export interface IContactAdminNotification extends IMail {
@@ -110,8 +102,8 @@ export interface IMultipleMedia {
 export interface ICreateMedia extends ISingleMedia {
   userId: string;
   url: string;
-  resourceType: string;
-  createdAt: string;
+  resourceType: TMediaResource;
+  createdAt: Date;
   metadata: {
     width: number;
     height: number;
