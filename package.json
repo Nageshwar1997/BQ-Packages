@@ -11,28 +11,28 @@
     "npm"
   ],
   "author": "Nageshwar Pawar",
-  "license": "ISC",
+  "license": "MIT",
   "type": "module",
   "workspaces": [
     "packages/*/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "node ./scripts/build-order/index.mjs",
     "lint": "npm run lint --workspaces",
     "lint:fix": "npm run lint:fix --workspaces",
     "typecheck": "npm run typecheck --workspaces",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "clean": "node ./scripts/clean.mjs",
-    "create": "node ./scripts/create-package/index.mjs",
-    "publish": "node ./scripts/package-publisher/index.mjs"
+    "clean": "node ./scripts/clean/index.mjs",
+    "create": "node ./scripts/create/index.mjs",
+    "publish": "node ./scripts/publish/index.mjs",
+    "republish": "node ./scripts/republish/index.mjs"
   },
   "engines": {
     "node": ">=24"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@inquirer/prompts": "^8.5.2",
     "@types/node": "^26.0.1",
     "eslint": "^10.5.0",
     "eslint-config-prettier": "^10.1.8",

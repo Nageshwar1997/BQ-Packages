@@ -1,0 +1,71 @@
+{
+  "name": "@beautinique/backend-multer",
+  "version": "1.0.7",
+  "description": "Backend multer middleware for Beautinique project.",
+  "keywords": [
+    "backend",
+    "multer",
+    "express",
+    "middleware",
+    "upload",
+    "file-upload",
+    "validation",
+    "beautinique"
+  ],
+  "author": "Nageshwar Pawar",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nageshwar1997/BQ-Packages.git",
+    "directory": "packages/backend/multer"
+  },
+  "bugs": {
+    "url": "https://github.com/Nageshwar1997/BQ-Packages/issues"
+  },
+  "homepage": "https://github.com/Nageshwar1997/BQ-Packages/tree/main/packages/backend/multer#readme",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsup",
+    "postbuild": "node ../../../scripts/build-types/index.mjs",
+    "dev": "tsup --watch",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "@beautinique/backend-classes": "^1.0.4",
+    "@beautinique/shared-constants": "^1.0.11",
+    "@beautinique/shared-utils": "^1.0.5",
+    "multer": "^2.2.0"
+  },
+  "peerDependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@beautinique/shared-types": "^1.0.16",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.2.0",
+    "typescript": "^6.0.3"
+  }
+}

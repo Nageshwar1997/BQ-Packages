@@ -1,0 +1,105 @@
+import { calculateVersion } from './version.mjs';
+
+/**
+ * @import { VersionType } from './types.mjs'
+ * @import { PublishPackageMetadata } from './types.mjs'
+ */
+
+/**
+ * @typedef {{
+ *   metadata: PublishPackageMetadata;
+ *   currentVersion: string;
+ *   nextVersion: string;
+ *   releaseType: VersionType;
+ * }} ReleasePlanEntry
+ */
+
+/**
+ * @typedef {Map<string, ReleasePlanEntry>} ReleasePlan
+ */
+
+/* -------------------------------------------------------------------------- */
+/*                              PRIVATE API                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Creates an empty release plan.
+ *
+ * @returns {ReleasePlan}
+ */
+function createEmptyReleasePlan() {
+  return new Map();
+}
+
+/**
+ * Adds a package to a release plan.
+ *
+ * @param {ReleasePlan} releasePlan
+ * @param {ReleasePlanEntry} entry
+ * @returns {ReleasePlan}
+ */
+function addReleasePlanEntry(releasePlan, entry) {
+  releasePlan.set(entry.metadata.npmPackageName, entry);
+
+  return releasePlan;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               PUBLIC API                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Generates a release plan from selected packages and release strategies.
+ *
+ * @param {PublishPackageMetadata[]} packages
+ * @param {Map<string, { releaseType: VersionType; customVersion?: string }>} strategies
+ * @returns {ReleasePlan}
+ */
+export function createReleasePlan(packages, strategies) {
+  const releasePlan = createEmptyReleasePlan();
+
+  for (const metadata of packages) {
+    const strategy = strategies.get(metadata.npmPackageName);
+
+    if (!strategy) {
+      throw new Error(`Missing release strategy for "${metadata.npmPackageName}".`);
+    }
+
+    const currentVersion = metadata.localVersion;
+    const nextVersion = calculateVersion(
+      currentVersion,
+      strategy.releaseType,
+      strategy.customVersion,
+      metadata.npmPackageName,
+    );
+
+    addReleasePlanEntry(releasePlan, {
+      metadata,
+      currentVersion,
+      nextVersion,
+      releaseType: strategy.releaseType,
+    });
+  }
+
+  return releasePlan;
+}
+
+/**
+ * Returns release plan entries in insertion order.
+ *
+ * @param {ReleasePlan} releasePlan
+ * @returns {ReleasePlanEntry[]}
+ */
+export function getReleasePlanEntries(releasePlan) {
+  return [...releasePlan.values()];
+}
+
+/**
+ * Returns release plan package metadata in insertion order.
+ *
+ * @param {ReleasePlan} releasePlan
+ * @returns {PublishPackageMetadata[]}
+ */
+export function getReleasePlanPackages(releasePlan) {
+  return getReleasePlanEntries(releasePlan).map((entry) => entry.metadata);
+}

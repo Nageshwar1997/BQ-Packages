@@ -1,0 +1,58 @@
+{
+  "name": "@beautinique/backend-constants",
+  "version": "1.0.4",
+  "description": "Backend constants for Beautinique project.",
+  "keywords": [
+    "backend",
+    "shared",
+    "constants",
+    "beautinique"
+  ],
+  "author": "Nageshwar Pawar",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nageshwar1997/BQ-Packages.git",
+    "directory": "packages/backend/constants"
+  },
+  "bugs": {
+    "url": "https://github.com/Nageshwar1997/BQ-Packages/issues"
+  },
+  "homepage": "https://github.com/Nageshwar1997/BQ-Packages/tree/main/packages/backend/constants#readme",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsup",
+    "postbuild": "node ../../../scripts/build-types/index.mjs",
+    "dev": "tsup --watch",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "@beautinique/shared-constants": "^1.0.14"
+  }
+}

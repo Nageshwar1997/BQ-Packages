@@ -1,0 +1,38 @@
+import type { TFieldErrors, TGlobalErrors } from '@beautinique/shared-types';
+
+import { ERROR_CODE_STATUS_MAP } from '../constants/index.js';
+import type { IAppError, TErrorCode } from '../types/index.js';
+
+export abstract class AppError extends Error {
+  public readonly statusCode: number;
+  public readonly code: TErrorCode;
+  public readonly isOperational: boolean;
+  public readonly fieldErrors?: TFieldErrors;
+  public readonly globalErrors?: TGlobalErrors;
+  public override readonly cause?: unknown;
+
+  constructor({
+    message,
+    code,
+    statusCode,
+    isOperational = true,
+    fieldErrors,
+    globalErrors,
+    cause,
+  }: IAppError) {
+    super(message, { cause });
+
+    this.name = new.target.name;
+
+    this.statusCode = statusCode ?? ERROR_CODE_STATUS_MAP[code];
+    this.code = code;
+    this.isOperational = isOperational;
+    this.fieldErrors = fieldErrors;
+    this.globalErrors = globalErrors;
+    this.cause = cause;
+
+    Object.setPrototypeOf(this, new.target.prototype);
+
+    Error.captureStackTrace(this, new.target);
+  }
+}

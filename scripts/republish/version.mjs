@@ -1,0 +1,134 @@
+import semver from 'semver';
+
+import { JsonError, VersionError } from '../common/errors.mjs';
+import { getPackageJsonPath } from '../common/paths.mjs';
+import { parseData, readFileByPath, writeJson } from '../common/utils.mjs';
+import { validateVersion } from '../common/version.mjs';
+import { VERSION_TYPES } from './constants.mjs';
+import { detectJsonIndent } from './utils.mjs';
+
+/**
+ * @import { PackageJson, VersionType } from './types.mjs'
+ */
+
+/* -------------------------------------------------------------------------- */
+/*                             PRIVATE HELPERS                                */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Ensures the next version is greater than the current version.
+ *
+ * @param {string} currentVersion
+ * @param {string} nextVersion
+ * @returns {void}
+ */
+function validateVersionIncrease(currentVersion, nextVersion) {
+  if (!semver.gt(nextVersion, currentVersion)) {
+    throw new VersionError(`Version "${nextVersion}" must be greater than "${currentVersion}".`);
+  }
+}
+
+/**
+ * Returns the incremented version.
+ *
+ * @param {string} version
+ * @param {Exclude<VersionType, "custom">} release
+ * @returns {string}
+ */
+function incrementVersion(version, release) {
+  const nextVersion = semver.inc(version, release);
+
+  if (!nextVersion) {
+    throw new VersionError(`Failed to increment "${version}" using "${release}" release type.`);
+  }
+
+  return nextVersion;
+}
+
+/**
+ * Reads and parses package JSON while keeping the raw content.
+ *
+ * @param {string} packageJsonPath
+ * @returns {Promise<{ content: string; packageJson: PackageJson }>}
+ */
+async function readPackageJsonWithContent(packageJsonPath) {
+  const content = await readFileByPath(packageJsonPath);
+
+  try {
+    return {
+      content,
+      packageJson: parseData(content),
+    };
+  } catch {
+    throw new JsonError(`Failed to parse JSON: ${packageJsonPath}`);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                              VERSION HELPERS                               */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Calculates the next package version.
+ *
+ * @param {string} currentVersion
+ * @param {VersionType} versionType
+ * @param {string} [customVersion]
+ * @param {string} packageName
+ * @returns {string}
+ */
+export function calculateVersion(currentVersion, versionType, customVersion, packageName) {
+  validateVersion(currentVersion, 'version', packageName);
+
+  switch (versionType) {
+    case VERSION_TYPES.PATCH:
+      return incrementVersion(currentVersion, 'patch');
+
+    case VERSION_TYPES.MINOR:
+      return incrementVersion(currentVersion, 'minor');
+
+    case VERSION_TYPES.MAJOR:
+      return incrementVersion(currentVersion, 'major');
+
+    case VERSION_TYPES.CUSTOM: {
+      if (!customVersion) {
+        throw new VersionError('Custom version is required.');
+      }
+
+      validateVersion(customVersion, 'custom version', packageName);
+      validateVersionIncrease(currentVersion, customVersion);
+
+      return customVersion;
+    }
+
+    default:
+      throw new VersionError(`Unsupported version type "${versionType}".`);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                              PACKAGE VERSION                               */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Updates the package version.
+ *
+ * @param {string} packageDirectory
+ * @param {string} version
+ * @param {string} packageName
+ * @returns {Promise<void>}
+ */
+export async function updatePackageVersion(packageDirectory, version, packageName) {
+  validateVersion(version, 'version', packageName);
+
+  const packageJsonPath = getPackageJsonPath(packageDirectory);
+
+  const { content, packageJson } = await readPackageJsonWithContent(packageJsonPath);
+
+  packageJson.version = version;
+
+  await writeJson(packageJsonPath, packageJson, {
+    indent: detectJsonIndent(content),
+    trailingNewline: content.endsWith('\n'),
+  });
+}
