@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "@beautinique/shared-constants": "^1.0.14",
-    "@beautinique/shared-zod": "^1.0.17"
+    "@beautinique/shared-zod": "^1.0.19"
   },
   "devDependencies": {
     "typescript": "^6.0.3"
