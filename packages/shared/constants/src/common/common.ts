@@ -7,9 +7,13 @@ export const SERVICE_NAMES = [
 ] as const;
 
 export const SERVICE_NAMES_MAP = Object.fromEntries(
-  SERVICE_NAMES.map((service) => [service, service] as const),
-) as { readonly [K in (typeof SERVICE_NAMES)[number]]: K };
-
+  SERVICE_NAMES.map((service) => [service.replace('-service', ''), service]),
+) as {
+  readonly [K in (typeof SERVICE_NAMES)[number] extends `${infer N}-service` ? N : never]: Extract<
+    (typeof SERVICE_NAMES)[number],
+    `${K}-service`
+  >;
+};
 export const API_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const;
 
 export const API_METHODS_MAP = Object.fromEntries(
