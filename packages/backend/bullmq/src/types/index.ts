@@ -1,4 +1,11 @@
-import type { TCreateContactQueryZodSchema, TMediaResource } from '@beautinique/backend-types';
+import type {
+  TAdminStatus,
+  TCreateContactQueryZodSchema,
+  TMediaResource,
+  TStateOrUT,
+  TTerritoryAssignmentReason,
+  TTerritoryStatusChangeReason,
+} from '@beautinique/backend-types';
 import type { ConnectionOptions, Job, JobsOptions, QueueOptions, WorkerOptions } from 'bullmq';
 
 import type { QUEUE_SCHEMA } from '../constants/index.js';
@@ -110,5 +117,52 @@ export interface ICreateMedia extends ISingleMedia {
     format: string;
     size: number;
     folder: string;
+  };
+}
+
+/* ================== ADMIN TERRITORY (state-wise assignment) ================== */
+
+/**
+ * Published by `user-service` whenever an `AdminProfile`'s state-coverage or
+ * `status` changes. Consumed by `organization-service` (and `product-service`)
+ * to refresh their local `territory:state-admin:<STATE>` Redis mirror - see
+ * the state -> admin resolution algorithm in the assignment plan doc.
+ */
+export interface ITerritoryStatusChanged {
+  state: TStateOrUT;
+  adminId: string;
+  previousStatus: TAdminStatus;
+  newStatus: TAdminStatus;
+  /** Explicit backup for `state`, if configured - only meaningful on `ON_LEAVE`/`SUSPENDED`. */
+  backupAdminId?: string;
+  reason: TTerritoryStatusChangeReason;
+}
+
+/**
+ * Published by `organization-service` after resolving+stamping
+ * `Seller.assignedAdmin`. Consumed by `product-service` to cache
+ * `assignment:user-admin:<USER_ID>` for routing that seller's product
+ * reviews without duplicating the resolution logic.
+ */
+export interface ISellerAdminAssigned {
+  userId: string;
+  sellerId: string;
+  assignedAdminId: string;
+  state: TStateOrUT;
+  reason: TTerritoryAssignmentReason;
+}
+
+export interface ISellerAssignedNotification extends IMail {
+  data: {
+    sellerBusinessName: string;
+    state: TStateOrUT;
+  };
+}
+
+export interface IAdminStatusChangeNotification extends IMail {
+  data: {
+    adminName: string;
+    newStatus: TAdminStatus;
+    states: TStateOrUT[];
   };
 }

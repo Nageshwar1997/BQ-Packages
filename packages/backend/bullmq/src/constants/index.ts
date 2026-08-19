@@ -2,11 +2,15 @@ import type { TEmailZodSchema, TOtpZodSchema, TUserRole } from '@beautinique/bac
 import type { JobsOptions } from 'bullmq';
 
 import type {
+  IAdminStatusChangeNotification,
   IContactAcknowledgement,
   IContactAdminNotification,
   ICreateMedia,
   IMultipleMedia,
+  ISellerAdminAssigned,
+  ISellerAssignedNotification,
   ISingleMedia,
+  ITerritoryStatusChanged,
 } from '../types/index.js';
 
 export const QUEUE_SCHEMA = {
@@ -14,8 +18,14 @@ export const QUEUE_SCHEMA = {
   'mail-service-queue': {
     /* ---------------- MAIL JOBS ---------------- */
     'send-otp': {} as TOtpZodSchema & TEmailZodSchema,
+
+    /* ---------------- CONTACT JOBS ---------------- */
     'send-contact-acknowledgement': {} as IContactAcknowledgement,
     'send-contact-admin-notification': {} as IContactAdminNotification,
+
+    /* ---------------- ADMIN TERRITORY JOBS ---------------- */
+    'send-seller-assigned-notification': {} as ISellerAssignedNotification,
+    'send-admin-status-change-notification': {} as IAdminStatusChangeNotification,
   },
 
   /* ---------------- MEDIA SERVICE QUEUES ---------------- */
@@ -45,6 +55,19 @@ export const QUEUE_SCHEMA = {
   'user-service-queue': {
     /* ---------------- USER JOBS ---------------- */
     'update-role': {} as { role: TUserRole; userId: string },
+
+    /* ---------------- ADMIN TERRITORY JOBS ---------------- */
+    // Fan-out to organization-service/product-service so they can refresh
+    // their local state->admin Redis mirror. See `ITerritoryStatusChanged`.
+    'territory-status-changed': {} as ITerritoryStatusChanged,
+  },
+
+  /* ---------------- ORGANIZATION SERVICE QUEUES ---------------- */
+  'organization-service-queue': {
+    /* ---------------- ADMIN TERRITORY JOBS ---------------- */
+    // Lets product-service cache "this seller's products route to this
+    // admin" without re-resolving state->admin itself. See `ISellerAdminAssigned`.
+    'seller-admin-assigned': {} as ISellerAdminAssigned,
   },
 } as const;
 
