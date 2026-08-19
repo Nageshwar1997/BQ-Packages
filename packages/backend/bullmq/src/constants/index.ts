@@ -3,6 +3,7 @@ import type { JobsOptions } from 'bullmq';
 
 import type {
   IAdminStatusChangeNotification,
+  IAdminTerritorySynced,
   IContactAcknowledgement,
   IContactAdminNotification,
   ICreateMedia,
@@ -10,7 +11,6 @@ import type {
   ISellerAdminAssigned,
   ISellerAssignedNotification,
   ISingleMedia,
-  ITerritoryStatusChanged,
 } from '../types/index.js';
 
 export const QUEUE_SCHEMA = {
@@ -55,16 +55,23 @@ export const QUEUE_SCHEMA = {
   'user-service-queue': {
     /* ---------------- USER JOBS ---------------- */
     'update-role': {} as { role: TUserRole; userId: string },
+
+    /* ---------------- ADMIN TERRITORY JOBS ---------------- */
+    // Produced by organization-service (typically once, at startup) to
+    // request a full re-sync of every `Admin` - covers cold-start/a fresh
+    // or wiped local mirror, since BullMQ doesn't retain already-processed
+    // jobs to replay. No payload - it's a trigger, not data.
+    'resync-admin-territories': {} as Record<string, never>,
   },
 
   /* ---------------- ORGANIZATION SERVICE QUEUES ---------------- */
   'organization-service-queue': {
     /* ---------------- ADMIN TERRITORY JOBS ---------------- */
-    // Produced by user-service whenever an `Admin`'s status changes.
-    // organization-service is the sole consumer - it's the one that owns
-    // `Seller.assignedAdmin` and has to react by reassigning that state's
-    // in-flight PENDING sellers. See `ITerritoryStatusChanged`.
-    'territory-status-changed': {} as ITerritoryStatusChanged,
+    // Produced by user-service whenever an `Admin`'s territory or status
+    // changes, and once per admin in response to `resync-admin-territories`.
+    // organization-service is the sole consumer - upserts its local
+    // `AdminTerritory` mirror by `adminUserId`. See `IAdminTerritorySynced`.
+    'admin-territory-synced': {} as IAdminTerritorySynced,
   },
 
   /* ---------------- PRODUCT SERVICE QUEUES ---------------- */

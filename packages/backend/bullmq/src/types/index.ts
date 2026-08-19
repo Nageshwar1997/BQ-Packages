@@ -4,7 +4,7 @@ import type {
   TMediaResource,
   TStateOrUT,
   TTerritoryAssignmentReason,
-  TTerritoryStatusChangeReason,
+  TUserRole,
 } from '@beautinique/backend-types';
 import type { ConnectionOptions, Job, JobsOptions, QueueOptions, WorkerOptions } from 'bullmq';
 
@@ -123,19 +123,29 @@ export interface ICreateMedia extends ISingleMedia {
 /* ================== ADMIN TERRITORY (state-wise assignment) ================== */
 
 /**
- * Published by `user-service` whenever an `Admin`'s state-coverage or
- * `status` changes. Consumed by `organization-service` (and `product-service`)
- * to refresh their local `territory:state-admin:<STATE>` Redis mirror - see
- * the state -> admin resolution algorithm in the assignment plan doc.
+ * Published by `user-service` (a) whenever an `Admin`'s territory or
+ * `status` changes, and (b) once per `Admin` in response to a
+ * `resync-admin-territories` request. Always the FULL current snapshot for
+ * one admin (not a delta) - `organization-service` just upserts its local
+ * `AdminTerritory` mirror by `adminUserId`. No service-to-service HTTP call
+ * anywhere in this flow - see the state -> admin resolution algorithm in the
+ * assignment plan doc.
+ *
+ * `adminName`/`adminEmail` are denormalized here (not re-fetched live) so
+ * organization-service can send the "seller assigned" notification without
+ * a second round-trip - acceptable staleness window since profile changes
+ * are rare and every territory/status change refreshes them anyway.
  */
-export interface ITerritoryStatusChanged {
-  state: TStateOrUT;
-  adminId: string;
-  previousStatus: TAdminStatus;
-  newStatus: TAdminStatus;
-  /** Explicit backup for `state`, if configured - only meaningful on `ON_LEAVE`/`SUSPENDED`. */
-  backupAdminId?: string;
-  reason: TTerritoryStatusChangeReason;
+export interface IAdminTerritorySynced {
+  adminUserId: string;
+  adminName: string;
+  adminEmail: string;
+  /** `ADMIN` or `SUPER_ADMIN` in practice - typed broadly since it's a straight `User.role` copy. */
+  role: TUserRole;
+  assignedStates: TStateOrUT[];
+  status: TAdminStatus;
+  priority: number;
+  backupAdminUserId?: string;
 }
 
 /**
