@@ -22,7 +22,7 @@ export const AUTH_PROVIDER_MAP = Object.fromEntries(
 
 /* ================== ADMIN TERRITORY (state-wise assignment) ================== */
 
-// `AdminProfile.status` - `ACTIVE`/`ON_LEAVE` admins are eligible for
+// `Admin.status` - `ACTIVE`/`ON_LEAVE` admins are eligible for
 // state-territory resolution, `SUSPENDED` triggers immediate bulk
 // reassignment of everything they own, `INACTIVE` is a soft-removed admin
 // profile (role demoted away from `ADMIN`/`SUPER_ADMIN`/`MASTER`).
@@ -46,8 +46,8 @@ export const TERRITORY_ASSIGNMENT_REASON_MAP = Object.fromEntries(
   TERRITORY_ASSIGNMENT_REASONS.map((reason) => [reason, reason] as const),
 ) as { readonly [K in (typeof TERRITORY_ASSIGNMENT_REASONS)[number]]: K };
 
-// Why an `AdminProfile.status` changed - drives the `territory-status-changed`
-// job (see `@beautinique/backend-bullmq`) and `AdminProfile.leaveHistory` entries.
+// Why an `Admin.status` changed - drives the `territory-status-changed`
+// job (see `@beautinique/backend-bullmq`) and `Admin.leaveHistory` entries.
 export const TERRITORY_STATUS_CHANGE_REASONS = ['LEAVE', 'SUSPENDED', 'REACTIVATED'] as const;
 
 export const TERRITORY_STATUS_CHANGE_REASON_MAP = Object.fromEntries(

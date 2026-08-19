@@ -123,7 +123,7 @@ export interface ICreateMedia extends ISingleMedia {
 /* ================== ADMIN TERRITORY (state-wise assignment) ================== */
 
 /**
- * Published by `user-service` whenever an `AdminProfile`'s state-coverage or
+ * Published by `user-service` whenever an `Admin`'s state-coverage or
  * `status` changes. Consumed by `organization-service` (and `product-service`)
  * to refresh their local `territory:state-admin:<STATE>` Redis mirror - see
  * the state -> admin resolution algorithm in the assignment plan doc.

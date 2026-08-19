@@ -60,7 +60,7 @@ export const QUEUE_SCHEMA = {
   /* ---------------- ORGANIZATION SERVICE QUEUES ---------------- */
   'organization-service-queue': {
     /* ---------------- ADMIN TERRITORY JOBS ---------------- */
-    // Produced by user-service whenever an `AdminProfile`'s status changes.
+    // Produced by user-service whenever an `Admin`'s status changes.
     // organization-service is the sole consumer - it's the one that owns
     // `Seller.assignedAdmin` and has to react by reassigning that state's
     // in-flight PENDING sellers. See `ITerritoryStatusChanged`.
