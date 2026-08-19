@@ -55,18 +55,25 @@ export const QUEUE_SCHEMA = {
   'user-service-queue': {
     /* ---------------- USER JOBS ---------------- */
     'update-role': {} as { role: TUserRole; userId: string },
-
-    /* ---------------- ADMIN TERRITORY JOBS ---------------- */
-    // Fan-out to organization-service/product-service so they can refresh
-    // their local state->admin Redis mirror. See `ITerritoryStatusChanged`.
-    'territory-status-changed': {} as ITerritoryStatusChanged,
   },
 
   /* ---------------- ORGANIZATION SERVICE QUEUES ---------------- */
   'organization-service-queue': {
     /* ---------------- ADMIN TERRITORY JOBS ---------------- */
-    // Lets product-service cache "this seller's products route to this
-    // admin" without re-resolving state->admin itself. See `ISellerAdminAssigned`.
+    // Produced by user-service whenever an `AdminProfile`'s status changes.
+    // organization-service is the sole consumer - it's the one that owns
+    // `Seller.assignedAdmin` and has to react by reassigning that state's
+    // in-flight PENDING sellers. See `ITerritoryStatusChanged`.
+    'territory-status-changed': {} as ITerritoryStatusChanged,
+  },
+
+  /* ---------------- PRODUCT SERVICE QUEUES ---------------- */
+  'product-service-queue': {
+    /* ---------------- ADMIN TERRITORY JOBS ---------------- */
+    // Produced by organization-service after it resolves+stamps
+    // `Seller.assignedAdmin`. Lets product-service cache "this seller's
+    // products route to this admin" without re-resolving state->admin
+    // itself. See `ISellerAdminAssigned`.
     'seller-admin-assigned': {} as ISellerAdminAssigned,
   },
 } as const;
