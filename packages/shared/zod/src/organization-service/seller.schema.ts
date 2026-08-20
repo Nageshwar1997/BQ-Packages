@@ -20,15 +20,15 @@ export const draftSellerStepZodSchema = object(draftSellerStepZodShape);
 
 export const sellerBusinessDetailsZodSchema = object({
   step: draftSellerStepZodSchema.shape.businessDetails,
-  businessName: string('Business name is required')
+  name: string('Business name is required')
     .nonempty('Business name is required')
     .trim()
     .min(2, 'Business name must be at least 2 characters long')
     .max(100, 'Business name must be at most 100 characters long')
     .regex(REGEX.SINGLE_SPACE, 'Business name cannot contain consecutive spaces.'),
-  businessType: enum_z(SELLER_TYPES, 'Business type is required'),
-  businessEmail: emailValidation,
-  businessPhoneNumber: phoneNumberValidation,
+  type: enum_z(SELLER_TYPES, 'Business type is required'),
+  email: emailValidation,
+  phoneNumber: phoneNumberValidation,
   gstin: string('GSTIN is required')
     .trim()
     .nonempty('GSTIN is required')

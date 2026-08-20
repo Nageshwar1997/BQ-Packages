@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/backend-response",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Backend Request middleware for Beautinique project.",
   "keywords": [
     "backend",
@@ -59,8 +59,8 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
-    "@beautinique/backend-classes": "^1.0.5",
-    "@beautinique/backend-utils": "^1.0.7"
+    "@beautinique/backend-classes": "^1.0.6",
+    "@beautinique/backend-utils": "^1.0.8"
   },
   "peerDependencies": {
     "express": "^5.2.1"

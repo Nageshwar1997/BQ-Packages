@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/backend-multer",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Backend multer middleware for Beautinique project.",
   "keywords": [
     "backend",
@@ -54,16 +54,16 @@
     "node": ">=24"
   },
   "dependencies": {
-    "@beautinique/backend-classes": "^1.0.5",
-    "@beautinique/shared-constants": "^1.0.15",
-    "@beautinique/shared-utils": "^1.0.6",
+    "@beautinique/backend-classes": "^1.0.6",
+    "@beautinique/shared-constants": "^1.0.17",
+    "@beautinique/shared-utils": "^1.0.7",
     "multer": "^2.2.0"
   },
   "peerDependencies": {
     "express": "^5.2.1"
   },
   "devDependencies": {
-    "@beautinique/shared-types": "^1.0.21",
+    "@beautinique/shared-types": "^1.0.24",
     "@types/express": "^5.0.6",
     "@types/multer": "^2.2.0",
     "typescript": "^6.0.3"
