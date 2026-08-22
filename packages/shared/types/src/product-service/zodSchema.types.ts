@@ -5,6 +5,7 @@ import type {
   productTryOnConfigurationZodSchema,
   productWithoutVariantsZodSchema,
   TInfer,
+  updateProductApprovalStatusZodSchema,
 } from '@beautinique/shared-zod';
 
 export type TProductBasicInfoZodSchema = TInfer<typeof productBasicInfoZodSchema>;
@@ -18,3 +19,7 @@ export type TProductBaseVariantZodSchema = TInfer<typeof productBaseVariantZodSc
 export type TProductWithoutVariantsZodSchema = TInfer<typeof productWithoutVariantsZodSchema>;
 
 export type TProductTryOnConfigurationZodSchema = TInfer<typeof productTryOnConfigurationZodSchema>;
+
+export type TUpdateProductApprovalStatusZodSchema = TInfer<
+  typeof updateProductApprovalStatusZodSchema
+>;

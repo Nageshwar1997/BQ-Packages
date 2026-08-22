@@ -1,5 +1,6 @@
 import {
   DRAFT_PRODUCT_STEP_MAP,
+  PRODUCT_STATUSES_MAP,
   REGEX,
   TRY_ON_CATEGORY_MAP,
   TRY_ON_MAP,
@@ -275,3 +276,13 @@ export const productTryOnConfigurationZodSchema = discriminatedUnion(
   [productDisabledTryOnConfigurationZodSchema, productEnabledTryOnConfigurationZodSchema],
   'TryOn is required.',
 );
+
+// Mirrors `updateSellerApprovalStatusZodSchema` (organization-service) - same
+// discriminated-union shape (`rejectReason` only required alongside REJECTED).
+export const updateProductApprovalStatusZodSchema = discriminatedUnion('status', [
+  object({ status: literal(PRODUCT_STATUSES_MAP.PUBLISHED) }),
+  object({
+    status: literal(PRODUCT_STATUSES_MAP.REJECTED),
+    rejectReason: string('Reject reason is required').trim().nonempty('Reject reason is required'),
+  }),
+]);
