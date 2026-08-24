@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/backend-constants",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Backend constants for Beautinique project.",
   "keywords": [
     "backend",
@@ -53,6 +53,6 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
-    "@beautinique/shared-constants": "^1.0.17"
+    "@beautinique/shared-constants": "^1.0.18"
   }
 }

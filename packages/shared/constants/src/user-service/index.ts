@@ -40,6 +40,7 @@ export const TERRITORY_ASSIGNMENT_REASONS = [
   'SUPER_ADMIN_POOL', // no eligible state/backup admin, fell to the SUPER_ADMIN pool
   'MANUAL_REASSIGN', // MASTER/SUPER_ADMIN moved it by hand
   'ADMIN_SUSPENDED', // previous admin got SUSPENDED, bulk-reassigned away from them
+  'SLA_TIMEOUT', // sat PENDING too long under an ON_LEAVE admin, auto-escalated away
 ] as const;
 
 export const TERRITORY_ASSIGNMENT_REASON_MAP = Object.fromEntries(

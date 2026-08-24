@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/backend-classes",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Backend classes for Beautinique project.",
   "keywords": [
     "backend",
@@ -51,7 +51,7 @@
     "node": ">=24"
   },
   "devDependencies": {
-    "@beautinique/shared-types": "^1.0.24",
+    "@beautinique/shared-types": "^1.0.26",
     "typescript": "^6.0.3"
   }
 }
