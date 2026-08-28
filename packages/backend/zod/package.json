@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/backend-zod",
-  "version": "1.0.36",
+  "version": "1.0.37",
   "description": "Backend zod for Beautinique project.",
   "keywords": [
     "backend",
@@ -61,7 +61,7 @@
   },
   "dependencies": {
     "@beautinique/backend-classes": "^1.0.7",
-    "@beautinique/backend-constants": "^1.0.8",
-    "@beautinique/shared-zod": "^1.0.25"
+    "@beautinique/backend-constants": "^1.0.9",
+    "@beautinique/shared-zod": "^1.0.26"
   }
 }
