@@ -25,16 +25,6 @@ export const TRY_ON_MAP = {
     'COMPACTPOWDER',
   ],
   NAIL: ['GEL', 'LIQUID', 'DIPPOWDER', 'GLITTER', 'CHROME'],
-  SKIN: [
-    'MOISTURIZER',
-    'SERUM',
-    'TONER',
-    'CLEANSER',
-    'SUNSCREEN',
-    'MASK',
-    'EYECREAM',
-    'EXFOLIATOR',
-  ],
 } as const;
 
 export const TRY_ON_CATEGORIES = Object.keys(TRY_ON_MAP) as (keyof typeof TRY_ON_MAP)[];

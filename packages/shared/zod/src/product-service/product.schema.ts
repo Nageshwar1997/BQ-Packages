@@ -250,11 +250,6 @@ const productTryonConfiguration = discriminatedUnion(
       category: literal(TRY_ON_CATEGORY_MAP.NAIL),
       subCategory: enum_z(TRY_ON_MAP[TRY_ON_CATEGORY_MAP.NAIL], `TryOn sub-category is required.`),
     }),
-
-    object({
-      category: literal(TRY_ON_CATEGORY_MAP.SKIN),
-      subCategory: enum_z(TRY_ON_MAP[TRY_ON_CATEGORY_MAP.SKIN], `TryOn sub-category is required.`),
-    }),
   ],
   'TryOn category is required.',
 );
