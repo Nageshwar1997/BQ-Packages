@@ -1,0 +1,158 @@
+@import url('quill/dist/quill.snow.css');
+.custom-editor {
+  & > .ql-toolbar.ql-snow {
+    font-family: 'metropolis', sans-serif !important;
+    border: transparent;
+    border-bottom: 2px solid rgba(var(--primary-rgb), 0.1);
+    padding: 12px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.6vw;
+    flex-wrap: wrap;
+  }
+
+  & > .ql-container {
+    border: none;
+    width: 100%;
+    height: fit-content;
+    position: relative;
+    font-size: 14px;
+  }
+
+  & .ql-container .ql-blank::before {
+    color: rgba(var(--primary-rgb), 0.3) !important;
+    font-size: 12px !important;
+  }
+  & .ql-editor {
+    height: 300px;
+    max-height: 300px;
+    margin-block: 12px;
+    padding-inline: 12px !important;
+    padding-block: 0 !important;
+    & a {
+      color: rgb(var(--blue-crayola-c-rgb)) !important;
+      text-decoration: none !important;
+      cursor: pointer !important;
+    }
+  }
+  & .ql-formats {
+    border: 1px solid rgba(var(--primary-rgb), 0.1);
+    padding: 2px;
+    margin-right: 0px !important;
+    border-radius: 4px;
+    & > .ql-header > .ql-picker-label {
+      display: flex;
+      align-items: center;
+    }
+    & > button:hover .ql-stroke {
+      stroke: rgb(var(--blue-crayola-c-rgb)) !important;
+    }
+    & > button:hover .ql-fill {
+      fill: rgb(var(--blue-crayola-c-rgb)) !important;
+    }
+
+    & .ql-picker-label:hover .ql-stroke {
+      stroke: rgb(var(--blue-crayola-c-rgb)) !important;
+    }
+
+    & .ql-picker-label:hover,
+    .ql-picker-label.ql-active,
+    .ql-picker-item.ql-selected {
+      color: rgb(var(--blue-crayola-c-rgb)) !important;
+    }
+
+    & .ql-picker-label,
+    .ql-picker.ql-expanded {
+      border: none !important;
+      color: var(--silver-jet-2);
+    }
+
+    & .ql-picker.ql-expanded .ql-picker-label,
+    .ql-picker-item:hover {
+      color: rgb(var(--blue-crayola-c-rgb)) !important;
+      & .ql-stroke {
+        stroke: rgb(var(--blue-crayola-c-rgb)) !important;
+      }
+    }
+  }
+  & .ql-formats:hover {
+    border-color: rgba(var(--primary-rgb), 0.3);
+    background-color: rgba(var(--primary-invert-rgb), 0.5);
+  }
+  /* Don't Move it */
+  & .ql-picker {
+    position: relative;
+  }
+  /* Don't Move it */
+  & #ql-picker-options-0 {
+    position: absolute;
+    top: 28px;
+    left: -3px;
+  }
+  & .ql-stroke {
+    stroke: var(--silver-jet-2) !important;
+  }
+
+  & .ql-fill {
+    fill: var(--silver-jet-2) !important;
+  }
+  & .ql-active {
+    & .ql-stroke {
+      stroke: rgb(var(--blue-crayola-c-rgb)) !important;
+    }
+    & .ql-fill {
+      fill: rgb(var(--blue-crayola-c-rgb)) !important;
+    }
+  }
+  & .ql-editor.ql-blank::before {
+    font-size: 14px;
+    color: rgba(var(--primary-rgb), 0.5);
+    font-family: 'metropolis', sans-serif !important;
+    font-style: italic;
+  }
+}
+
+.ql-toolbar.ql-snow .ql-picker-options {
+  border: 1px solid rgba(var(--primary-rgb), 0.1) !important;
+  border-radius: 4px;
+  color: var(--silver-jet-2) !important;
+  background-color: var(--smoke-eerie);
+  box-shadow: rgba(var(--primary-rgb), 0.1) 0 2px 8px;
+}
+
+/* Link Tool Tip */
+.ql-tooltip {
+  position: absolute;
+  left: 50% !important;
+  transform: translateY(0) !important;
+  transform: translateX(-50%) !important;
+  background-color: rgba(var(--primary-invert-rgb), 0.1) !important;
+  border: 1px solid rgba(var(--primary-rgb), 0.3) !important;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 0 5px var(--silver-jet) !important;
+  color: rgba(var(--primary-rgb), 0.5) !important;
+  & > input[type='text'] {
+    border-radius: 4px;
+    outline: none;
+    border: 1px solid rgba(var(--primary-rgb), 0.3) !important;
+    background-color: rgba(var(--primary-invert-rgb), 0.5) !important;
+    color: rgb(var(--blue-crayola-c-rgb)) !important;
+  }
+  & .ql-action,
+  .ql-remove {
+    border-radius: 4px;
+    min-width: 60px;
+    max-width: 60px;
+    background-color: rgb(var(--blue-crayola-c-rgb)) !important;
+    color: var(--secondary) !important;
+  }
+  & .ql-remove {
+    min-width: 67px !important;
+    max-width: 80px !important;
+  }
+}

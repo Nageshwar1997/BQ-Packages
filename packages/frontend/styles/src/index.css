@@ -1,0 +1,22 @@
+/* @beautinique/frontend-styles - everything in one import.
+ *
+ * Use this in an app's own `index.css`, and put the app's OWN css AFTER it - later rules win,
+ * so anything declared afterwards overrides or extends what's below:
+ *
+ *   @import '@beautinique/frontend-styles';
+ *   @import './app.css';
+ *
+ * Need to interleave your css between the parts instead? Skip this file and import the pieces
+ * (`variables.css`, `fonts.css`, ...) yourself, in the same order as below - see the README.
+ */
+
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+/*  !NOTE - Order matters (Don't change the order) */
+@import './variables.css';
+@import './fonts.css';
+@import './global.css';
+@import './component.css';
+@import './animations.css';
+@import './utility.css';

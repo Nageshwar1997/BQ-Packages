@@ -1,0 +1,74 @@
+@utility autofill-effect {
+  /* 🔹 Base normalization (prevents font jump on suggestion hover) */
+  &:where(input, textarea, select) {
+    @apply font-metropolis! caret-primary text-sm shadow-none;
+  }
+
+  /* 🔹 Chrome / Edge / Safari autofill */
+  &:where(input, textarea, select):-webkit-autofill,
+  &:where(input, textarea, select):-webkit-autofill:hover,
+  &:where(input, textarea, select):-webkit-autofill:focus,
+  &:where(input, textarea, select):-webkit-autofill:active {
+    -webkit-text-fill-color: var(--primary);
+
+    /* prevent background flash */
+    transition: background-color 5000s ease-in-out 0s;
+
+    /* keep typography stable */
+    @apply font-metropolis caret-primary text-sm shadow-none;
+  }
+}
+
+@utility gradient-text-accent {
+  @apply bg-accent-duo inline bg-clip-text text-transparent;
+}
+
+@utility gradient-text-silver {
+  @apply bg-silver-duo inline bg-clip-text text-transparent;
+}
+
+@utility text-fill-transparent {
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-clip: text;
+}
+
+@utility border-rounded-corners-gradient {
+  border: solid 1px transparent;
+  border-radius: 16px;
+  background:
+    linear-gradient(var(--primary-invert), var(--primary-invert)),
+    linear-gradient(rgba(var(--primary-rgb), 0.5) 10%, rgba(var(--primary-rgb), 0.1));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  box-shadow: var(--primary-10) -4px 9px 25px -6px;
+}
+
+@utility range-slider {
+  @apply pointer-events-none absolute z-20 h-full w-full appearance-none bg-transparent;
+
+  &::-webkit-slider-thumb {
+    @apply bg-primary pointer-events-auto relative z-30 h-3 w-3 cursor-pointer appearance-none rounded-full;
+  }
+
+  &::-moz-range-thumb {
+    @apply bg-primary pointer-events-auto relative z-30 h-3 w-3 cursor-pointer rounded-full;
+  }
+}
+
+@utility loading-text {
+  background: radial-gradient(circle closest-side, var(--primary) 94%, rgba(var(--primary-rgb), 0))
+    right/calc(200% - 1em) 100%;
+  animation: loading-text var(--loading-text-duration) infinite alternate linear;
+  &::after {
+    background: inherit;
+    background-image: radial-gradient(
+      circle closest-side,
+      var(--primary-invert) 94%,
+      var(--primary)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+}

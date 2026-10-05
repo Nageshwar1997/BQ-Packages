@@ -1,0 +1,42 @@
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--primary, currentcolor);
+  }
+  /* Scrollbar Hide */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  button,
+  a {
+    outline: none;
+  }
+
+  button:focus-visible,
+  a:focus-visible {
+    outline: 1px solid var(--primary, currentcolor);
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  /* Disable arrows */
+  /* Hide spinner in WebKit browsers (Chrome, Edge, Safari) */
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  /* Hide spinner in Firefox */
+  input[type='number'] {
+    appearance: textfield;
+  }
+}

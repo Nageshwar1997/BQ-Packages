@@ -1,0 +1,21 @@
+@layer utilities {
+  @keyframes ring-spin {
+    from {
+      transform: rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--z));
+    }
+    to {
+      transform: rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(calc(var(--z) + 360deg));
+    }
+  }
+
+  @layer utilities {
+    @keyframes loading-text {
+      0% {
+        background-position: left;
+      }
+      100% {
+        background-position: right;
+      }
+    }
+  }
+}
