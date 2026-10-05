@@ -52,13 +52,13 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
-    "@types/multer": "^2.2.0",
-    "typescript": "^6.0.3"
+    "@types/multer": "^2.3.0"
   },
   "dependencies": {
     "@beautinique/backend-classes": "^1.0.7"
   },
   "peerDependencies": {
+    "@types/express": "^5.0.0",
     "express": "^5.2.1"
   }
 }

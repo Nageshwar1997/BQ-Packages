@@ -49,9 +49,6 @@
   "engines": {
     "node": ">=24"
   },
-  "devDependencies": {
-    "typescript": "^6.0.3"
-  },
   "dependencies": {
     "@beautinique/backend-zod": "^1.0.38",
     "@beautinique/shared-types": "^1.0.28"

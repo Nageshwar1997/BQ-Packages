@@ -51,6 +51,7 @@
   "dependencies": {
     "@beautinique/frontend-constants": "^1.0.10",
     "@beautinique/shared-constants": "^1.0.20",
-    "@beautinique/shared-zod": "^1.0.27"
+    "@beautinique/shared-zod": "^1.0.27",
+    "zod": "^4.6.5"
   }
 }

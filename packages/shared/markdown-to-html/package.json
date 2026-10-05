@@ -51,10 +51,7 @@
   "engines": {
     "node": ">=24"
   },
-  "devDependencies": {
-    "typescript": "^6.0.3"
-  },
   "dependencies": {
-    "marked": "^18.0.6"
+    "marked": "^18.0.14"
   }
 }

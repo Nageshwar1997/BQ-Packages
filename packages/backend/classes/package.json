@@ -50,8 +50,7 @@
   "engines": {
     "node": ">=24"
   },
-  "devDependencies": {
-    "@beautinique/shared-types": "^1.0.26",
-    "typescript": "^6.0.3"
+  "dependencies": {
+    "@beautinique/shared-types": "^1.0.26"
   }
 }

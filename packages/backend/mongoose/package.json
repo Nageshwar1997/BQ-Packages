@@ -54,15 +54,15 @@
     "node": ">=24"
   },
   "devDependencies": {
-    "@types/express": "^5.0.6",
-    "typescript": "^6.0.3"
+    "@types/express": "^5.0.6"
   },
   "dependencies": {
     "@beautinique/backend-classes": "^1.0.7",
     "@beautinique/backend-utils": "^1.0.9",
-    "mongoose": "^9.7.3"
+    "mongoose": "^9.10.4"
   },
   "peerDependencies": {
+    "@types/express": "^5.0.0",
     "express": "^5.2.1"
   }
 }
