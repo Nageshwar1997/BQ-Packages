@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/backend-mongoose",
-  "version": "1.0.11",
+  "version": "1.1.0",
   "description": "Backend mongoose for Beautinique project.",
   "keywords": [
     "backend",
@@ -57,8 +57,8 @@
     "@types/express": "^5.0.6"
   },
   "dependencies": {
-    "@beautinique/backend-classes": "^1.0.7",
-    "@beautinique/backend-utils": "^1.0.9",
+    "@beautinique/backend-classes": "^1.1.0",
+    "@beautinique/backend-utils": "^1.1.0",
     "mongoose": "^9.10.4"
   },
   "peerDependencies": {

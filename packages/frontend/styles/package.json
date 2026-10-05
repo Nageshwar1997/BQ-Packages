@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/frontend-styles",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Shared Tailwind v4 theme, base styles and utilities for the Beautinique frontends.",
   "keywords": [
     "frontend",

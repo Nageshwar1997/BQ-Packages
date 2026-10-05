@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/backend-bullmq",
-  "version": "1.0.11",
+  "version": "1.1.0",
   "description": "Backend Queues, Jobs for Beautinique project.",
   "keywords": [
     "backend",
@@ -51,7 +51,7 @@
     "node": ">=24"
   },
   "dependencies": {
-    "@beautinique/backend-types": "^1.0.33",
+    "@beautinique/backend-types": "^1.1.0",
     "bullmq": "^6.3.11",
     "ioredis": "^5.11.1"
   }

@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/shared-markdown-to-html",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Shared Markdown file to HTML file generation for Beautinique.",
   "keywords": [
     "beautinique",
