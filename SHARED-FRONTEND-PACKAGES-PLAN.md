@@ -75,8 +75,8 @@ Peer deps: `react`, `zustand`, `react-router-dom`.
 **Hooks (clean, identical):**
 
 - `useDebounce` (naye `{ trigger, cancel }` shape ke saath) - **package me ban gaya** (named export, 8 tests, publish baaki)
-- `useIsSmallScreen`
-- `useOutsideClick`
+- `useIsSmallScreen` - **package me ban gaya** (named export, 7 tests)
+- `useOutsideClick` - **package me ban gaya** (named export, 9 tests; `enabled` ka default ab `true`)
 - `useScrollable`
 - `usePathParams`, `useQueryParams` (react-router peer)
 

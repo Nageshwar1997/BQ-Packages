@@ -36,6 +36,35 @@ const { trigger: handleSearch, cancel } = useDebounce({
 - A pending call is cancelled automatically when the component unmounts.
 - `trigger` and `cancel` keep the same identity between renders while `callback` and `delay` are unchanged (wrap `callback` in `useCallback` if you need that).
 
+### `useIsSmallScreen`
+
+`true` while the viewport is at most `width` px wide (`(max-width: ${width}px)`), updated live when the window is resized. `width` defaults to `1023`.
+
+```tsx
+import { useIsSmallScreen } from '@beautinique/frontend-hooks';
+
+const isMobile = useIsSmallScreen(767);
+```
+
+- The first render already has the correct value (no `false` then `true` flash on small screens).
+- Uses `window.matchMedia`, so it needs a browser (client-side rendering, not SSR).
+
+### `useOutsideClick`
+
+Calls `callback` when the user presses anywhere **outside** the element the returned ref is attached to.
+
+```tsx
+import { useOutsideClick } from '@beautinique/frontend-hooks';
+
+const containerRef = useOutsideClick<HTMLDivElement>(() => setIsOpen(false), { enabled: isOpen });
+
+<div ref={containerRef}>...</div>;
+```
+
+- `options.enabled` turns the listener off (for example while a popup is closed). **Defaults to `true`**, also when you pass an options object without `enabled`.
+- Listens for `pointerdown` on `document` in the capture phase, so an inner `stopPropagation()` cannot hide the press.
+- The listener is re-attached when `callback` changes; pass a stable callback (`useCallback`) to avoid that.
+
 ## Development
 
 ```bash
