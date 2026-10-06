@@ -74,7 +74,7 @@ Peer deps: `react`, `zustand`, `react-router-dom`.
 
 **Hooks (clean, identical):**
 
-- `useDebounce` (naye `{ trigger, cancel }` shape ke saath)
+- `useDebounce` (naye `{ trigger, cancel }` shape ke saath) - **package me ban gaya** (named export, 8 tests, publish baaki)
 - `useIsSmallScreen`
 - `useOutsideClick`
 - `useScrollable`
@@ -87,6 +87,10 @@ Peer deps: `react`, `zustand`, `react-router-dom`.
 **Saath me:** `useAutoRetry` (sirf `action.store` pe depend karta hai).
 
 **App me hi rahega (app ke API/envs se bandhe):** `useAutoRefreshAccessToken`, `useWakeUp`, `useProcessQuillContent`, `useAuthLogoutListener` (2 variants), `user.store`.
+
+**Rollout:** ek-ek hook, is order me: `useDebounce` -> `useIsSmallScreen`, `useOutsideClick` (DOM, jsdom tests) -> `usePathParams`, `useQueryParams` (router peer) -> `useScrollable` -> `useAutoRetry` (store ke baad). Sab **named export**; apps me import lines badalni padengi (`import useDebounce from` se `import { useDebounce } from`).
+
+**Tests:** `src/*.test.ts` (vitest + jsdom + testing-library), type-check/lint ke saath, par `dist` me nahi jate (`tsconfig.build.json` se declarations).
 
 **Done jab:** 4 apps me ye hooks/stores package se aayein, local copies delete.
 

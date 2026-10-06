@@ -2,7 +2,7 @@
 
 Shared React hooks for the Beautinique frontends (`BQ-Client`, `BQ-Admin`, `BQ-Seller`, `BQ-Master`).
 
-No hooks yet - they are added one by one.
+Hooks are added one by one. All hooks are **named exports**.
 
 ## Installation
 
@@ -12,11 +12,40 @@ npm install @beautinique/frontend-hooks
 
 Needs `react` (^19) in the app (peer dependency).
 
-## Usage
+## Hooks
 
-```ts
-import {} from '@beautinique/frontend-hooks';
+### `useDebounce`
+
+Delays calling `callback` until `delay` ms after the **last** `trigger()` call. Returns `{ trigger, cancel }`.
+
+```tsx
+import { useDebounce } from '@beautinique/frontend-hooks';
+
+const { trigger: handleSearch, cancel } = useDebounce({
+  callback: (query: string) => {
+    runSearch(query);
+  },
+  delay: 300, // default 500
+});
+
+<input onChange={(event) => handleSearch(event.target.value)} />;
 ```
+
+- Every `trigger(...args)` restarts the timer; only the last call's args reach `callback`.
+- `cancel()` drops the pending call - use it when you sometimes have to commit a value immediately, otherwise a still-pending earlier `trigger()` would fire later with stale data.
+- A pending call is cancelled automatically when the component unmounts.
+- `trigger` and `cancel` keep the same identity between renders while `callback` and `delay` are unchanged (wrap `callback` in `useCallback` if you need that).
+
+## Development
+
+```bash
+npm run test       # vitest (jsdom)
+npm run typecheck
+npm run lint
+npm run build
+```
+
+Tests live next to the hook (`src/*.test.ts`). They are type-checked and linted with the package, but kept out of `dist` (declarations are emitted from `tsconfig.build.json`).
 
 ## Repository
 

@@ -23,21 +23,34 @@ import { exit, pathExists, runInteractiveCommand } from '../common/utils.mjs';
 const PACKAGE_DIRECTORY = process.cwd();
 const DIST_DIRECTORY = path.join(PACKAGE_DIRECTORY, 'dist');
 
+/**
+ * A package with tests keeps them in `src` and type-checks/lints them through its normal
+ * `tsconfig.json`. Its optional `tsconfig.build.json` (same config minus the tests) is what
+ * declarations are emitted from, so test files never end up in `dist`.
+ */
+const BUILD_TSCONFIG = 'tsconfig.build.json';
+const DEFAULT_TSCONFIG = 'tsconfig.json';
+
 /* -------------------------------------------------------------------------- */
 /*                                DECLARATIONS                                */
 /* -------------------------------------------------------------------------- */
 
 /**
- * Runs `tsc --emitDeclarationOnly` against this package's own `tsconfig.json`.
+ * Runs `tsc --emitDeclarationOnly` against this package's `tsconfig.build.json` when it has one,
+ * otherwise its `tsconfig.json`.
  *
  * @returns {Promise<void>}
  */
 async function emitDeclarations() {
   reportInfo('Generating declaration files (tsc)...');
 
+  const tsconfig = (await pathExists(path.join(PACKAGE_DIRECTORY, BUILD_TSCONFIG)))
+    ? BUILD_TSCONFIG
+    : DEFAULT_TSCONFIG;
+
   await runInteractiveCommand(
     'tsc',
-    ['-p', 'tsconfig.json', '--emitDeclarationOnly', '--outDir', 'dist', '--rootDir', 'src'],
+    ['-p', tsconfig, '--emitDeclarationOnly', '--outDir', 'dist', '--rootDir', 'src'],
     { cwd: PACKAGE_DIRECTORY },
   );
 }

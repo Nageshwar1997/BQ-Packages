@@ -21,6 +21,7 @@
     "lint": "npm run lint --workspaces",
     "lint:fix": "npm run lint:fix --workspaces",
     "typecheck": "npm run typecheck --workspaces",
+    "test": "npm run test --workspaces --if-present",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "clean": "node ./scripts/clean/index.mjs",
