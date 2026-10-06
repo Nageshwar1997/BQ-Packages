@@ -172,14 +172,131 @@ describe('useQueryParams', () => {
     });
   });
 
-  it('keeps setParams/removeParams/clearParams identities while the URL does not change', () => {
-    const { result, rerender } = setup('/products?a=1');
-    const first = result.current.query;
+  describe('history', () => {
+    it('{ replace: true } replaces the current entry for setParams', () => {
+      const { result } = setup('/products');
 
-    rerender();
+      act(() => {
+        result.current.query.setParams({ login: 'true' }, { replace: true });
+      });
 
-    expect(result.current.query.setParams).toBe(first.setParams);
-    expect(result.current.query.removeParams).toBe(first.removeParams);
-    expect(result.current.query.clearParams).toBe(first.clearParams);
+      expect(result.current.location.search).toBe('?login=true');
+      expect(result.current.navigationType).toBe('REPLACE');
+    });
+
+    it('{ replace: true } replaces the current entry for removeParams', () => {
+      const { result } = setup('/products?login=true&page=2');
+
+      act(() => {
+        result.current.query.removeParams(['login'], { replace: true });
+      });
+
+      expect(result.current.location.search).toBe('?page=2');
+      expect(result.current.navigationType).toBe('REPLACE');
+    });
+
+    it('{ replace: true } replaces the current entry for clearParams', () => {
+      const { result } = setup('/products?a=1');
+
+      act(() => {
+        result.current.query.clearParams({ replace: true });
+      });
+
+      expect(result.current.location.search).toBe('');
+      expect(result.current.navigationType).toBe('REPLACE');
+    });
+
+    it('pushes a new entry when replace is false or left out', () => {
+      const { result } = setup('/products?a=1');
+
+      act(() => {
+        result.current.query.setParams({ a: '2' }, { replace: false });
+      });
+
+      expect(result.current.navigationType).toBe('PUSH');
+    });
+
+    it('does not navigate when setParams would leave the query string unchanged', () => {
+      const { result } = setup('/products?category=lips&page=2');
+      const keyBefore = result.current.location.key;
+
+      act(() => {
+        result.current.query.setParams({ page: '2' });
+      });
+
+      expect(result.current.location.key).toBe(keyBefore);
+      expect(result.current.navigationType).toBe('POP');
+    });
+
+    it('does not navigate when removeParams is given a key that is not in the URL', () => {
+      const { result } = setup('/products?category=lips');
+      const keyBefore = result.current.location.key;
+
+      act(() => {
+        result.current.query.removeParams('login');
+        result.current.query.removeParams(['login'], { replace: true });
+      });
+
+      expect(result.current.location.key).toBe(keyBefore);
+      expect(result.current.navigationType).toBe('POP');
+    });
+
+    it('does not navigate when clearParams is called with no query string', () => {
+      const { result } = setup('/products');
+      const keyBefore = result.current.location.key;
+
+      act(() => {
+        result.current.query.clearParams();
+      });
+
+      expect(result.current.location.key).toBe(keyBefore);
+      expect(result.current.navigationType).toBe('POP');
+    });
+
+    it('does not navigate when an updater function returns the current params', () => {
+      const { result } = setup('/products?a=1&b=2');
+      const keyBefore = result.current.location.key;
+
+      act(() => {
+        result.current.query.setParams((prev) => prev);
+      });
+
+      expect(result.current.location.key).toBe(keyBefore);
+    });
+  });
+
+  describe('identities', () => {
+    it('keeps setParams/removeParams/clearParams identities while the URL does not change', () => {
+      const { result, rerender } = setup('/products?a=1');
+      const first = result.current.query;
+
+      rerender();
+
+      expect(result.current.query.setParams).toBe(first.setParams);
+      expect(result.current.query.removeParams).toBe(first.removeParams);
+      expect(result.current.query.clearParams).toBe(first.clearParams);
+    });
+
+    it('keeps the same queryParams object while the URL does not change', () => {
+      const { result, rerender } = setup('/products?a=1&b=2');
+      const first = result.current.query.queryParams;
+
+      rerender();
+      rerender();
+
+      expect(result.current.query.queryParams).toBe(first);
+    });
+
+    it('gives a new queryParams object when the query string changes', () => {
+      const { result } = setup('/products?a=1');
+      const first = result.current.query.queryParams;
+
+      act(() => {
+        result.current.query.setParams({ a: '2' });
+      });
+
+      expect(result.current.query.queryParams).not.toBe(first);
+      expect(result.current.query.queryParams).toEqual({ a: '2' });
+    });
   });
 });

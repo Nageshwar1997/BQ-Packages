@@ -96,11 +96,16 @@ setParams({ page: '2' }); // merges into the current params
 setParams((prev) => ({ page: String(Number(prev.page) + 1) })); // updater form replaces them
 removeParams('page'); // or removeParams(['page', 'sort'])
 clearParams();
+
+// Closing a modal that was opened through a param: replace the entry, so Back does not reopen it
+removeParams(['login'], { replace: true });
 ```
 
-- `queryParams` is a plain object of the current params. A repeated key keeps its **last** value. It is rebuilt on every render, so use its values (not its identity) in effect dependencies.
+- `queryParams` is a plain object of the current params. A repeated key keeps its **last** value. It only changes identity when the URL's query string changes, so it is safe in dependency arrays.
 - `setParams` drops `''`, `null` and `undefined` values from the URL.
-- Every update navigates to the same pathname with the new `search` as a **new history entry**. It does not keep the hash or the location `state`.
+- Every update navigates to the same pathname with the new `search`, as a **new history entry** by default. Pass `{ replace: true }` (second argument of `setParams`/`removeParams`, first of `clearParams`) to replace the current entry instead. Use it for updates the user should not be able to go "Back" to, like closing a modal.
+- An update that would leave the query string unchanged does **not navigate** (setting a value that is already there, removing a key that is not there, `clearParams()` with no query), so it never adds a duplicate history entry.
+- The hash and the location `state` are not kept.
 - `setParams`, `removeParams` and `clearParams` keep the same identity while the URL does not change.
 
 ## Development
