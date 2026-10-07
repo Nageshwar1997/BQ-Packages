@@ -141,7 +141,7 @@ const search = useQueryParamInput('search'); // or useQueryParamInput('search', 
 **Following the URL**
 
 - When the param changes by itself - another filter resets it, the user presses Back/Forward, a "Clear filters" button calls `clearParams()` - the box follows it.
-- The URL update the box made itself coming back does **not** touch the box. This matters with a data router, where the URL commits a few ms after typing: whatever the user typed in the meantime is kept.
+- The URL update the box made itself coming back does **not** touch the box. This matters with a data router, where the URL commits a few ms after typing: whatever the user typed in the meantime is kept. The same holds when several updates are on their way at once (fast typing, a slow navigation): an older one that lands after a newer one was sent does not move the box back.
 - A typed text that is still waiting for its debounce is dropped when the box was changed in the meantime (for example reset by another filter), so an old search cannot reappear in the URL.
 
 **Clearing**

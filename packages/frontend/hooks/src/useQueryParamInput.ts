@@ -38,17 +38,25 @@ export const useQueryParamInput = (
   const urlValue = queryParams[key] ?? '';
 
   const [value, setInputValue] = useState(urlValue);
-  // The value this box last wrote to the URL, and the URL value it has already looked at.
-  const [lastSent, setLastSent] = useState(urlValue);
+  // The values this box wrote to the URL that have not come back yet (oldest first), and the URL
+  // value it has already looked at.
+  const [inFlight, setInFlight] = useState<string[]>([]);
   const [seenUrlValue, setSeenUrlValue] = useState(urlValue);
 
-  // The URL param changed. If it is not the value this box sent, something else changed it: follow it.
+  // The URL param changed. A value the box sent itself is just an update coming back - and an older
+  // one can come back after a newer one was sent, which is why every unconfirmed send is remembered,
+  // not only the last. Anything else was changed by something else: follow it.
   if (urlValue !== seenUrlValue) {
     setSeenUrlValue(urlValue);
 
-    if (urlValue !== lastSent) {
+    const echo = inFlight.indexOf(urlValue);
+
+    if (echo >= 0) {
+      // this send has landed, and so have the ones before it (the router may skip an update that a newer one replaced)
+      setInFlight(inFlight.slice(echo + 1));
+    } else {
       setInputValue(urlValue);
-      setLastSent(urlValue);
+      setInFlight([]);
     }
   }
 
@@ -59,7 +67,7 @@ export const useQueryParamInput = (
       if (typed !== value) return;
 
       const trimmed = typed.trim();
-      setLastSent(trimmed);
+      setInFlight((sent) => [...sent, trimmed]);
 
       if (trimmed) {
         setParams({ [key]: trimmed });
@@ -84,7 +92,8 @@ export const useQueryParamInput = (
   const clear = useCallback(() => {
     cancel();
     setInputValue('');
-    setLastSent('');
+    // the URL is expected to end up empty (a "Clear" button next to it); a send still on its way is no longer expected
+    setInFlight(['']);
   }, [cancel]);
 
   return useMemo(() => ({ value, setValue, clear }), [value, setValue, clear]);

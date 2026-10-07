@@ -195,6 +195,51 @@ describe('useQueryParamInput with a data router (async navigation)', () => {
     expect(router.state.location.search).toBe('?search=other');
   });
 
+  // Fast typing with a navigation that takes about as long as the debounce: several updates are on
+  // their way at once, and the router may commit an older one after a newer one was sent. Whatever
+  // the timing, the box must never show older text than what was typed, and the last text must win.
+  it.each([1, 2, 3])(
+    'fast typing (seed %i): the box never goes back and the last text wins',
+    async (seed) => {
+      let state = seed * 7919;
+      const random = () => {
+        state = (state * 1664525 + 1013904223) % 4294967296;
+        return state / 4294967296;
+      };
+
+      const { router, input, settled, seen } = setup('/products');
+      await settled();
+
+      const typed: string[] = [];
+      let text = '';
+      for (let i = 0; i < 20; i++) {
+        text += String.fromCharCode(97 + (i % 26));
+        typed.push(text);
+        act(() => {
+          input().setValue(text);
+        });
+        const gap = Math.floor(random() * 90); // around the debounce (40ms) and the navigation (30ms)
+        await act(async () => {
+          await new Promise((resolve) => setTimeout(resolve, gap));
+        });
+      }
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, DELAY * 4));
+      });
+      await settled();
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, DELAY * 3));
+      });
+
+      const shown = seen.filter((value) => value !== '').map((value) => typed.indexOf(value));
+      expect(shown.every((index) => index >= 0)).toBe(true);
+      expect(shown).toEqual([...shown].sort((a, b) => a - b));
+      expect(input().value).toBe(text);
+      expect(router.state.location.search).toBe(`?search=${text}`);
+    },
+    30_000,
+  );
+
   describe('clear while a URL update of its own is on its way', () => {
     it('ends with the box showing what the URL ended up with', async () => {
       const { router, input, settled, navigating } = setup('/products');
