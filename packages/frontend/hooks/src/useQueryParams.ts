@@ -1,9 +1,9 @@
-import { isNullOrUndefined } from '@beautinique/shared-utils';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 
+import { buildSearch, normalizeSearch, parseParams, type TParamsUpdate } from './query-string.js';
 import { usePathParams } from './usePathParams.js';
 
-export type TStringRecord = Record<string, string>;
+export type { TStringRecord } from './query-string.js';
 
 export interface IQueryParamsUpdateOptions {
   /**
@@ -27,77 +27,65 @@ export interface IQueryParamsUpdateOptions {
  * - `removeParams`: removes one key or a list of keys.
  * - `clearParams`: removes every param.
  *
- * Each update navigates to the same pathname with the new `search`, as a new history entry unless
- * `{ replace: true }` is passed. An update that would leave the query string unchanged (setting a
- * value that is already there, removing a key that is not there) does not navigate at all. The
- * hash and the location `state` are not kept.
+ * Updates:
+ * - Several updates in a row (before React re-renders) build on each other, like `setState`
+ *   updaters do.
+ * - A param an update does not touch keeps all its values (`?tag=a&tag=b`) and its position.
+ * - Each update navigates to the same pathname with the new `search`, as a new history entry unless
+ *   `{ replace: true }` is passed. An update that would leave the query string unchanged does not
+ *   navigate at all. The hash and the location `state` are not kept.
  *
  * Needs to be rendered inside a React Router (`react-router-dom`) router.
  */
 export const useQueryParams = () => {
   const { navigate, search, pathname } = usePathParams();
 
-  const getParams = useCallback((): TStringRecord => {
-    const searchParams = new URLSearchParams(search);
-    const params: TStringRecord = {};
+  // The query string updates are built on. It is the committed URL after every render; an update
+  // moves it forward immediately, so a second update in the same tick (before the router has
+  // re-rendered) starts from the first one's result instead of from the old URL.
+  const searchRef = useRef(search);
 
-    for (const [key, value] of searchParams.entries()) {
-      params[key] = value;
-    }
+  useLayoutEffect(() => {
+    searchRef.current = search;
+  });
 
-    return params;
-  }, [search]);
-
-  const queryParams = useMemo(() => getParams(), [getParams]);
+  const queryParams = useMemo(() => parseParams(search), [search]);
 
   const setParams = useCallback(
-    (
-      params: TStringRecord | ((prevParams: TStringRecord) => TStringRecord),
-      options?: IQueryParamsUpdateOptions,
-    ): void => {
-      const currentParams = getParams();
-
-      const updatedParams =
-        typeof params === 'function' ? params(currentParams) : { ...currentParams, ...params };
-
-      const searchParams = new URLSearchParams();
-
-      Object.entries(updatedParams).forEach(([key, value]) => {
-        if (!isNullOrUndefined(value) && value !== '') {
-          searchParams.set(key, value);
-        }
-      });
-
-      const nextSearch = searchParams.toString();
+    (params: TParamsUpdate, options?: IQueryParamsUpdateOptions): void => {
+      const currentSearch = searchRef.current;
+      const nextSearch = buildSearch(currentSearch, params);
 
       // Nothing would change: don't add a duplicate entry for the very same URL.
-      if (nextSearch === search.replace(/^\?/, '')) return;
+      if (nextSearch === normalizeSearch(currentSearch)) return;
 
+      searchRef.current = nextSearch;
       void navigate({ pathname, search: nextSearch }, { replace: options?.replace });
     },
-    [getParams, navigate, pathname, search],
+    [navigate, pathname],
   );
 
   const removeParams = useCallback(
     (keys: string | string[], options?: IQueryParamsUpdateOptions): void => {
-      setParams((prevParams) => {
-        const keysToRemove = new Set(Array.isArray(keys) ? keys : [keys]);
+      const keysToRemove = new Set(Array.isArray(keys) ? keys : [keys]);
 
-        return Object.fromEntries(
-          Object.entries(prevParams).filter(([key]) => !keysToRemove.has(key)),
-        );
-      }, options);
+      setParams(
+        (prevParams) =>
+          Object.fromEntries(Object.entries(prevParams).filter(([key]) => !keysToRemove.has(key))),
+        options,
+      );
     },
     [setParams],
   );
 
   const clearParams = useCallback(
     (options?: IQueryParamsUpdateOptions): void => {
-      if (search.replace(/^\?/, '') === '') return;
+      if (normalizeSearch(searchRef.current) === '') return;
 
+      searchRef.current = '';
       void navigate({ pathname, search: '' }, { replace: options?.replace });
     },
-    [navigate, pathname, search],
+    [navigate, pathname],
   );
 
   return {
@@ -107,3 +95,5 @@ export const useQueryParams = () => {
     clearParams,
   };
 };
+
+export type { TParamsUpdate };

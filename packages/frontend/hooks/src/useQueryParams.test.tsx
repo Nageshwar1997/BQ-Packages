@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { MemoryRouter, useLocation, useNavigationType } from 'react-router-dom';
+import { MemoryRouter, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
 import { useQueryParams } from './useQueryParams.js';
@@ -11,11 +11,13 @@ const setup = (entry: string) => {
   );
 
   // The router state is read alongside the hook, so each test can see the resulting URL.
+  // `navigate` lets a test change the URL from "outside" the hook (like Back/Forward or a link).
   return renderHook(
     () => ({
       query: useQueryParams(),
       location: useLocation(),
       navigationType: useNavigationType(),
+      navigate: useNavigate(),
     }),
     { wrapper: Wrapper },
   );
@@ -259,6 +261,187 @@ describe('useQueryParams', () => {
 
       act(() => {
         result.current.query.setParams((prev) => prev);
+      });
+
+      expect(result.current.location.key).toBe(keyBefore);
+    });
+  });
+
+  describe('several updates in the same tick', () => {
+    it('setParams then setParams builds on the first update', () => {
+      const { result } = setup('/products');
+
+      act(() => {
+        result.current.query.setParams({ a: '1' });
+        result.current.query.setParams({ b: '2' });
+      });
+
+      expect(result.current.location.search).toBe('?a=1&b=2');
+    });
+
+    it('setParams then removeParams then setParams compose in order', () => {
+      const { result } = setup('/products?x=1');
+
+      act(() => {
+        result.current.query.setParams({ a: '1', b: '2' });
+        result.current.query.removeParams('a');
+        result.current.query.setParams({ c: '3' });
+      });
+
+      expect(result.current.location.search).toBe('?x=1&b=2&c=3');
+    });
+
+    it('updater functions see the result of the earlier update', () => {
+      const { result } = setup('/products?n=0');
+      const increment = (prev: Record<string, string>) => ({
+        ...prev,
+        n: String(Number(prev.n) + 1),
+      });
+
+      act(() => {
+        result.current.query.setParams(increment);
+        result.current.query.setParams(increment);
+        result.current.query.setParams(increment);
+      });
+
+      expect(result.current.query.queryParams).toEqual({ n: '3' });
+    });
+
+    it('clearParams then setParams keeps only the new param', () => {
+      const { result } = setup('/products?a=1&b=2');
+
+      act(() => {
+        result.current.query.clearParams();
+        result.current.query.setParams({ c: '3' });
+      });
+
+      expect(result.current.location.search).toBe('?c=3');
+    });
+
+    it('clearParams right after a setParams clears what that setParams just added', () => {
+      const { result } = setup('/products'); // no query string at all yet
+
+      act(() => {
+        result.current.query.setParams({ a: '1' });
+        result.current.query.clearParams();
+      });
+
+      expect(result.current.location.search).toBe('');
+      expect(result.current.query.queryParams).toEqual({});
+    });
+
+    it('ends with a single history entry per changed URL, not one per call', () => {
+      const { result } = setup('/products');
+
+      act(() => {
+        result.current.query.setParams({ a: '1' });
+        result.current.query.setParams({ a: '1' }); // no change after the first one
+      });
+
+      expect(result.current.location.search).toBe('?a=1');
+    });
+
+    it('starts from the real URL again once the router has rendered', () => {
+      const { result } = setup('/products?a=1');
+
+      act(() => {
+        result.current.query.setParams({ b: '2' });
+      });
+      act(() => {
+        // the URL changes from outside the hook (Back button, a link...)
+        void result.current.navigate('/products?z=9');
+      });
+      act(() => {
+        result.current.query.setParams({ y: '8' });
+      });
+
+      expect(result.current.location.search).toBe('?z=9&y=8');
+    });
+  });
+
+  describe('params with several values', () => {
+    const ENTRY = '/products?tag=a&tag=b&page=1';
+
+    it('keeps every value of a param when another param is set', () => {
+      const { result } = setup(ENTRY);
+
+      act(() => {
+        result.current.query.setParams({ page: '2' });
+      });
+
+      expect(result.current.location.search).toBe('?tag=a&tag=b&page=2');
+    });
+
+    it('keeps every value of a param when another param is removed', () => {
+      const { result } = setup(ENTRY);
+
+      act(() => {
+        result.current.query.removeParams('page');
+      });
+
+      expect(result.current.location.search).toBe('?tag=a&tag=b');
+    });
+
+    it('keeps every value of an untouched param in the updater form', () => {
+      const { result } = setup(ENTRY);
+
+      act(() => {
+        result.current.query.setParams((prev) => ({ ...prev, page: '3' }));
+      });
+
+      expect(result.current.location.search).toBe('?tag=a&tag=b&page=3');
+    });
+
+    it('replaces all values when that param is set explicitly', () => {
+      const { result } = setup(ENTRY);
+
+      act(() => {
+        result.current.query.setParams({ tag: 'z' });
+      });
+
+      expect(result.current.location.search).toBe('?tag=z&page=1');
+    });
+
+    it('also collapses to one value when it is set explicitly to the value it ends with', () => {
+      const { result } = setup(ENTRY);
+
+      act(() => {
+        result.current.query.setParams({ tag: 'b' });
+      });
+
+      expect(result.current.location.search).toBe('?tag=b&page=1');
+    });
+
+    it('removes every value when the param is removed', () => {
+      const { result } = setup(ENTRY);
+
+      act(() => {
+        result.current.query.removeParams('tag');
+      });
+
+      expect(result.current.location.search).toBe('?page=1');
+    });
+
+    it('does not navigate when nothing changes, even with several values', () => {
+      const { result } = setup(ENTRY);
+      const keyBefore = result.current.location.key;
+
+      act(() => {
+        result.current.query.setParams((prev) => prev);
+        result.current.query.removeParams('missing');
+      });
+
+      expect(result.current.location.key).toBe(keyBefore);
+    });
+  });
+
+  describe('equivalent encodings', () => {
+    it('does not navigate when the value is already there in another encoding', () => {
+      const { result } = setup('/products?name=red%20lipstick');
+      const keyBefore = result.current.location.key;
+
+      act(() => {
+        result.current.query.setParams({ name: 'red lipstick' });
       });
 
       expect(result.current.location.key).toBe(keyBefore);
