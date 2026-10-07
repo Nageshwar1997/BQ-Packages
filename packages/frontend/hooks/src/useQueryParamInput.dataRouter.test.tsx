@@ -12,7 +12,7 @@ import { useQueryParams } from './useQueryParams.js';
 const DELAY = 40;
 const NAVIGATION_MS = 30;
 
-const setup = (entry: string) => {
+const setup = (entry: string, delay = DELAY) => {
   const exposed: {
     input?: ReturnType<typeof useQueryParamInput>;
     filters?: ReturnType<typeof useQueryParams>;
@@ -27,7 +27,7 @@ const setup = (entry: string) => {
   };
 
   const Probe = () => {
-    exposed.input = useQueryParamInput('search', { delay: DELAY });
+    exposed.input = useQueryParamInput('search', { delay });
     seen.push(exposed.input.value);
     return <Filters />;
   };
@@ -179,7 +179,9 @@ describe('useQueryParamInput with a data router (async navigation)', () => {
   });
 
   it('follows a URL change that happens while typed text is waiting, and drops that text', async () => {
-    const { router, input, settled } = setup('/products?search=old');
+    // a long debounce: the other URL must have landed (navigation + render) well before it fires, even on a busy machine
+    const longDelay = 400;
+    const { router, input, settled } = setup('/products?search=old', longDelay);
     await settled();
 
     act(() => {
@@ -188,7 +190,7 @@ describe('useQueryParamInput with a data router (async navigation)', () => {
     await act(async () => {
       await router.navigate('/products?search=other');
     });
-    await new Promise((resolve) => setTimeout(resolve, DELAY * 3));
+    await new Promise((resolve) => setTimeout(resolve, longDelay * 2));
     await settled();
 
     expect(input().value).toBe('other');

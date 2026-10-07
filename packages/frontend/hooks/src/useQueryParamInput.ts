@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { useDebounce } from './useDebounce.js';
 import { useQueryParams } from './useQueryParams.js';
@@ -38,36 +38,47 @@ export const useQueryParamInput = (
   const urlValue = queryParams[key] ?? '';
 
   const [value, setInputValue] = useState(urlValue);
-  // The values this box wrote to the URL that have not come back yet (oldest first), and the URL
-  // value it has already looked at.
-  const [inFlight, setInFlight] = useState<string[]>([]);
-  const [seenUrlValue, setSeenUrlValue] = useState(urlValue);
+
+  // What the box shows, updated the moment it changes (not when React gets round to rendering it).
+  const valueRef = useRef(urlValue);
+  // The values this box wrote to the URL that have not come back yet (oldest first).
+  const inFlightRef = useRef<string[]>([]);
+  // The URL value this box has already looked at.
+  const seenUrlValueRef = useRef(urlValue);
 
   // The URL param changed. A value the box sent itself is just an update coming back - and an older
   // one can come back after a newer one was sent, which is why every unconfirmed send is remembered,
   // not only the last. Anything else was changed by something else: follow it.
-  if (urlValue !== seenUrlValue) {
-    setSeenUrlValue(urlValue);
+  //
+  // This lives in refs and a layout effect, not in state updated while rendering: the router renders
+  // its URL changes as low priority transitions, and typing is an urgent update that can interrupt
+  // one. State set during such a render is replayed on top of the urgent updates, and the pieces of
+  // it (what was seen, what is in flight) can end up out of step with each other.
+  useLayoutEffect(() => {
+    if (urlValue === seenUrlValueRef.current) return;
+    seenUrlValueRef.current = urlValue;
 
-    const echo = inFlight.indexOf(urlValue);
+    const echo = inFlightRef.current.indexOf(urlValue);
 
     if (echo >= 0) {
       // this send has landed, and so have the ones before it (the router may skip an update that a newer one replaced)
-      setInFlight(inFlight.slice(echo + 1));
-    } else {
-      setInputValue(urlValue);
-      setInFlight([]);
+      inFlightRef.current = inFlightRef.current.slice(echo + 1);
+      return;
     }
-  }
+
+    inFlightRef.current = [];
+    valueRef.current = urlValue;
+    setInputValue(urlValue);
+  }, [urlValue]);
 
   const { trigger, cancel } = useDebounce({
     callback: (typed: string) => {
       // The box was changed since this text was typed (the URL changed under it and the box followed,
-      // which cannot cancel a timer while rendering): it is stale. `clear()` cancels explicitly.
-      if (typed !== value) return;
+      // or clear()): it is stale.
+      if (typed !== valueRef.current) return;
 
       const trimmed = typed.trim();
-      setInFlight((sent) => [...sent, trimmed]);
+      inFlightRef.current = [...inFlightRef.current, trimmed];
 
       if (trimmed) {
         setParams({ [key]: trimmed });
@@ -82,6 +93,7 @@ export const useQueryParamInput = (
   const setValue = useCallback(
     (next: string) => {
       const typed = next.trimStart();
+      valueRef.current = typed;
       setInputValue(typed);
       trigger(typed);
     },
@@ -91,9 +103,10 @@ export const useQueryParamInput = (
   /** Empties the box right away and drops any typed text still waiting for its debounce. It does not touch the URL. */
   const clear = useCallback(() => {
     cancel();
+    valueRef.current = '';
     setInputValue('');
     // the URL is expected to end up empty (a "Clear" button next to it); a send still on its way is no longer expected
-    setInFlight(['']);
+    inFlightRef.current = [''];
   }, [cancel]);
 
   return useMemo(() => ({ value, setValue, clear }), [value, setValue, clear]);

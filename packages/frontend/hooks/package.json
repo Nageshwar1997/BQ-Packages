@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/frontend-hooks",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Shared React hooks for the Beautinique frontends.",
   "keywords": [
     "frontend",
@@ -41,8 +41,10 @@
     "postbuild": "node ../../../scripts/build-types/index.mjs",
     "dev": "tsup --watch",
     "lint": "eslint .",
-    "test": "vitest run --environment jsdom",
-    "test:watch": "vitest --environment jsdom",
+    "test": "npm run test:main && npm run test:concurrent",
+    "test:main": "vitest run --environment jsdom --exclude \"**/*.concurrent.test.tsx\"",
+    "test:concurrent": "vitest run --environment jsdom .concurrent.test",
+    "test:watch": "vitest --environment jsdom --exclude \"**/*.concurrent.test.tsx\"",
     "typecheck": "tsc --noEmit"
   },
   "publishConfig": {
