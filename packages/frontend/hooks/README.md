@@ -10,7 +10,7 @@ Hooks are added one by one. All hooks are **named exports**, and all of them are
 npm install @beautinique/frontend-hooks
 ```
 
-Needs `react` (^19) in the app (peer dependency). The router hooks (`usePathParams`, `useQueryParams`) also need `react-router-dom` (^7).
+Needs `react` (^19) in the app (peer dependency). The router hooks (`usePathParams`, `useQueryParams`, `useQueryParamInput`) also need `react-router-dom` (^7).
 
 ## Hooks
 
@@ -119,6 +119,36 @@ removeParams(['login'], { replace: true });
 - Every update navigates to the same pathname with the new `search`, as a **new history entry** by default. Pass `{ replace: true }` (second argument of `setParams`/`removeParams`, first of `clearParams`) to replace the current entry instead. Use it for updates the user should not be able to go "Back" to, like closing a modal.
 - The hash and the location `state` are not kept.
 - `setParams`, `removeParams` and `clearParams` keep the same identity while the URL does not change.
+
+### `useQueryParamInput`
+
+A text box that is mirrored in a URL query param - a search box and `?search=...`. Builds on `useQueryParams`, so it must be rendered inside a `react-router-dom` router too. Returns `{ value, setValue, clear }`.
+
+```tsx
+import { useQueryParamInput } from '@beautinique/frontend-hooks';
+
+const search = useQueryParamInput('search'); // or useQueryParamInput('search', { delay: 300 }), default 600
+
+<input value={search.value} onChange={(event) => search.setValue(event.target.value)} />
+<button onClick={() => { search.clear(); clearParams(); }}>Clear</button>
+```
+
+**Typing**
+
+- `setValue(text)` shows `text` in the box right away (leading whitespace is removed) and writes it to the URL `delay` ms after the **last** call. Only the trimmed text goes into the URL, and the param is removed when the text is empty. A trailing space stays in the box, so the user can keep typing "lip " -> "lip gloss".
+- Other params are left alone, and writing goes through `setParams`/`removeParams`, so it has the same history and cross-component behavior as `useQueryParams`.
+
+**Following the URL**
+
+- When the param changes by itself - another filter resets it, the user presses Back/Forward, a "Clear filters" button calls `clearParams()` - the box follows it.
+- The URL update the box made itself coming back does **not** touch the box. This matters with a data router, where the URL commits a few ms after typing: whatever the user typed in the meantime is kept.
+- A typed text that is still waiting for its debounce is dropped when the box was changed in the meantime (for example reset by another filter), so an old search cannot reappear in the URL.
+
+**Clearing**
+
+- `clear()` empties the box at once and drops the text waiting for its debounce. It does **not** touch the URL: pair it with `removeParams`/`clearParams` when the URL has to be cleared as well.
+- If a URL update of the box is already on its way when `clear()` is called, the box ends up showing whatever the URL ended up with, never something different from it.
+- `value` is a string; `setValue` and `clear` keep the same identity, and the returned object only changes when `value` does.
 
 ## Development
 
