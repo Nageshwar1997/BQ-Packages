@@ -1,35 +1,35 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 
 /**
  * Whether the viewport is at most `width` px wide (`(max-width: ${width}px)`), kept in sync with
  * the window as it is resized.
  *
- * Reads `window.matchMedia`, so it needs a browser (client-side rendering).
+ * - The first client render already has the right value (no `false` then `true` flash).
+ * - Changing `width` gives the value for the new width straight away.
+ * - Safe to render on the server: there it returns `false` (no `window` is touched), and the real
+ *   value is used once the page runs in the browser.
  *
  * @param width - Breakpoint in px. @default 1023
  */
-export const useIsSmallScreen = (width = 1023) => {
-  // Lazy initializer: reads matchMedia synchronously for the first render, instead of hardcoding
-  // `false` and correcting it a render later inside the effect below (which caused needRef/etc.
-  // consumers to briefly see the wrong value on mount, on small screens).
-  const [isSmallScreen, setIsSmallScreen] = useState(
-    () => window.matchMedia(`(max-width: ${String(width)}px)`).matches,
+export const useIsSmallScreen = (width = 1023): boolean => {
+  const query = `(max-width: ${String(width)}px)`;
+
+  const subscribe = useCallback(
+    (onChange: () => void) => {
+      const mediaQuery = window.matchMedia(query);
+
+      mediaQuery.addEventListener('change', onChange);
+
+      return () => {
+        mediaQuery.removeEventListener('change', onChange);
+      };
+    },
+    [query],
   );
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia(`(max-width: ${String(width)}px)`);
+  const getSnapshot = useCallback(() => window.matchMedia(query).matches, [query]);
 
-    const handleMediaQueryChange = (event: MediaQueryListEvent) => {
-      setIsSmallScreen(event.matches);
-    };
-
-    mediaQuery.addEventListener('change', handleMediaQueryChange);
-
-    // Clean up the event listener when the component unmounts
-    return () => {
-      mediaQuery.removeEventListener('change', handleMediaQueryChange);
-    };
-  }, [width]);
-
-  return isSmallScreen;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 };
+
+const getServerSnapshot = () => false;
