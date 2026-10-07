@@ -1,5 +1,6 @@
 import { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 
+import { readPendingSearch, setPendingSearch, settlePendingSearch } from './pending-search.js';
 import { buildSearch, normalizeSearch, parseParams, type TParamsUpdate } from './query-string.js';
 import { usePathParams } from './usePathParams.js';
 
@@ -28,8 +29,9 @@ export interface IQueryParamsUpdateOptions {
  * - `clearParams`: removes every param.
  *
  * Updates:
- * - Several updates in a row (before React re-renders) build on each other, like `setState`
- *   updaters do.
+ * - Several updates in a row build on each other, like `setState` updaters do - also when they come
+ *   from different components that each call `useQueryParams()`, and also while the router has not
+ *   finished the previous navigation yet (with a data router that takes a few ms).
  * - A param an update does not touch keeps all its values (`?tag=a&tag=b`) and its position.
  * - Each update navigates to the same pathname with the new `search`, as a new history entry unless
  *   `{ replace: true }` is passed. An update that would leave the query string unchanged does not
@@ -40,29 +42,38 @@ export interface IQueryParamsUpdateOptions {
 export const useQueryParams = () => {
   const { navigate, search, pathname } = usePathParams();
 
-  // The query string updates are built on. It is the committed URL after every render; an update
-  // moves it forward immediately, so a second update in the same tick (before the router has
-  // re-rendered) starts from the first one's result instead of from the old URL.
-  const searchRef = useRef(search);
+  // The router's committed query string, as of the latest render. Used when no update of ours is
+  // still waiting to be committed (see `pending-search.ts`, which tracks those).
+  const committedSearchRef = useRef(search);
 
   useLayoutEffect(() => {
-    searchRef.current = search;
+    committedSearchRef.current = search;
   });
+
+  // Once the router shows the URL we navigated to, that navigation is finished.
+  useLayoutEffect(() => {
+    settlePendingSearch(pathname, search);
+  }, [pathname, search]);
 
   const queryParams = useMemo(() => parseParams(search), [search]);
 
+  const currentSearch = useCallback(
+    () => readPendingSearch(pathname) ?? committedSearchRef.current,
+    [pathname],
+  );
+
   const setParams = useCallback(
     (params: TParamsUpdate, options?: IQueryParamsUpdateOptions): void => {
-      const currentSearch = searchRef.current;
-      const nextSearch = buildSearch(currentSearch, params);
+      const current = currentSearch();
+      const nextSearch = buildSearch(current, params);
 
       // Nothing would change: don't add a duplicate entry for the very same URL.
-      if (nextSearch === normalizeSearch(currentSearch)) return;
+      if (nextSearch === normalizeSearch(current)) return;
 
-      searchRef.current = nextSearch;
+      setPendingSearch(pathname, nextSearch);
       void navigate({ pathname, search: nextSearch }, { replace: options?.replace });
     },
-    [navigate, pathname],
+    [currentSearch, navigate, pathname],
   );
 
   const removeParams = useCallback(
@@ -80,12 +91,12 @@ export const useQueryParams = () => {
 
   const clearParams = useCallback(
     (options?: IQueryParamsUpdateOptions): void => {
-      if (normalizeSearch(searchRef.current) === '') return;
+      if (normalizeSearch(currentSearch()) === '') return;
 
-      searchRef.current = '';
+      setPendingSearch(pathname, '');
       void navigate({ pathname, search: '' }, { replace: options?.replace });
     },
-    [navigate, pathname],
+    [currentSearch, navigate, pathname],
   );
 
   return {
@@ -95,5 +106,3 @@ export const useQueryParams = () => {
     clearParams,
   };
 };
-
-export type { TParamsUpdate };

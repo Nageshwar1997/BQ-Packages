@@ -1,8 +1,9 @@
 import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { MemoryRouter, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
+import { resetPendingSearch } from './pending-search.js';
 import { useQueryParams } from './useQueryParams.js';
 
 const setup = (entry: string) => {
@@ -24,6 +25,11 @@ const setup = (entry: string) => {
 };
 
 describe('useQueryParams', () => {
+  // the pending-navigation store is shared by the whole module: start every test from a clean one
+  afterEach(() => {
+    resetPendingSearch();
+  });
+
   describe('queryParams', () => {
     it('reads the query string into an object', () => {
       const { result } = setup('/products?category=lips&page=2');

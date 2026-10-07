@@ -113,7 +113,7 @@ removeParams(['login'], { replace: true });
 **Updating**
 
 - `''`, `null` and `undefined` values are left out of the URL.
-- Several updates in a row (before React re-renders) build on each other, like `setState` updaters: `setParams({ a: '1' }); setParams({ b: '2' });` ends with `?a=1&b=2`.
+- Several updates in a row build on each other, like `setState` updaters: `setParams({ a: '1' }); setParams({ b: '2' });` ends with `?a=1&b=2`. This also holds when the updates come from **different components** that each call `useQueryParams()` (a status select in the page and a debounced search box in a child), and while the router has not finished the previous navigation yet. With a data router (`createBrowserRouter`) `navigate()` only commits the new URL a few ms later, so an update made in that window still builds on the pending one instead of overwriting it.
 - A param an update does not touch keeps **all** its values and its position: changing `page` in `?tag=a&tag=b&page=1` leaves both `tag` values alone. A param you set gets exactly one value. With an updater function, "does not touch" means the value you return is the one you were given.
 - An update that would leave the query string unchanged does **not navigate** (setting a value that is already there, removing a key that is not there, `clearParams()` with no query), so it never adds a duplicate history entry.
 - Every update navigates to the same pathname with the new `search`, as a **new history entry** by default. Pass `{ replace: true }` (second argument of `setParams`/`removeParams`, first of `clearParams`) to replace the current entry instead. Use it for updates the user should not be able to go "Back" to, like closing a modal.
