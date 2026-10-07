@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react';
+import { StrictMode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useDebounce } from './useDebounce.js';
@@ -115,5 +116,164 @@ describe('useDebounce', () => {
 
     expect(oldCallback).not.toHaveBeenCalled();
     expect(newCallback).toHaveBeenCalledTimes(1);
+  });
+
+  describe('latest callback', () => {
+    it('runs the callback from the latest render, even when it changed after trigger()', () => {
+      const oldCallback = vi.fn();
+      const newCallback = vi.fn();
+      const { result, rerender } = renderHook(
+        ({ callback }) => useDebounce({ callback, delay: 100 }),
+        { initialProps: { callback: oldCallback } },
+      );
+
+      result.current.trigger('value');
+      rerender({ callback: newCallback }); // e.g. the component re-rendered with fresh state
+      vi.advanceTimersByTime(100);
+
+      expect(oldCallback).not.toHaveBeenCalled();
+      expect(newCallback).toHaveBeenCalledTimes(1);
+      expect(newCallback).toHaveBeenCalledWith('value');
+    });
+
+    it('gives the callback the state of the render it runs in (no stale closure)', () => {
+      const seen: number[] = [];
+      const { result, rerender } = renderHook(
+        ({ count }) => useDebounce({ callback: () => seen.push(count), delay: 100 }),
+        { initialProps: { count: 1 } },
+      );
+
+      result.current.trigger();
+      rerender({ count: 2 });
+      rerender({ count: 3 });
+      vi.advanceTimersByTime(100);
+
+      expect(seen).toEqual([3]);
+    });
+
+    it('keeps trigger, cancel and the returned object stable when only the callback changes', () => {
+      const triggers = new Set<unknown>();
+      const cancels = new Set<unknown>();
+      const objects = new Set<unknown>();
+      const { rerender } = renderHook(() => {
+        // a new inline callback on every render, like most call sites
+        const debounce = useDebounce({ callback: () => undefined, delay: 100 });
+        triggers.add(debounce.trigger);
+        cancels.add(debounce.cancel);
+        objects.add(debounce);
+        return debounce;
+      });
+
+      rerender();
+      rerender();
+      rerender();
+
+      expect(triggers.size).toBe(1);
+      expect(cancels.size).toBe(1);
+      expect(objects.size).toBe(1);
+    });
+
+    it('still cancels the pending call after the callback changed', () => {
+      const oldCallback = vi.fn();
+      const newCallback = vi.fn();
+      const { result, rerender } = renderHook(
+        ({ callback }) => useDebounce({ callback, delay: 100 }),
+        { initialProps: { callback: oldCallback } },
+      );
+
+      result.current.trigger();
+      rerender({ callback: newCallback });
+      result.current.cancel();
+      vi.advanceTimersByTime(1000);
+
+      expect(oldCallback).not.toHaveBeenCalled();
+      expect(newCallback).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('delay', () => {
+    it('uses the new delay for triggers made after it changes', () => {
+      const callback = vi.fn();
+      const { result, rerender } = renderHook(({ delay }) => useDebounce({ callback, delay }), {
+        initialProps: { delay: 100 },
+      });
+
+      rerender({ delay: 500 });
+      result.current.trigger();
+
+      vi.advanceTimersByTime(499);
+      expect(callback).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(1);
+      expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it('lets a call that is already pending keep the delay it was scheduled with', () => {
+      const callback = vi.fn();
+      const { result, rerender } = renderHook(({ delay }) => useDebounce({ callback, delay }), {
+        initialProps: { delay: 100 },
+      });
+
+      result.current.trigger();
+      rerender({ delay: 500 });
+      vi.advanceTimersByTime(100);
+
+      expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it('gives a new trigger only when the delay changes', () => {
+      const callback = vi.fn();
+      const { result, rerender } = renderHook(({ delay }) => useDebounce({ callback, delay }), {
+        initialProps: { delay: 100 },
+      });
+      const first = result.current.trigger;
+
+      rerender({ delay: 100 });
+      expect(result.current.trigger).toBe(first);
+
+      rerender({ delay: 200 });
+      expect(result.current.trigger).not.toBe(first);
+    });
+  });
+
+  describe('after unmount', () => {
+    it('ignores a trigger() made after the component unmounted', () => {
+      const callback = vi.fn();
+      const { result, unmount } = renderHook(() => useDebounce({ callback, delay: 100 }));
+      const { trigger } = result.current; // e.g. kept by an async handler that finishes later
+
+      unmount();
+      trigger();
+      vi.advanceTimersByTime(1000);
+
+      expect(callback).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('React StrictMode', () => {
+    it('calls the callback exactly once', () => {
+      const callback = vi.fn();
+      const { result } = renderHook(() => useDebounce({ callback, delay: 50 }), {
+        wrapper: StrictMode,
+      });
+
+      result.current.trigger();
+      vi.advanceTimersByTime(50);
+
+      expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it('still works after the simulated unmount/remount', () => {
+      const callback = vi.fn();
+      const { result } = renderHook(() => useDebounce({ callback, delay: 50 }), {
+        wrapper: StrictMode,
+      });
+
+      result.current.trigger('first');
+      result.current.trigger('second');
+      vi.advanceTimersByTime(50);
+
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(callback).toHaveBeenCalledWith('second');
+    });
   });
 });
