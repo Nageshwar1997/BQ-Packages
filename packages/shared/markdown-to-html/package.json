@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/shared-markdown-to-html",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Shared Markdown file to HTML file generation for Beautinique.",
   "keywords": [
     "beautinique",
@@ -51,10 +51,7 @@
   "engines": {
     "node": ">=24"
   },
-  "devDependencies": {
-    "typescript": "^6.0.3"
-  },
   "dependencies": {
-    "marked": "^18.0.6"
+    "marked": "^18.0.14"
   }
 }

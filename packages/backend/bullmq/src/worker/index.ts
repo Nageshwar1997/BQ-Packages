@@ -1,5 +1,4 @@
-import type { Job } from 'bullmq';
-import { Worker } from 'bullmq';
+import { type Job, Worker } from 'bullmq';
 
 import { DEFAULT_WORKER_CONCURRENCY } from '../constants/index.js';
 import { JobQueueConfigurationError } from '../errors/index.js';
@@ -139,8 +138,8 @@ export class JobWorker<Q extends TQueueName> {
   }
 
   /** Resumes a paused worker. */
-  public resume(): void {
-    this.worker.resume();
+  public async resume(): Promise<void> {
+    await this.worker.resume();
   }
 
   /** Escape hatch for advanced use (e.g. extra event listeners) not covered by this class. */

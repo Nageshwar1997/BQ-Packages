@@ -1,8 +1,9 @@
+import { defineConfig } from 'eslint/config';
 import sharedConfig from './eslint.shared.config.mjs';
 
 import tseslint from 'typescript-eslint';
 
-export default tseslint.config(
+export default defineConfig(
   ...sharedConfig,
 
   {

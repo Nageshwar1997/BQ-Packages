@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/backend-utils",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "Backend utilities for Beautinique project.",
   "keywords": [
     "backend",
@@ -49,11 +49,8 @@
   "engines": {
     "node": ">=24"
   },
-  "devDependencies": {
-    "typescript": "^6.0.3"
-  },
   "dependencies": {
-    "@beautinique/backend-classes": "^1.0.7",
-    "@beautinique/shared-types": "^1.0.26"
+    "@beautinique/backend-classes": "^1.1.0",
+    "@beautinique/shared-types": "^1.1.0"
   }
 }

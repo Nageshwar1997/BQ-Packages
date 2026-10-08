@@ -38,6 +38,12 @@ jobs:
           missing=0
           for dir in packages/*/*/; do
             if [ -f "$dir/package.json" ]; then
+              # A package whose "files" does not include "dist" publishes no build output (e.g. the
+              # CSS-only frontend/styles ships its "src" as-is), so it has no declarations to verify.
+              if ! node -e 'const files = require(process.argv[1]).files; process.exit(Array.isArray(files) && !files.includes("dist") ? 1 : 0)' "$PWD/$dir/package.json"; then
+                echo "Skipping $dir (does not publish dist)"
+                continue
+              fi
               if [ ! -f "$dir/dist/index.d.ts" ] || [ ! -f "$dir/dist/index.d.cts" ]; then
                 echo "::error::Missing dist/index.d.ts or dist/index.d.cts in $dir"
                 missing=1

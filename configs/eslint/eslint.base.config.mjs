@@ -1,9 +1,10 @@
+import { defineConfig } from 'eslint/config';
 import js from '@eslint/js';
 import prettier from 'eslint-config-prettier';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import tseslint from 'typescript-eslint';
 
-export default tseslint.config(
+export default defineConfig(
   /* Global configuration */
   {
     ignores: [

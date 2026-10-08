@@ -1,0 +1,76 @@
+{
+  "name": "@beautinique/frontend-hooks",
+  "version": "1.0.8",
+  "description": "Shared React hooks for the Beautinique frontends.",
+  "keywords": [
+    "frontend",
+    "hooks",
+    "react",
+    "beautinique"
+  ],
+  "author": "Nageshwar Pawar",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nageshwar1997/BQ-Packages.git",
+    "directory": "packages/frontend/hooks"
+  },
+  "bugs": {
+    "url": "https://github.com/Nageshwar1997/BQ-Packages/issues"
+  },
+  "homepage": "https://github.com/Nageshwar1997/BQ-Packages/tree/main/packages/frontend/hooks#readme",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsup",
+    "postbuild": "node ../../../scripts/build-types/index.mjs",
+    "dev": "tsup --watch",
+    "lint": "eslint .",
+    "test": "npm run test:main && npm run test:concurrent",
+    "test:main": "vitest run --environment jsdom --exclude \"**/*.concurrent.test.tsx\"",
+    "test:concurrent": "vitest run --environment jsdom .concurrent.test",
+    "test:watch": "vitest --environment jsdom --exclude \"**/*.concurrent.test.tsx\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "peerDependencies": {
+    "@types/react": "^19.0.0",
+    "react": "^19.0.0",
+    "react-router-dom": "^7.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "jsdom": "^30.1.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router-dom": "^7.18.4",
+    "vitest": "^5.0.3"
+  },
+  "dependencies": {
+    "@beautinique/shared-utils": "^1.1.0"
+  }
+}
