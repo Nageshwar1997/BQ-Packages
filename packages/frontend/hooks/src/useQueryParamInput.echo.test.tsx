@@ -38,7 +38,7 @@ const answer = (value: string) =>
         done: router.returnsPromise ? Promise.resolve() : null,
       };
 
-vi.mock('./useQueryParams.js', () => ({
+vi.mock('./useQueryParamsEngine.js', () => ({
   useQueryParamsEngine: () => ({
     queryParams: router.queryParams,
     setParams: router.setParams,

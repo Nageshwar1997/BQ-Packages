@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 
 import { useDataRouter } from './router-search.js';
 import { useDebounce } from './useDebounce.js';
-import { useQueryParamsEngine } from './useQueryParams.js';
+import { useQueryParamsEngine } from './useQueryParamsEngine.js';
 
 /** A text this box sent to the URL that has not been seen coming back yet. */
 interface ISentText {
