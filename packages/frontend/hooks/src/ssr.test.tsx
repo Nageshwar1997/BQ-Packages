@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, type MockInstance, vi } fr
 
 import { useDebounce } from './useDebounce.js';
 import { useIsSmallScreen } from './useIsSmallScreen.js';
+import { useOnlineStatus } from './useOnlineStatus.js';
 import { useOutsideClick } from './useOutsideClick.js';
 import { usePathParams } from './usePathParams.js';
 import { useQueryParams } from './useQueryParams.js';
@@ -54,6 +55,27 @@ describe('server rendering', () => {
 
     expect(renderToString(<Probe />)).toContain('false');
     expectNoWarnings();
+  });
+
+  it('useOnlineStatus', () => {
+    const Probe = () => <span>{useOnlineStatus().status}</span>;
+
+    expect(renderToString(<Probe />)).toContain('online');
+    expectNoWarnings();
+  });
+
+  it('useOnlineStatus without any window, document or navigator', () => {
+    vi.stubGlobal('window', undefined);
+    vi.stubGlobal('document', undefined);
+    vi.stubGlobal('navigator', undefined);
+    const Probe = () => <span>{useOnlineStatus().status}</span>;
+
+    try {
+      expect(renderToString(<Probe />)).toContain('online');
+      expectNoWarnings();
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it('usePathParams', () => {

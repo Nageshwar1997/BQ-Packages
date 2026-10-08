@@ -64,6 +64,86 @@ const isMobile = useIsSmallScreen(767);
 - `useIsSmallScreen(width, { serverValue })`: if you know the visitor's device on the server (a user-agent or client-hint guess), pass it as `serverValue` and the server markup and the hydration render use it instead of `false`, so a phone does not flash the desktop layout first. The real value replaces it right after hydration, and a plain client render never uses it.
 - One `MediaQueryList` is created per query (not on every render), and without `window.matchMedia` the hook stays `false`.
 
+### `useOnlineStatus`
+
+Whether the user can reach the internet, for showing "offline" / "connecting" / "back online" in the UI.
+
+```tsx
+import { useOnlineStatus } from '@beautinique/frontend-hooks';
+
+const { status, isOnline, isOffline, isConnecting, recheck } = useOnlineStatus();
+// status: 'online' | 'offline' | 'connecting'
+```
+
+| Status       | Meaning                                                                                                         |
+| ------------ | --------------------------------------------------------------------------------------------------------------- |
+| `online`     | The internet works (or nothing says it does not).                                                               |
+| `offline`    | The browser says the device has no network, **or** the Wi-Fi is joined but the internet stopped answering.      |
+| `connecting` | The browser says the network is back, but the internet has not answered yet. It turns `online` once it answers. |
+
+How it decides:
+
+- The browser's `online` / `offline` events are a trigger, never the proof. `navigator.onLine` being `true` only means a network interface is up, so after the network comes back the status is `connecting` until a real request gets an answer (retried after 0.5 s, 1 s, 2 s, then every 3 s).
+- The browser says **nothing** when the Wi-Fi has no internet behind it (a phone hotspot with its data switched off). So, while online and while the tab is visible, the internet is also asked every 15 seconds. A check that gets no answer is repeated once after 0.5 s; two in a row without an answer make the status `offline`, and the first answer makes it `online` again, by itself. A tab that wakes up asks at once.
+- The check is a tiny request (`no-cors`, no cookies, no referrer) to Google's and Cloudflare's connectivity-check addresses (`generate_204`). **Any** answer counts, an error page included, and it is online if either one answers. Only when neither does, and the site is not on a local or private address, the site's own `/favicon.ico` is asked too. On `localhost` the site itself is never asked, because it always answers and would say "online" with the cable pulled.
+- Every component that uses the hook shares one listener and one check, and nothing runs (no listener, timer or request) while no component uses it.
+- The first client render is already right, and a server (or the first hydration render) always says `online`, so a page never starts with an "offline" message that is then taken back.
+
+Helping it with the app's own requests (code outside React, e.g. an API client):
+
+```ts
+import { onlineStatusStore } from '@beautinique/frontend-hooks';
+
+axios.interceptors.response.use(
+  (response) => {
+    onlineStatusStore.confirmOnline(); // the server answered: the internet works
+    return response;
+  },
+  (error) => {
+    if (error.response)
+      onlineStatusStore.confirmOnline(); // an error page is an answer too
+    else if (!axios.isCancel(error)) onlineStatusStore.recheck(); // no answer: go and look
+    return Promise.reject(error);
+  },
+);
+```
+
+- `confirmOnline()` is better proof than a check: the status becomes `online` at once if it was `connecting` or `offline` because nothing answered, and the regular 15 s check is postponed, so while the app is busy talking to its server no extra requests are made. It is ignored while the browser says there is no network (an answer could only come from a cache).
+- `recheck()` asks now (only while online and nothing is being checked). The user is not told "offline" for one failed request, see the repeat above.
+- `onlineStatusStore.getStatus()` and `onlineStatusStore.subscribe(listener)` follow the status outside React.
+
+With TanStack Query, give its `onlineManager` the real status, so queries and mutations **wait** while there is no internet (instead of failing and showing errors) and carry on when it is back:
+
+```ts
+import { onlineManager } from '@tanstack/react-query';
+import { onlineStatusStore } from '@beautinique/frontend-hooks';
+
+onlineManager.setEventListener((setOnline) => {
+  const sync = () => setOnline(onlineStatusStore.getStatus() === 'online');
+  sync();
+  return onlineStatusStore.subscribe(sync);
+});
+```
+
+Another probe, interval or wait between tries: make a store once (outside of any component) and pass it to the hook.
+
+```ts
+import { createOnlineStatusStore, useOnlineStatus } from '@beautinique/frontend-hooks';
+
+const store = createOnlineStatusStore({
+  probe: (signal) => fetch('/health', { method: 'HEAD', cache: 'no-store', signal }), // resolves = reachable, rejects = not
+  probeTimeoutMs: 5000, // one probe may take this long (default 5000)
+  heartbeatMs: 30_000, // how often to check while online; 0 turns the regular check off (default 15000)
+  retryDelayMs: (failures) => Math.min(500 * failures, 3000), // wait before the next try (default 0.5 s, 1 s, 2 s, 3 s)
+});
+
+const { isOffline } = useOnlineStatus(store);
+```
+
+- Nothing is asked unless a component uses the hook (or something subscribed to the store), and the regular check only runs while a tab is visible.
+- It does **not** make an app work offline (caching and queueing are yours), and a full page reload still needs the network.
+- To try it: Chrome DevTools > Network > **Offline**, or switch the data off on the phone that shares its connection. Both read the same way.
+
 ### `useOutsideClick`
 
 Calls `callback` when the user presses anywhere **outside** the element the returned ref is attached to.
