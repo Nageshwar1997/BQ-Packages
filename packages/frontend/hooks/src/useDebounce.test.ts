@@ -235,6 +235,180 @@ describe('useDebounce', () => {
     });
   });
 
+  describe('flush()', () => {
+    it('runs the pending call now, with its args, and nothing runs again when its time comes', () => {
+      const callback = vi.fn<(value: string) => void>();
+      const { result } = renderHook(() => useDebounce({ callback, delay: 300 }));
+
+      result.current.trigger('abc');
+      result.current.flush();
+
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(callback).toHaveBeenCalledWith('abc');
+
+      vi.advanceTimersByTime(1000);
+      expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it('runs the last call only, when there were several triggers', () => {
+      const callback = vi.fn<(value: string) => void>();
+      const { result } = renderHook(() => useDebounce({ callback, delay: 300 }));
+
+      result.current.trigger('a');
+      result.current.trigger('ab');
+      result.current.flush();
+
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(callback).toHaveBeenCalledWith('ab');
+    });
+
+    it('does nothing when nothing is pending', () => {
+      const callback = vi.fn();
+      const { result } = renderHook(() => useDebounce({ callback, delay: 300 }));
+
+      result.current.flush();
+
+      expect(callback).not.toHaveBeenCalled();
+    });
+
+    it('does nothing after the call has already run', () => {
+      const callback = vi.fn();
+      const { result } = renderHook(() => useDebounce({ callback, delay: 300 }));
+
+      result.current.trigger();
+      vi.advanceTimersByTime(300);
+      result.current.flush();
+
+      expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it('does nothing after cancel()', () => {
+      const callback = vi.fn();
+      const { result } = renderHook(() => useDebounce({ callback, delay: 300 }));
+
+      result.current.trigger();
+      result.current.cancel();
+      result.current.flush();
+
+      expect(callback).not.toHaveBeenCalled();
+    });
+
+    it('runs the callback from the latest render', () => {
+      const first = vi.fn();
+      const second = vi.fn();
+      const { result, rerender } = renderHook(
+        ({ callback }) => useDebounce({ callback, delay: 300 }),
+        { initialProps: { callback: first } },
+      );
+
+      result.current.trigger('x');
+      rerender({ callback: second });
+      result.current.flush();
+
+      expect(first).not.toHaveBeenCalled();
+      expect(second).toHaveBeenCalledWith('x');
+    });
+
+    it('lets a new trigger() work afterwards', () => {
+      const callback = vi.fn<(value: string) => void>();
+      const { result } = renderHook(() => useDebounce({ callback, delay: 300 }));
+
+      result.current.trigger('a');
+      result.current.flush();
+      result.current.trigger('b');
+      vi.advanceTimersByTime(300);
+
+      expect(callback).toHaveBeenNthCalledWith(2, 'b');
+    });
+
+    it('can trigger again from inside the callback it flushes', () => {
+      const calls: string[] = [];
+      const { result } = renderHook(() =>
+        useDebounce({
+          callback: (value: string) => {
+            calls.push(value);
+            if (value === 'first') result.current.trigger('second');
+          },
+          delay: 300,
+        }),
+      );
+
+      result.current.trigger('first');
+      result.current.flush();
+      vi.advanceTimersByTime(300);
+
+      expect(calls).toEqual(['first', 'second']);
+    });
+  });
+
+  describe('isPending()', () => {
+    it('is true from trigger() until the call runs', () => {
+      const { result } = renderHook(() => useDebounce({ callback: vi.fn(), delay: 300 }));
+
+      expect(result.current.isPending()).toBe(false);
+
+      result.current.trigger();
+      expect(result.current.isPending()).toBe(true);
+
+      vi.advanceTimersByTime(299);
+      expect(result.current.isPending()).toBe(true);
+
+      vi.advanceTimersByTime(1);
+      expect(result.current.isPending()).toBe(false);
+    });
+
+    it('is false after cancel() and after flush()', () => {
+      const { result } = renderHook(() => useDebounce({ callback: vi.fn(), delay: 300 }));
+
+      result.current.trigger();
+      result.current.cancel();
+      expect(result.current.isPending()).toBe(false);
+
+      result.current.trigger();
+      result.current.flush();
+      expect(result.current.isPending()).toBe(false);
+    });
+
+    it('is false after the component unmounted', () => {
+      const { result, unmount } = renderHook(() => useDebounce({ callback: vi.fn(), delay: 300 }));
+
+      result.current.trigger();
+      const { isPending } = result.current;
+      unmount();
+
+      expect(isPending()).toBe(false);
+    });
+
+    it('is true again for a new trigger() made inside the callback', () => {
+      const { result } = renderHook(() =>
+        useDebounce({
+          callback: () => {
+            result.current.trigger();
+          },
+          delay: 300,
+        }),
+      );
+
+      result.current.trigger();
+      vi.advanceTimersByTime(300);
+
+      expect(result.current.isPending()).toBe(true);
+    });
+  });
+
+  it('keeps the same flush and isPending while callback and delay are unchanged', () => {
+    const { result, rerender } = renderHook(
+      ({ callback }) => useDebounce({ callback, delay: 300 }),
+      { initialProps: { callback: vi.fn() } },
+    );
+    const { flush, isPending } = result.current;
+
+    rerender({ callback: vi.fn() });
+
+    expect(result.current.flush).toBe(flush);
+    expect(result.current.isPending).toBe(isPending);
+  });
+
   describe('after unmount', () => {
     it('ignores a trigger() made after the component unmounted', () => {
       const callback = vi.fn();

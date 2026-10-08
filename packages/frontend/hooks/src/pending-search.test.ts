@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  clearPendingSearch,
   PENDING_SEARCH_MAX_AGE_MS,
+  readLastStartedSearch,
   readPendingSearch,
   resetPendingSearch,
   setPendingSearch,
@@ -117,11 +119,89 @@ describe('pending search', () => {
     });
   });
 
-  it('reset forgets the pending navigation', () => {
+  describe('clearing a navigation that has finished (committed, replaced, blocked, redirected)', () => {
+    it('forgets the navigation that got the token', () => {
+      const token = setPendingSearch('/products', 'a=1');
+
+      clearPendingSearch(token);
+
+      expect(readPendingSearch('/products')).toBeNull();
+    });
+
+    it('gives every navigation its own token', () => {
+      const first = setPendingSearch('/products', 'a=1');
+      const second = setPendingSearch('/products', 'a=1&b=2');
+
+      expect(second).not.toBe(first);
+    });
+
+    it('leaves a newer navigation alone when an older one finishes late', () => {
+      const older = setPendingSearch('/products', 'a=1');
+      setPendingSearch('/products', 'a=1&b=2');
+
+      clearPendingSearch(older);
+
+      expect(readPendingSearch('/products')).toBe('a=1&b=2');
+    });
+
+    it('does nothing when it is already gone', () => {
+      const token = setPendingSearch('/products', 'a=1');
+      clearPendingSearch(token);
+
+      expect(() => {
+        clearPendingSearch(token);
+      }).not.toThrow();
+    });
+  });
+
+  describe('the last navigation we started', () => {
+    it('is remembered after the navigation has finished, so a blocked update can be recognised as ours', () => {
+      const token = setPendingSearch('/products', 'a=1');
+      clearPendingSearch(token);
+
+      expect(readPendingSearch('/products')).toBeNull();
+      expect(readLastStartedSearch('/products')).toBe('a=1');
+    });
+
+    it('is the newest one', () => {
+      setPendingSearch('/products', 'a=1');
+      setPendingSearch('/products', 'a=1&b=2');
+
+      expect(readLastStartedSearch('/products')).toBe('a=1&b=2');
+    });
+
+    it('only applies to the pathname it was started on', () => {
+      setPendingSearch('/products', 'a=1');
+
+      expect(readLastStartedSearch('/categories')).toBeNull();
+    });
+
+    it('is empty until a navigation is started', () => {
+      expect(readLastStartedSearch('/products')).toBeNull();
+    });
+  });
+
+  it('reset forgets the pending navigation and the last one started', () => {
     setPendingSearch('/products', 'a=1');
 
     resetPendingSearch();
 
     expect(readPendingSearch('/products')).toBeNull();
+    expect(readLastStartedSearch('/products')).toBeNull();
+  });
+
+  it('is shared by two copies of the package on the same page', async () => {
+    setPendingSearch('/products', 'a=1');
+
+    // a second bundle of the package: the module is evaluated again, with its own variables
+    vi.resetModules();
+    const otherCopy = await import('./pending-search.js');
+
+    expect(otherCopy.readPendingSearch).not.toBe(readPendingSearch);
+    expect(otherCopy.readPendingSearch('/products')).toBe('a=1');
+
+    otherCopy.setPendingSearch('/products', 'a=1&b=2');
+
+    expect(readPendingSearch('/products')).toBe('a=1&b=2');
   });
 });

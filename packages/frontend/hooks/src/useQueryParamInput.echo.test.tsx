@@ -10,19 +10,66 @@ const router = vi.hoisted<{
   queryParams: Record<string, string>;
   setParams: Mock;
   removeParams: Mock;
+  /** Where the router says each navigation stands (by query string); `null` = no data router. */
+  states: Record<string, 'committed' | 'held' | 'coming' | 'lost'>;
+  /** Make the updates report that `navigate()` has returned, like a data router does. */
+  returnsPromise: boolean;
+  /** The listeners of the fake data router, called by a test when "the router updated". */
+  listeners: Set<() => void>;
 }>(() => ({
   queryParams: {},
   setParams: vi.fn(),
   removeParams: vi.fn(),
+  states: {},
+  returnsPromise: false,
+  listeners: new Set(),
 }));
 
+// what the real update functions answer: nothing is sent when the URL already has the value
+const searchOf = (params: Record<string, string>) =>
+  Object.hasOwn(params, 'search') ? params.search : '';
+
+const answer = (value: string) =>
+  searchOf(router.queryParams) === value
+    ? { sent: false, search: '', done: null }
+    : {
+        sent: true,
+        search: value ? `search=${value}` : '',
+        done: router.returnsPromise ? Promise.resolve() : null,
+      };
+
 vi.mock('./useQueryParams.js', () => ({
-  useQueryParams: () => ({
+  useQueryParamsEngine: () => ({
     queryParams: router.queryParams,
     setParams: router.setParams,
     removeParams: router.removeParams,
+    navigationStateOf: (search: string) =>
+      router.returnsPromise ? (router.states[search] ?? 'lost') : null,
   }),
 }));
+
+vi.mock('./router-search.js', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./router-search.js')>()),
+  useDataRouter: () =>
+    router.returnsPromise
+      ? {
+          subscribe: (listener: () => void) => {
+            router.listeners.add(listener);
+
+            return () => {
+              router.listeners.delete(listener);
+            };
+          },
+        }
+      : null,
+}));
+
+/** "The router updated": its subscribers are called, like React Router does on every state change. */
+const routerUpdates = () => {
+  act(() => {
+    for (const listener of router.listeners) listener();
+  });
+};
 
 const setup = () => {
   const hook = renderHook(() => useQueryParamInput('search'));
@@ -51,8 +98,13 @@ describe('useQueryParamInput: URL updates of its own coming back late', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     router.queryParams = {};
-    router.setParams.mockReset();
-    router.removeParams.mockReset();
+    router.states = {};
+    router.returnsPromise = false;
+    router.listeners.clear();
+    router.setParams
+      .mockReset()
+      .mockImplementation((params: Record<string, string>) => answer(searchOf(params)));
+    router.removeParams.mockReset().mockImplementation(() => answer(''));
   });
 
   afterEach(() => {
@@ -163,5 +215,63 @@ describe('useQueryParamInput: URL updates of its own coming back late', () => {
     urlBecomes('other');
 
     expect(result.current.value).toBe('other');
+  });
+
+  describe('what the router has shown, and what it will never show', () => {
+    // On a heavy page React renders the router's URLs late, one after the other, so an older URL can
+    // be rendered long after the router has moved on to newer ones.
+    it('an update the router has already shown is still an echo while React renders older URLs', async () => {
+      router.returnsPromise = true;
+      const { result, type, waitForDebounce, urlBecomes } = setup();
+
+      router.states['search=abc'] = 'committed'; // the router shows it, then navigate() returns
+      type('abc');
+      waitForDebounce(); // "abc" sent
+      routerUpdates(); // the router updated when it committed
+      await act(async () => {
+        await Promise.resolve(); // its navigate() has returned
+      });
+
+      router.states['search=abc'] = 'lost'; // ...and moves on to newer URLs
+      routerUpdates();
+
+      type('abcd');
+      urlBecomes('abc'); // React gets round to rendering the old URL now
+
+      expect(result.current.value).toBe('abcd');
+    });
+
+    it('an update that the router never showed is forgotten when it says it will not come', async () => {
+      router.returnsPromise = true;
+      const { result, type, waitForDebounce, urlBecomes } = setup();
+
+      type('abc');
+      waitForDebounce();
+      await act(async () => {
+        await Promise.resolve();
+      });
+      router.states['search=abc'] = 'lost'; // replaced, redirected, or held and reset
+      routerUpdates();
+
+      type('abcd');
+      urlBecomes('abc');
+
+      expect(result.current.value).toBe('abc'); // somebody else's URL: the box follows it
+    });
+
+    it('an update is not forgotten before its navigate() has returned', () => {
+      router.returnsPromise = true;
+      const { result, type, waitForDebounce, urlBecomes } = setup();
+
+      type('abc');
+      waitForDebounce();
+      router.states['search=abc'] = 'lost'; // the router has not caught up yet
+      routerUpdates();
+
+      type('abcd');
+      urlBecomes('abc');
+
+      expect(result.current.value).toBe('abcd');
+    });
   });
 });

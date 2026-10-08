@@ -344,6 +344,150 @@ describe('useQueryParamInput', () => {
     expect(urls).toEqual(['/products']);
   });
 
+  describe('flush', () => {
+    it('sends the typed text at once, and nothing is sent again when the delay is over', () => {
+      const { result, urls } = setup('/products');
+
+      type(result, 'lip');
+      act(() => {
+        result.current.input.flush();
+      });
+
+      expect(result.current.location.search).toBe('?search=lip');
+
+      wait(1000);
+      expect(urls).toEqual(['/products', '/products?search=lip']);
+    });
+
+    it('sends the trimmed text, and removes the param when the text is empty', () => {
+      const { result } = setup('/products?search=lip&sortBy=name');
+
+      type(result, '  ');
+      act(() => {
+        result.current.input.flush();
+      });
+
+      expect(result.current.location.search).toBe('?sortBy=name');
+    });
+
+    it('does nothing when there is nothing waiting', () => {
+      const { result, urls } = setup('/products?search=lip');
+
+      act(() => {
+        result.current.input.flush();
+      });
+
+      expect(urls).toEqual(['/products?search=lip']);
+    });
+
+    it('does nothing after the text was already sent', () => {
+      const { result, urls } = setup('/products');
+
+      type(result, 'lip');
+      wait(600);
+      act(() => {
+        result.current.input.flush();
+      });
+
+      expect(urls).toEqual(['/products', '/products?search=lip']);
+    });
+
+    it('does nothing after clear()', () => {
+      const { result, urls } = setup('/products');
+
+      type(result, 'lip');
+      act(() => {
+        result.current.input.clear();
+        result.current.input.flush();
+      });
+
+      expect(urls).toEqual(['/products']);
+    });
+
+    it('keeps what the box shows, trailing space included', () => {
+      const { result } = setup('/products');
+
+      type(result, 'lip ');
+      act(() => {
+        result.current.input.flush();
+      });
+
+      expect(result.current.input.value).toBe('lip ');
+    });
+  });
+
+  describe('isPending', () => {
+    it('is true while a typed text waits for its delay, and false once it has been sent', () => {
+      const { result } = setup('/products');
+
+      expect(result.current.input.isPending()).toBe(false);
+
+      type(result, 'lip');
+      expect(result.current.input.isPending()).toBe(true);
+
+      wait(600);
+      expect(result.current.input.isPending()).toBe(false);
+    });
+
+    it('is false after flush() and after clear()', () => {
+      const { result } = setup('/products');
+
+      type(result, 'lip');
+      act(() => {
+        result.current.input.flush();
+      });
+      expect(result.current.input.isPending()).toBe(false);
+
+      type(result, 'lipstick');
+      act(() => {
+        result.current.input.clear();
+      });
+      expect(result.current.input.isPending()).toBe(false);
+    });
+  });
+
+  describe('a URL value with a leading space', () => {
+    it('is shown without it when the page opens', () => {
+      const { result } = setup('/products?search=%20lip');
+
+      expect(result.current.input.value).toBe('lip');
+    });
+
+    it('is shown without it when the box follows the URL', () => {
+      const { result } = setup('/products');
+
+      act(() => {
+        void result.current.navigate('/products?search=%20%20lip%20gloss');
+      });
+
+      expect(result.current.input.value).toBe('lip gloss');
+    });
+
+    it('does not make the box send anything by itself', () => {
+      const { urls } = setup('/products?search=%20lip');
+
+      wait(1000);
+
+      expect(urls).toEqual(['/products?search=%20lip']);
+    });
+  });
+
+  describe('identities of flush and isPending', () => {
+    it('stay the same while the user types and the URL changes', () => {
+      const { result } = setup('/products');
+      const { flush, isPending } = result.current.input;
+
+      type(result, 'lip');
+      wait(600);
+      act(() => {
+        void result.current.navigate('/products?search=other');
+      });
+
+      expect(result.current.input.flush).toBe(flush);
+      expect(result.current.input.isPending).toBe(isPending);
+    });
+  });
+
   describe('React StrictMode', () => {
     it('updates the URL exactly once', () => {
       const { result, urls } = setup('/products', { strict: true });

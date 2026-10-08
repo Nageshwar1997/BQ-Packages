@@ -365,6 +365,78 @@ describe('useQueryParams', () => {
     });
   });
 
+  describe('the hash', () => {
+    it('stays when params are set', () => {
+      const { result } = setup('/products?a=1#reviews');
+
+      act(() => {
+        result.current.query.setParams({ b: '2' });
+      });
+
+      expect(result.current.location.search).toBe('?a=1&b=2');
+      expect(result.current.location.hash).toBe('#reviews');
+    });
+
+    it('stays when params are removed', () => {
+      const { result } = setup('/products?a=1&b=2#reviews');
+
+      act(() => {
+        result.current.query.removeParams(['a']);
+      });
+
+      expect(result.current.location.search).toBe('?b=2');
+      expect(result.current.location.hash).toBe('#reviews');
+    });
+
+    it('stays when all params are cleared', () => {
+      const { result } = setup('/products?a=1&b=2#reviews');
+
+      act(() => {
+        result.current.query.clearParams();
+      });
+
+      expect(result.current.location.search).toBe('');
+      expect(result.current.location.hash).toBe('#reviews');
+    });
+
+    it('stays through several updates in the same tick', () => {
+      const { result } = setup('/products?a=1#reviews');
+
+      act(() => {
+        result.current.query.setParams({ b: '2' });
+        result.current.query.setParams({ c: '3' });
+        result.current.query.removeParams(['a']);
+      });
+
+      expect(result.current.location.search).toBe('?b=2&c=3');
+      expect(result.current.location.hash).toBe('#reviews');
+    });
+
+    it('does not make an update that changes nothing navigate', () => {
+      const { result } = setup('/products?a=1#reviews');
+      const key = result.current.location.key;
+
+      act(() => {
+        result.current.query.setParams({ a: '1' });
+      });
+
+      expect(result.current.location.key).toBe(key);
+    });
+
+    it('is the one the page has now, after the user moved to another section', () => {
+      const { result } = setup('/products?a=1#reviews');
+
+      act(() => {
+        void result.current.navigate('/products?a=1#details');
+      });
+      act(() => {
+        result.current.query.setParams({ b: '2' });
+      });
+
+      expect(result.current.location.hash).toBe('#details');
+    });
+  });
+
   describe('params with several values', () => {
     const ENTRY = '/products?tag=a&tag=b&page=1';
 

@@ -1,77 +1,13 @@
-import { act, render, waitFor } from '@testing-library/react';
-import { createMemoryRouter, RouterProvider } from 'react-router-dom';
-import { afterEach, describe, expect, it } from 'vitest';
+import { act } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { resetPendingSearch } from './pending-search.js';
-import { useQueryParamInput } from './useQueryParamInput.js';
-import { useQueryParams } from './useQueryParams.js';
+import {
+  SHORT_DELAY,
+  setupQueryParamInput as setup,
+} from './test-utils/query-param-input-harness.js';
 
-// The apps use a *data router* (`createBrowserRouter`): `navigate()` is asynchronous there - the new
-// URL is only committed a moment later. These tests use real timers: a short debounce and a loader
-// that makes every navigation take ~30ms, like the apps' routes (middleware, lazy pages).
-const DELAY = 40;
-const NAVIGATION_MS = 30;
-
-const setup = (entry: string, delay = DELAY) => {
-  const exposed: {
-    input?: ReturnType<typeof useQueryParamInput>;
-    filters?: ReturnType<typeof useQueryParams>;
-  } = {};
-  // every value the box rendered with, in order
-  const seen: string[] = [];
-
-  // a second component that also uses the URL, like the status select next to a search box
-  const Filters = () => {
-    exposed.filters = useQueryParams();
-    return null;
-  };
-
-  const Probe = () => {
-    exposed.input = useQueryParamInput('search', { delay });
-    seen.push(exposed.input.value);
-    return <Filters />;
-  };
-
-  const router = createMemoryRouter(
-    [
-      {
-        path: '*',
-        Component: Probe,
-        loader: async () => {
-          await new Promise((resolve) => setTimeout(resolve, NAVIGATION_MS));
-          return null;
-        },
-      },
-    ],
-    { initialEntries: [entry] },
-  );
-  render(<RouterProvider router={router} />);
-
-  const input = () => {
-    if (!exposed.input) throw new Error('hook not rendered yet');
-    return exposed.input;
-  };
-
-  const filters = () => {
-    if (!exposed.filters) throw new Error('hook not rendered yet');
-    return exposed.filters;
-  };
-
-  const settled = () =>
-    waitFor(() => {
-      expect(router.state.initialized).toBe(true);
-      expect(router.state.navigation.state).toBe('idle');
-      expect(exposed.input).toBeDefined();
-      expect(exposed.filters).toBeDefined();
-    });
-
-  const navigating = () =>
-    waitFor(() => {
-      expect(router.state.navigation.state).toBe('loading');
-    });
-
-  return { router, input, filters, settled, navigating, seen };
-};
+const LONG_DELAY = 300;
 
 describe('useQueryParamInput with a data router (async navigation)', () => {
   afterEach(() => {
@@ -79,50 +15,47 @@ describe('useQueryParamInput with a data router (async navigation)', () => {
   });
 
   it('writes the text to the URL once the navigation has committed', async () => {
-    const { router, input, settled } = setup('/products?sortBy=name');
+    const { input, settled, urlIs } = setup('/products?sortBy=name');
     await settled();
 
     act(() => {
       input().setValue('lip');
     });
-    await waitFor(() => {
-      expect(router.state.location.search).toBe('?sortBy=name&search=lip');
-    });
+    await urlIs('?sortBy=name&search=lip');
 
     expect(input().value).toBe('lip');
   });
 
   it('what the user types while their own URL update is committing is not overwritten', async () => {
-    const { router, input, settled, navigating, seen } = setup('/products');
+    const { input, settled, navigating, urlIs, gate, seen, setDelay } = setup('/products');
     await settled();
 
+    gate.hold();
     act(() => {
       input().setValue('abc');
     });
     await navigating(); // the debounce fired: the URL update for "abc" is in flight
+    setDelay(LONG_DELAY); // "abcd" will wait so long that it cannot be sent during this test
     act(() => {
-      input().setValue('abcd');
+      input().setValue('abcd'); // typed while "abc" is on its way
     });
-    await waitFor(() => {
-      expect(router.state.location.search).toBe('?search=abcd');
-    });
+    gate.release();
+    await urlIs('?search=abc'); // the echo of "abc" lands while "abcd" is still waiting...
     await settled();
 
-    expect(input().value).toBe('abcd');
+    expect(input().value).toBe('abcd'); // ...and does not overwrite it
     // after "abcd" was typed the box never went back to showing "abc"
     expect(seen.slice(seen.indexOf('abcd'))).not.toContain('abc');
   });
 
   it('keeps a trailing space after its own URL update comes back', async () => {
-    const { router, input, settled } = setup('/products');
+    const { input, settled, urlIs } = setup('/products');
     await settled();
 
     act(() => {
       input().setValue('lip ');
     });
-    await waitFor(() => {
-      expect(router.state.location.search).toBe('?search=lip');
-    });
+    await urlIs('?search=lip');
     await settled();
 
     expect(input().value).toBe('lip ');
@@ -130,22 +63,22 @@ describe('useQueryParamInput with a data router (async navigation)', () => {
 
   describe('together with another component that updates the URL', () => {
     it('a status picked in the same moment as the text is typed: both end up in the URL', async () => {
-      const { router, input, filters, settled } = setup('/products?sortBy=name');
+      const { input, filters, settled, urlIs } = setup('/products?sortBy=name');
       await settled();
 
       act(() => {
         filters().setParams({ status: 'active' });
         input().setValue('abc');
       });
-      await waitFor(() => {
-        expect(router.state.location.search).toBe('?sortBy=name&status=active&search=abc');
-      });
+
+      await urlIs('?sortBy=name&status=active&search=abc');
     });
 
     it('a status picked while the search update is in flight: both end up in the URL', async () => {
-      const { router, input, filters, settled, navigating } = setup('/products?sortBy=name');
+      const { input, filters, settled, navigating, urlIs, gate } = setup('/products?sortBy=name');
       await settled();
 
+      gate.hold();
       act(() => {
         input().setValue('abc');
       });
@@ -153,48 +86,52 @@ describe('useQueryParamInput with a data router (async navigation)', () => {
       act(() => {
         filters().setParams({ status: 'active' });
       });
-      await settled();
+      gate.release();
 
-      expect(router.state.location.search).toBe('?sortBy=name&search=abc&status=active');
+      await urlIs('?sortBy=name&search=abc&status=active');
     });
 
-    it('a status picked just before the debounce fires: both end up in the URL', async () => {
-      const { router, input, filters, settled } = setup('/products?sortBy=name');
+    it('a status picked while the text is still waiting for its debounce: both end up in the URL', async () => {
+      const { input, filters, settled, urlIs } = setup('/products?sortBy=name', {
+        delay: LONG_DELAY,
+      });
       await settled();
 
       act(() => {
-        input().setValue('abc');
+        input().setValue('abc'); // waiting for its debounce
+        filters().setParams({ status: 'active' }); // in the same tick, so it is always first
       });
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, DELAY - 10));
-      });
-      act(() => {
-        filters().setParams({ status: 'active' });
-      });
-      await waitFor(() => {
-        expect(router.state.location.search).toContain('search=abc');
-        expect(router.state.location.search).toContain('status=active');
-      });
+
+      // the text is sent on top of the status, whichever the router commits first
+      await urlIs('?sortBy=name&status=active&search=abc');
     });
   });
 
   it('follows a URL change that happens while typed text is waiting, and drops that text', async () => {
-    // a long debounce: the other URL must have landed (navigation + render) well before it fires, even on a busy machine
-    const longDelay = 400;
-    const { router, input, settled } = setup('/products?search=old', longDelay);
+    const { router, input, settled } = setup('/products?search=old');
     await settled();
 
-    act(() => {
-      input().setValue('new');
-    });
-    await act(async () => {
-      await router.navigate('/products?search=other');
-    });
-    await new Promise((resolve) => setTimeout(resolve, longDelay * 2));
-    await settled();
+    // fake timers (only for the debounce): the other URL lands first, and then time passes
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
 
-    expect(input().value).toBe('other');
+    try {
+      act(() => {
+        input().setValue('new'); // waiting for its debounce
+      });
+      await act(async () => {
+        await router.navigate('/products?search=other');
+      });
+      expect(input().value).toBe('other'); // the box followed the URL...
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(5000); // ...so "new" is dropped when its time comes
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+
     expect(router.state.location.search).toBe('?search=other');
+    expect(input().value).toBe('other');
   });
 
   // Fast typing with a navigation that takes about as long as the debounce: several updates are on
@@ -209,7 +146,7 @@ describe('useQueryParamInput with a data router (async navigation)', () => {
         return state / 4294967296;
       };
 
-      const { router, input, settled, seen } = setup('/products');
+      const { input, settled, urlIs, seen } = setup('/products', { latencyMs: 30 });
       await settled();
 
       const typed: string[] = [];
@@ -225,28 +162,26 @@ describe('useQueryParamInput with a data router (async navigation)', () => {
           await new Promise((resolve) => setTimeout(resolve, gap));
         });
       }
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, DELAY * 4));
-      });
+      await urlIs(`?search=${text}`);
       await settled();
       await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, DELAY * 3));
+        await new Promise((resolve) => setTimeout(resolve, SHORT_DELAY * 3));
       });
 
       const shown = seen.filter((value) => value !== '').map((value) => typed.indexOf(value));
       expect(shown.every((index) => index >= 0)).toBe(true);
       expect(shown).toEqual([...shown].sort((a, b) => a - b));
       expect(input().value).toBe(text);
-      expect(router.state.location.search).toBe(`?search=${text}`);
     },
     30_000,
   );
 
   describe('clear while a URL update of its own is on its way', () => {
     it('ends with the box showing what the URL ended up with', async () => {
-      const { router, input, settled, navigating } = setup('/products');
+      const { input, settled, navigating, urlIs, gate } = setup('/products');
       await settled();
 
+      gate.hold();
       act(() => {
         input().setValue('abc');
       });
@@ -254,16 +189,18 @@ describe('useQueryParamInput with a data router (async navigation)', () => {
       act(() => {
         input().clear(); // clear() never touches the URL, so "abc" still lands...
       });
+      gate.release();
+      await urlIs('?search=abc');
       await settled();
 
-      expect(router.state.location.search).toBe('?search=abc');
       expect(input().value).toBe('abc'); // ...and the box must not disagree with it
     });
 
     it('stays empty when the URL is cleared together with the box (a "Clear" button)', async () => {
-      const { router, input, filters, settled, navigating } = setup('/products');
+      const { input, filters, settled, navigating, urlIs, gate } = setup('/products');
       await settled();
 
+      gate.hold();
       act(() => {
         input().setValue('abc');
       });
@@ -272,16 +209,17 @@ describe('useQueryParamInput with a data router (async navigation)', () => {
         input().clear();
         filters().clearParams();
       });
+      gate.release();
+      await urlIs('');
       await settled();
-      await new Promise((resolve) => setTimeout(resolve, DELAY * 3));
+      await new Promise((resolve) => setTimeout(resolve, SHORT_DELAY * 3));
 
-      expect(router.state.location.search).toBe('');
       expect(input().value).toBe('');
     });
   });
 
   it('is emptied by a status change that removes the param, without writing anything back', async () => {
-    const { router, input, filters, settled } = setup('/products?search=lipstick&sortBy=name');
+    const { input, filters, settled, urlIs } = setup('/products?search=lipstick&sortBy=name');
     await settled();
     expect(input().value).toBe('lipstick');
 
@@ -289,10 +227,11 @@ describe('useQueryParamInput with a data router (async navigation)', () => {
       filters().removeParams(['search']);
       filters().setParams({ status: 'draft' });
     });
+    await urlIs('?sortBy=name&status=draft');
     await settled();
-    await new Promise((resolve) => setTimeout(resolve, DELAY * 3));
+    await new Promise((resolve) => setTimeout(resolve, SHORT_DELAY * 3));
 
-    expect(router.state.location.search).toBe('?sortBy=name&status=draft');
     expect(input().value).toBe('');
+    await urlIs('?sortBy=name&status=draft'); // still: nothing was written back
   });
 });

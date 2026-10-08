@@ -19,8 +19,12 @@ export interface IUseDebounce<T extends unknown[]> {
  *   `trigger`), so an inline `callback` is fine and they are safe in dependency arrays.
  * - A pending call is cancelled when the component unmounts, and a `trigger()` made after that is
  *   ignored.
+ * - `flush()` runs the pending call right now (e.g. when the user presses Enter) and nothing runs
+ *   again when its time would have come; it does nothing when no call is pending. `isPending()` says
+ *   whether a call is waiting. Both are functions that read the current state, not values, so asking
+ *   never causes a re-render.
  *
- * Returns `{ trigger, cancel }` rather than a bare callable - `cancel` (mirrors lodash's
+ * Returns `{ trigger, cancel, flush, isPending }` rather than a bare callable - `cancel` (mirrors lodash's
  * `_.debounce().cancel()`) is needed by any caller that sometimes has to bypass the debounce and
  * commit a value immediately: without explicitly cancelling, a still-pending timeout from an
  * *earlier* trigger() call survives an immediate/direct update and fires later anyway, clobbering
@@ -32,6 +36,8 @@ export interface IUseDebounce<T extends unknown[]> {
  */
 export const useDebounce = <T extends unknown[]>({ callback, delay = 500 }: IUseDebounce<T>) => {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // The args of the pending call (null when none is pending).
+  const argsRef = useRef<T | null>(null);
   const callbackRef = useRef(callback);
   const isMountedRef = useRef(true);
 
@@ -46,19 +52,35 @@ export const useDebounce = <T extends unknown[]>({ callback, delay = 500 }: IUse
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
+
+    argsRef.current = null;
   }, []);
+
+  // Runs the pending call (with the latest callback) and forgets it, *before* running it, so the
+  // callback can `trigger()` again.
+  const run = useCallback(() => {
+    const args = argsRef.current;
+
+    cancel();
+
+    if (args) callbackRef.current(...args);
+  }, [cancel]);
+
+  const flush = useCallback(() => {
+    if (timeoutRef.current) run();
+  }, [run]);
+
+  const isPending = useCallback(() => timeoutRef.current !== null, []);
 
   const trigger = useCallback(
     (...args: T) => {
       if (!isMountedRef.current) return;
 
       cancel();
-      timeoutRef.current = setTimeout(() => {
-        timeoutRef.current = null;
-        callbackRef.current(...args);
-      }, delay);
+      argsRef.current = args;
+      timeoutRef.current = setTimeout(run, delay);
     },
-    [delay, cancel],
+    [delay, cancel, run],
   );
 
   useEffect(() => {
@@ -71,5 +93,8 @@ export const useDebounce = <T extends unknown[]>({ callback, delay = 500 }: IUse
     };
   }, [cancel]);
 
-  return useMemo(() => ({ trigger, cancel }), [trigger, cancel]);
+  return useMemo(
+    () => ({ trigger, cancel, flush, isPending }),
+    [trigger, cancel, flush, isPending],
+  );
 };

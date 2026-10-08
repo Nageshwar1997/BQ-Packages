@@ -1,7 +1,20 @@
 import { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 
-import { readPendingSearch, setPendingSearch, settlePendingSearch } from './pending-search.js';
+import {
+  clearPendingSearch,
+  readLastStartedSearch,
+  readPendingSearch,
+  setPendingSearch,
+  settlePendingSearch,
+} from './pending-search.js';
 import { buildSearch, normalizeSearch, parseParams, type TParamsUpdate } from './query-string.js';
+import {
+  classifyNavigation,
+  readRouterHash,
+  readRouterSearch,
+  type TNavigationState,
+  useDataRouter,
+} from './router-search.js';
 import { usePathParams } from './usePathParams.js';
 
 export type { TStringRecord } from './query-string.js';
@@ -18,6 +31,146 @@ export interface IQueryParamsUpdateOptions {
 }
 
 /**
+ * What an update did. Only `useQueryParamInput` looks at it: it has to know whether its text really
+ * went out, and how that ended.
+ */
+export interface IUpdateResult {
+  /** `false`: the update would have changed nothing, so nothing was sent. */
+  sent: boolean;
+  /** The query string that was navigated to (only when `sent`). */
+  search: string;
+  /**
+   * With a data router: settles when `navigate()` has returned its promise. That is *not* always
+   * the end of the navigation (a revalidation can take it over), so ask `navigationStateOf` what
+   * became of it. `null` otherwise.
+   */
+  done: Promise<void> | null;
+}
+
+const NOTHING_SENT: IUpdateResult = { sent: false, search: '', done: null };
+
+/** A declarative router's `navigate()` returns nothing; a data router's returns a promise. (Not `instanceof Promise`: that fails for a promise made in another window/iframe.) */
+const isThenable = (value: unknown): value is PromiseLike<unknown> =>
+  typeof (value as PromiseLike<unknown> | undefined)?.then === 'function';
+
+/**
+ * The logic of `useQueryParams`. The public hook wraps it and returns nothing from the update
+ * functions; `useQueryParamInput` uses the results. Not exported from the package.
+ */
+export const useQueryParamsEngine = () => {
+  const { navigate, search, pathname, hash } = usePathParams();
+  const router = useDataRouter();
+
+  // The URL React showed in its latest render. Only used with a declarative router (see
+  // `currentSearch`), which has no router state to ask.
+  const committedSearchRef = useRef(search);
+  const committedHashRef = useRef(hash);
+
+  useLayoutEffect(() => {
+    committedSearchRef.current = search;
+    committedHashRef.current = hash;
+  });
+
+  // Once the router shows the URL we navigated to, that navigation is finished.
+  useLayoutEffect(() => {
+    settlePendingSearch(pathname, search);
+  }, [pathname, search]);
+
+  const queryParams = useMemo(() => parseParams(search), [search]);
+
+  // The query string the next update has to build on - the URL as it is *about to be*, not as it was
+  // rendered, or updates made before the router and React caught up would overwrite each other:
+  // 1. an update of ours that has not finished yet (see `pending-search.ts`);
+  // 2. with a data router, what the router says: our own update held by `useBlocker`, a navigation in
+  //    flight, or else the committed URL - right even before React has rendered it;
+  // 3. otherwise (declarative router) the URL React showed in its latest render.
+  const currentSearch = useCallback(() => {
+    const pending = readPendingSearch(pathname);
+
+    if (pending !== null) return pending;
+
+    const fromRouter = router
+      ? readRouterSearch(router, pathname, readLastStartedSearch(pathname))
+      : null;
+
+    return fromRouter ?? committedSearchRef.current;
+  }, [pathname, router]);
+
+  // The hash (`#reviews`) is not a param, so an update keeps the one the page has now.
+  const currentHash = useCallback(
+    () => (router ? readRouterHash(router, pathname) : null) ?? committedHashRef.current,
+    [pathname, router],
+  );
+
+  // `navigate()` of a data router returns a promise that settles when the navigation is over, however
+  // it ended: committed, replaced by a newer navigation, blocked by `useBlocker`, or redirected. From
+  // then on the router itself knows the truth, so a pending update must not linger and be built on.
+  const navigateTo = useCallback(
+    (nextSearch: string, options?: IQueryParamsUpdateOptions): IUpdateResult => {
+      const token = setPendingSearch(pathname, nextSearch);
+      const finished = navigate(
+        { pathname, search: nextSearch, hash: currentHash() },
+        { replace: options?.replace },
+      );
+
+      let done: Promise<void> | null = null;
+
+      if (isThenable(finished)) {
+        const forget = () => {
+          clearPendingSearch(token);
+        };
+
+        done = Promise.resolve(finished).then(forget, forget);
+      }
+
+      return { sent: true, search: nextSearch, done };
+    },
+    [currentHash, navigate, pathname],
+  );
+
+  const setParams = useCallback(
+    (params: TParamsUpdate, options?: IQueryParamsUpdateOptions): IUpdateResult => {
+      const current = currentSearch();
+      const nextSearch = buildSearch(current, params);
+
+      // Nothing would change: don't add a duplicate entry for the very same URL.
+      if (nextSearch === normalizeSearch(current)) return NOTHING_SENT;
+
+      return navigateTo(nextSearch, options);
+    },
+    [currentSearch, navigateTo],
+  );
+
+  const removeParams = useCallback(
+    (keys: string | string[], options?: IQueryParamsUpdateOptions): IUpdateResult =>
+      // A blank value removes a key, and an object update keeps the other params exactly where they were.
+      setParams(
+        Object.fromEntries((Array.isArray(keys) ? keys : [keys]).map((key) => [key, ''])),
+        options,
+      ),
+    [setParams],
+  );
+
+  const clearParams = useCallback(
+    (options?: IQueryParamsUpdateOptions): IUpdateResult => {
+      if (normalizeSearch(currentSearch()) === '') return NOTHING_SENT;
+
+      return navigateTo('', options);
+    },
+    [currentSearch, navigateTo],
+  );
+
+  /** Where a navigation to `nextSearch` stands in the router (`null` without a data router). */
+  const navigationStateOf = useCallback(
+    (nextSearch: string): TNavigationState | null =>
+      router ? classifyNavigation(router, pathname, nextSearch) : null,
+    [pathname, router],
+  );
+
+  return { queryParams, setParams, removeParams, clearParams, navigationStateOf };
+};
+
+/**
  * Read and update the URL query string (`?a=1&b=2`) of the current route.
  *
  * - `queryParams`: the current params as an object (a repeated key keeps its last value). It only
@@ -32,77 +185,41 @@ export interface IQueryParamsUpdateOptions {
  * - Several updates in a row build on each other, like `setState` updaters do - also when they come
  *   from different components that each call `useQueryParams()`, and also while the router has not
  *   finished the previous navigation yet (with a data router that takes a few ms).
- * - A param an update does not touch keeps all its values (`?tag=a&tag=b`) and its position.
+ * - A param an update does not touch keeps all its non-blank values (`?tag=a&tag=b`) and its
+ *   position.
  * - Each update navigates to the same pathname with the new `search`, as a new history entry unless
  *   `{ replace: true }` is passed. An update that would leave the query string unchanged does not
- *   navigate at all. The hash and the location `state` are not kept.
+ *   navigate at all. The hash is kept; the location `state` is not.
+ * - With a data router an update builds on what the router says the URL is or is about to be:
+ *   a navigation in flight, an update of ours held by `useBlocker` (until `reset()`), or else the
+ *   committed URL - never on an update that was blocked and reset, replaced, redirected or failed.
  *
  * Needs to be rendered inside a React Router (`react-router-dom`) router.
  */
 export const useQueryParams = () => {
-  const { navigate, search, pathname } = usePathParams();
-
-  // The router's committed query string, as of the latest render. Used when no update of ours is
-  // still waiting to be committed (see `pending-search.ts`, which tracks those).
-  const committedSearchRef = useRef(search);
-
-  useLayoutEffect(() => {
-    committedSearchRef.current = search;
-  });
-
-  // Once the router shows the URL we navigated to, that navigation is finished.
-  useLayoutEffect(() => {
-    settlePendingSearch(pathname, search);
-  }, [pathname, search]);
-
-  const queryParams = useMemo(() => parseParams(search), [search]);
-
-  const currentSearch = useCallback(
-    () => readPendingSearch(pathname) ?? committedSearchRef.current,
-    [pathname],
-  );
+  const engine = useQueryParamsEngine();
+  const { setParams: send, removeParams: sendRemove, clearParams: sendClear } = engine;
 
   const setParams = useCallback(
     (params: TParamsUpdate, options?: IQueryParamsUpdateOptions): void => {
-      const current = currentSearch();
-      const nextSearch = buildSearch(current, params);
-
-      // Nothing would change: don't add a duplicate entry for the very same URL.
-      if (nextSearch === normalizeSearch(current)) return;
-
-      setPendingSearch(pathname, nextSearch);
-      void navigate({ pathname, search: nextSearch }, { replace: options?.replace });
+      send(params, options);
     },
-    [currentSearch, navigate, pathname],
+    [send],
   );
 
   const removeParams = useCallback(
     (keys: string | string[], options?: IQueryParamsUpdateOptions): void => {
-      const keysToRemove = new Set(Array.isArray(keys) ? keys : [keys]);
-
-      setParams(
-        (prevParams) =>
-          Object.fromEntries(Object.entries(prevParams).filter(([key]) => !keysToRemove.has(key))),
-        options,
-      );
+      sendRemove(keys, options);
     },
-    [setParams],
+    [sendRemove],
   );
 
   const clearParams = useCallback(
     (options?: IQueryParamsUpdateOptions): void => {
-      if (normalizeSearch(currentSearch()) === '') return;
-
-      setPendingSearch(pathname, '');
-      void navigate({ pathname, search: '' }, { replace: options?.replace });
+      sendClear(options);
     },
-    [currentSearch, navigate, pathname],
+    [sendClear],
   );
 
-  return {
-    queryParams,
-    setParams,
-    removeParams,
-    clearParams,
-  };
+  return { queryParams: engine.queryParams, setParams, removeParams, clearParams };
 };

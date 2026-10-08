@@ -16,26 +16,36 @@ Needs `react` (^19) in the app (peer dependency). The router hooks (`usePathPara
 
 ### `useDebounce`
 
-Delays calling `callback` until `delay` ms after the **last** `trigger()` call. Returns `{ trigger, cancel }`.
+Delays calling `callback` until `delay` ms after the **last** `trigger()` call. Returns `{ trigger, cancel, flush, isPending }`.
 
 ```tsx
 import { useDebounce } from '@beautinique/frontend-hooks';
 
-const { trigger: handleSearch, cancel } = useDebounce({
+const {
+  trigger: handleSearch,
+  cancel,
+  flush,
+  isPending,
+} = useDebounce({
   callback: (query: string) => {
     runSearch(query);
   },
   delay: 300, // default 500
 });
 
-<input onChange={(event) => handleSearch(event.target.value)} />;
+<input
+  onChange={(event) => handleSearch(event.target.value)}
+  onKeyDown={(event) => event.key === 'Enter' && flush()} // run the waiting call now
+/>;
 ```
 
 - Every `trigger(...args)` restarts the timer; only the last call's args reach `callback`.
 - The `callback` that runs is the one from the **latest render**, even if it changed after `trigger()` was called, so it never sees stale state.
-- `trigger` and `cancel` keep the same identity between renders, so an inline `callback` is fine (only a new `delay` gives a new `trigger`). They are safe in dependency arrays.
+- `trigger`, `cancel`, `flush` and `isPending` keep the same identity between renders, so an inline `callback` is fine (only a new `delay` gives a new `trigger`). They are safe in dependency arrays.
 - A call that is already pending keeps the delay it was scheduled with.
 - `cancel()` drops the pending call - use it when you sometimes have to commit a value immediately, otherwise a still-pending earlier `trigger()` would fire later with stale data.
+- `flush()` runs the pending call **now**, with its args (and the latest `callback`), and nothing runs again when its time would have come. It does nothing when no call is pending. The callback may `trigger()` again.
+- `isPending()` says whether a call is waiting. Like `flush`, it is a function that reads the current state, not a value, so asking never causes a re-render.
 - A pending call is cancelled when the component unmounts, and a `trigger()` made after that is ignored.
 
 ### `useIsSmallScreen`
@@ -114,15 +124,26 @@ removeParams(['login'], { replace: true });
 
 - `''`, `null` and `undefined` values are left out of the URL.
 - Several updates in a row build on each other, like `setState` updaters: `setParams({ a: '1' }); setParams({ b: '2' });` ends with `?a=1&b=2`. This also holds when the updates come from **different components** that each call `useQueryParams()` (a status select in the page and a debounced search box in a child), and while the router has not finished the previous navigation yet. With a data router (`createBrowserRouter`) `navigate()` only commits the new URL a few ms later, so an update made in that window still builds on the pending one instead of overwriting it.
-- A param an update does not touch keeps **all** its values and its position: changing `page` in `?tag=a&tag=b&page=1` leaves both `tag` values alone. A param you set gets exactly one value. With an updater function, "does not touch" means the value you return is the one you were given.
+- A param an update does not touch keeps **all** its non-blank values and its position: changing `page` in `?tag=a&tag=b&page=1` leaves both `tag` values alone. A param you set gets exactly one value. With an updater function, "does not touch" means the value you return is the one you were given.
+- Order: with an object update (`setParams({ ... })`, `removeParams`) the URL keeps its own order and new params go at the end. With an **updater function** the order of the object you return is used, and JavaScript always lists keys that look like numbers (`"2"`) first.
 - An update that would leave the query string unchanged does **not navigate** (setting a value that is already there, removing a key that is not there, `clearParams()` with no query), so it never adds a duplicate history entry.
 - Every update navigates to the same pathname with the new `search`, as a **new history entry** by default. Pass `{ replace: true }` (second argument of `setParams`/`removeParams`, first of `clearParams`) to replace the current entry instead. Use it for updates the user should not be able to go "Back" to, like closing a modal.
-- The hash and the location `state` are not kept.
+- The **hash** (`#reviews`) is kept; the location `state` is not.
 - `setParams`, `removeParams` and `clearParams` keep the same identity while the URL does not change.
+
+**With a data router** (`createBrowserRouter`) an update builds on what the router says the URL is, or is about to be - never on a URL that did not happen:
+
+- a navigation still in flight, whoever started it (a link, `navigate()`...): the update builds on its target, so nothing is lost;
+- an update held by `useBlocker`: while the dialog is open the next update builds on the held one (`proceed()` goes to the last held target, so both apply), and after `reset()` it builds on the URL the user is really on. A held Back/Forward or link is not ours and is ignored;
+- an update that was replaced by a newer navigation, redirected by a loader, or that failed: the next update builds on where the user ended up.
+
+With a declarative router (`BrowserRouter`, `MemoryRouter`) there is no router state to ask, so a pending update is remembered until the URL shows it (or for 2 seconds at most).
+
+The hook never registers a blocker itself (a router only runs one `useBlocker`). It reads the router through React Router's `UNSAFE_DataRouterContext`, like React Router's own internals do; if that were ever unavailable it behaves as with a declarative router. A page is assumed to have one router. If two copies of this package end up on the same page, they share what is pending.
 
 ### `useQueryParamInput`
 
-A text box that is mirrored in a URL query param - a search box and `?search=...`. Builds on `useQueryParams`, so it must be rendered inside a `react-router-dom` router too. Returns `{ value, setValue, clear }`.
+A text box that is mirrored in a URL query param - a search box and `?search=...`. Builds on `useQueryParams`, so it must be rendered inside a `react-router-dom` router too. Returns `{ value, setValue, clear, flush, isPending }`.
 
 ```tsx
 import { useQueryParamInput } from '@beautinique/frontend-hooks';
@@ -143,12 +164,26 @@ const search = useQueryParamInput('search'); // or useQueryParamInput('search', 
 - When the param changes by itself - another filter resets it, the user presses Back/Forward, a "Clear filters" button calls `clearParams()` - the box follows it.
 - The URL update the box made itself coming back does **not** touch the box. This matters with a data router, where the URL commits a few ms after typing: whatever the user typed in the meantime is kept. The same holds when several updates are on their way at once (fast typing, a slow navigation): an older one that lands after a newer one was sent does not move the box back.
 - A typed text that is still waiting for its debounce is dropped when the box was changed in the meantime (for example reset by another filter), so an old search cannot reappear in the URL.
+- A URL value with a leading space (`?search=%20lip`) is shown without it, like typing does.
+
+**`useBlocker`, redirects and replaced updates**
+
+- An update that `useBlocker` holds is still _expected_: `proceed()` delivers it, so the box does not follow it as if somebody else had changed the URL, and what the user typed meanwhile stays. If the blocker is `reset()` it is not expected any more, and a later URL with the same text is followed like any other change.
+- An update that a loader redirected, that another navigation replaced, or that failed will never arrive, so it is not expected either.
+- While an update is held the box keeps the text the user typed, so box and URL differ until the user sends again (or the URL changes).
+- A text that makes no change to the URL (the URL has it already) is not sent and not expected.
+
+**Sending now**
+
+- `flush()` sends the waiting text at once (for example on Enter) and nothing is sent again when the delay is over. It does nothing when nothing is waiting.
+- `isPending()` says whether a typed text is waiting for its delay. It is a function, so asking never causes a re-render.
 
 **Clearing**
 
 - `clear()` empties the box at once and drops the text waiting for its debounce. It does **not** touch the URL: pair it with `removeParams`/`clearParams` when the URL has to be cleared as well.
 - If a URL update of the box is already on its way when `clear()` is called, the box ends up showing whatever the URL ended up with, never something different from it.
-- `value` is a string; `setValue` and `clear` keep the same identity, and the returned object only changes when `value` does.
+- `value` is a string; `setValue`, `clear`, `flush` and `isPending` keep the same identity, and the returned object only changes when `value` does.
+- Only text values are supported, and a page is assumed to have one router.
 
 ## Development
 

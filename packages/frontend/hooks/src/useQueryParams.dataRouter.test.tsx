@@ -1,74 +1,8 @@
-import { act, render, waitFor } from '@testing-library/react';
-import { useState } from 'react';
-import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { act, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { resetPendingSearch } from './pending-search.js';
-import { useQueryParams } from './useQueryParams.js';
-
-// The apps use a *data router* (`createBrowserRouter`): `navigate()` is asynchronous there - the new
-// URL is only committed a moment later, after the router has finished the navigation. The other
-// test file uses `MemoryRouter`, where the update is committed together with the next render.
-const setup = (entry: string) => {
-  const exposed: {
-    query?: ReturnType<typeof useQueryParams>;
-    other?: ReturnType<typeof useQueryParams>;
-    rerender?: () => void;
-  } = {};
-
-  // A second component using the hook, like a page with a filter bar and a search box that each
-  // call useQueryParams() on their own.
-  const Other = () => {
-    exposed.other = useQueryParams();
-    return null;
-  };
-
-  const Probe = () => {
-    const [, force] = useState(0);
-    exposed.rerender = () => {
-      force((count) => count + 1);
-    };
-    exposed.query = useQueryParams();
-    return <Other />;
-  };
-
-  const router = createMemoryRouter(
-    [
-      {
-        path: '*',
-        Component: Probe,
-        // like the apps' routes (middleware, lazy pages): a navigation takes a few ms to commit
-        loader: async () => {
-          await new Promise((resolve) => setTimeout(resolve, 30));
-          return null;
-        },
-      },
-    ],
-    { initialEntries: [entry] },
-  );
-  render(<RouterProvider router={router} />);
-
-  const query = () => {
-    if (!exposed.query) throw new Error('hook not rendered yet');
-    return exposed.query;
-  };
-
-  const other = () => {
-    if (!exposed.other) throw new Error('hook not rendered yet');
-    return exposed.other;
-  };
-
-  // with a loader the router needs a moment to initialise (and render the hook) before anything can be tested
-  const settled = () =>
-    waitFor(() => {
-      expect(router.state.initialized).toBe(true);
-      expect(router.state.navigation.state).toBe('idle');
-      expect(exposed.query).toBeDefined();
-      expect(exposed.other).toBeDefined();
-    });
-
-  return { router, query, other, settled, rerender: () => exposed.rerender?.() };
-};
+import { setupQueryParams as setup } from './test-utils/query-params-harness.js';
 
 describe('useQueryParams with a data router (async navigation)', () => {
   // the pending-navigation store is shared by the whole module: start every test from a clean one
@@ -200,6 +134,24 @@ describe('useQueryParams with a data router (async navigation)', () => {
       });
       expect(router.state.location.search).toBe('?a=1&b=2');
     });
+  });
+
+  it('keeps the hash through updates that are still in flight', async () => {
+    const { router, query, other, settled, gate } = setup('/products?sort=name#reviews');
+    await settled();
+
+    gate.hold();
+    act(() => {
+      query().setParams({ status: 'draft' });
+    });
+    act(() => {
+      other().removeParams(['sort']);
+    });
+    gate.release();
+    await settled();
+
+    expect(router.state.location.search).toBe('?status=draft');
+    expect(router.state.location.hash).toBe('#reviews');
   });
 
   it('follows the real URL again once a navigation commits (Back)', async () => {
