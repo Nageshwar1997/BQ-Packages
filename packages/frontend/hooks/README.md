@@ -61,6 +61,8 @@ const isMobile = useIsSmallScreen(767);
 - The first client render already has the correct value (no `false` then `true` flash on small screens).
 - Changing `width` gives the value for the new width straight away.
 - Safe to render on the server: there it returns `false` (nothing from `window` is touched), and the real value is used once the page runs in the browser.
+- `useIsSmallScreen(width, { serverValue })`: if you know the visitor's device on the server (a user-agent or client-hint guess), pass it as `serverValue` and the server markup and the hydration render use it instead of `false`, so a phone does not flash the desktop layout first. The real value replaces it right after hydration, and a plain client render never uses it.
+- One `MediaQueryList` is created per query (not on every render), and without `window.matchMedia` the hook stays `false`.
 
 ### `useOutsideClick`
 
@@ -77,7 +79,39 @@ const containerRef = useOutsideClick<HTMLDivElement>(() => setIsOpen(false), { e
 - `callback` receives the `pointerdown` event (`PointerEvent`: mouse, touch or pen).
 - `options.enabled` turns the listener off (for example while a popup is closed). **Defaults to `true`**, also when you pass an options object without `enabled`.
 - Listens for `pointerdown` on `document` in the capture phase, so an inner `stopPropagation()` cannot hide the press.
-- The listener is added once, and only re-added when `enabled` changes. The latest `callback` is always used, so an inline function costs nothing.
+- "Inside" comes from the path the event took (`event.composedPath()`), not from `element.contains(event.target)`. That path is fixed when the event is dispatched, so a press still counts as inside if another listener removed the pressed node first, and it works for an element inside an (open) shadow root, where `event.target` is the shadow host.
+- The listener is added once, and only re-added when `enabled` (or whether `onFocusOutside` is given) changes. The latest `callback`, `ignore` and `onFocusOutside` are always used, so inline functions and arrays cost nothing.
+
+#### Popups rendered with `createPortal`
+
+A popup portalled to `document.body` is not inside the element in the DOM, so a press on it would count as outside. List its ref in `options.ignore`:
+
+```tsx
+const dropdownRef = useRef<HTMLDivElement | null>(null);
+const containerRef = useOutsideClick<HTMLDivElement>(() => setIsOpen(false), {
+  enabled: isOpen,
+  ignore: [dropdownRef], // a press on the options list is not an outside press
+});
+
+<div ref={containerRef}>
+  <button onClick={() => setIsOpen((open) => !open)}>Open</button>
+  {isOpen && createPortal(<ul ref={dropdownRef}>...</ul>, document.body)}
+</div>;
+```
+
+A ref that is not attached (popup closed) is skipped.
+
+#### Keyboard focus leaving
+
+`options.onFocusOutside` is called with the `FocusEvent` when focus moves to an element outside (Tab, or a script). Without it focus is not watched at all. Focus leaving the browser window is not reported. A press on a focusable element outside calls `callback` (the press) and then `onFocusOutside` (the focus), so give both an idempotent function such as the one that closes:
+
+```tsx
+const close = () => setIsOpen(false);
+const containerRef = useOutsideClick<HTMLDivElement>(close, {
+  enabled: isOpen,
+  onFocusOutside: close,
+});
+```
 
 ### `usePathParams`
 
@@ -93,10 +127,24 @@ const { pathParams, paths, pathname, search, location, navigate } = usePathParam
 ```
 
 - `pathParams`: the route's dynamic params (`useParams`).
-- `location`: the router location, and its fields (`pathname`, `search`, `hash`, `state`, `key`) are also spread flat on the result.
+- `location`: the router location, and its fields (`pathname`, `search`, `hash`, `state`, `key`) are also spread flat on the result. Both are the same values and change together: use the flat field when you need one (`const { pathname } = usePathParams()`), and `location` when you pass the whole object on (`<Navigate state={location} />`, `useBlocker`, comparing two locations).
 - `paths`: the pathname split into its non-empty segments.
 - `navigate`: React Router's `navigate`.
 - The returned object keeps its identity until the location changes. `pathParams` only changes when a param value does (React Router itself builds a new params object whenever its `<Routes>` re-renders), and `paths` only when the pathname does. All safe in dependency arrays.
+- With a `useBlocker` on the page, nothing here moves while a navigation is blocked (the router's location does not move): `reset()` leaves it as it was and `proceed()` moves it.
+
+#### Typing the params
+
+The page that renders a route knows its params, so it can say their names once:
+
+```tsx
+const { pathParams } = usePathParams<'categoryL1' | 'slug'>();
+
+pathParams.slug; // string | undefined
+pathParams.slgu; // type error: misspelt key
+```
+
+A record type works too (`usePathParams<{ slug?: string }>()`). Without a type argument any key is allowed, exactly as before.
 
 ### `useQueryParams`
 

@@ -1,7 +1,8 @@
 import { act, render, renderHook } from '@testing-library/react';
 import { StrictMode } from 'react';
+import { hydrateRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useIsSmallScreen } from './useIsSmallScreen.js';
 
@@ -25,13 +26,16 @@ const installMatchMedia = () => {
       get matches() {
         return currentMatches.get(query) ?? false;
       },
-      addEventListener: (_type: string, listener: TListener) => {
+      addEventListener: (type: string, listener: TListener) => {
+        // like the real list, only "change" tells about the query flipping
+        if (type !== 'change') return;
         addCalls += 1;
         const set = listeners.get(query) ?? new Set<TListener>();
         set.add(listener);
         listeners.set(query, set);
       },
-      removeEventListener: (_type: string, listener: TListener) => {
+      removeEventListener: (type: string, listener: TListener) => {
+        if (type !== 'change') return;
         listeners.get(query)?.delete(listener);
       },
     };
@@ -184,6 +188,144 @@ describe('useIsSmallScreen', () => {
 
     unmount();
     expect(liveListeners('(max-width: 767px)')).toBe(0);
+  });
+
+  describe('the MediaQueryList', () => {
+    const asked = (query: string) => queriesAsked.filter((asked) => asked === query).length;
+
+    it('is created once per query, not on every render or every change', () => {
+      const { rerender } = renderHook(() => useIsSmallScreen(767));
+
+      rerender();
+      rerender();
+      act(() => {
+        setMatches('(max-width: 767px)', true);
+      });
+      rerender();
+      act(() => {
+        setMatches('(max-width: 767px)', false);
+      });
+
+      expect(asked('(max-width: 767px)')).toBe(1);
+    });
+
+    it('is created again only for a new width', () => {
+      const { rerender } = renderHook(({ width }) => useIsSmallScreen(width), {
+        initialProps: { width: 767 },
+      });
+
+      rerender({ width: 767 });
+      rerender({ width: 1024 });
+      rerender({ width: 1024 });
+
+      expect(asked('(max-width: 767px)')).toBe(1);
+      expect(asked('(max-width: 1024px)')).toBe(1);
+    });
+
+    it('subscribes to the same list it reads, so a change is seen', () => {
+      const { result } = renderHook(() => useIsSmallScreen(767));
+
+      act(() => {
+        setMatches('(max-width: 767px)', true);
+      });
+
+      expect(result.current).toBe(true);
+      expect(liveListeners('(max-width: 767px)')).toBe(1);
+    });
+
+    it('a browser without matchMedia gets false, and no crash', () => {
+      Reflect.deleteProperty(window, 'matchMedia');
+
+      const { result, unmount } = renderHook(() => useIsSmallScreen(767));
+
+      expect(result.current).toBe(false);
+      unmount();
+    });
+  });
+
+  describe('the server value', () => {
+    const Probe = ({ serverValue }: { serverValue?: boolean }) => (
+      <span>{String(useIsSmallScreen(767, serverValue === undefined ? {} : { serverValue }))}</span>
+    );
+
+    it('is false unless asked otherwise, and true when asked', () => {
+      expect(renderToString(<Probe />)).toContain('false');
+      expect(renderToString(<Probe serverValue={false} />)).toContain('false');
+      expect(renderToString(<Probe serverValue />)).toContain('true');
+    });
+
+    it('does not depend on what the browser would match', () => {
+      currentMatches.set('(max-width: 767px)', true);
+
+      expect(renderToString(<Probe serverValue={false} />)).toContain('false');
+    });
+
+    it('renders on a server that has no window at all', () => {
+      vi.stubGlobal('window', undefined);
+
+      try {
+        expect(renderToString(<Probe serverValue />)).toContain('true');
+        expect(renderToString(<Probe />)).toContain('false');
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    });
+
+    it('is only for the server and hydration: a client render shows the real value', () => {
+      currentMatches.set('(max-width: 767px)', false);
+
+      const { container } = render(<Probe serverValue />);
+
+      expect(container.textContent).toBe('false');
+    });
+
+    const hydrate = (serverValue: boolean, matches: boolean) => {
+      currentMatches.set('(max-width: 767px)', matches);
+      const container = document.createElement('div');
+      document.body.append(container);
+      container.innerHTML = renderToString(<Probe serverValue={serverValue} />);
+      const errors = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      let root: ReturnType<typeof hydrateRoot> | undefined;
+      act(() => {
+        root = hydrateRoot(container, <Probe serverValue={serverValue} />);
+      });
+
+      return {
+        container,
+        errors,
+        cleanup: () => {
+          act(() => {
+            root?.unmount();
+          });
+          errors.mockRestore();
+          container.remove();
+        },
+      };
+    };
+
+    it('hydrates the server markup, then shows the real value (server guessed small, browser is wide)', () => {
+      const { container, errors, cleanup } = hydrate(true, false);
+
+      expect(container.textContent).toBe('false');
+      expect(errors).not.toHaveBeenCalled();
+      cleanup();
+    });
+
+    it('hydrates the server markup, then shows the real value (server guessed wide, browser is small)', () => {
+      const { container, errors, cleanup } = hydrate(false, true);
+
+      expect(container.textContent).toBe('true');
+      expect(errors).not.toHaveBeenCalled();
+      cleanup();
+    });
+
+    it('keeps the server markup when the guess was right', () => {
+      const { container, errors, cleanup } = hydrate(true, true);
+
+      expect(container.textContent).toBe('true');
+      expect(errors).not.toHaveBeenCalled();
+      cleanup();
+    });
   });
 
   describe('server rendering', () => {

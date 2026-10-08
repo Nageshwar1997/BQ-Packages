@@ -6,14 +6,27 @@ import { type NavigateFunction, useLocation, useNavigate, useParams } from 'reac
  * flat: `pathname`, `search`, `hash`, `state`, `key`), `paths` (the pathname split into its
  * non-empty segments) and `navigate`.
  *
- * The returned object keeps its identity until the location changes, and `pathParams` and `paths`
- * only change when their content does, so they are safe in dependency arrays.
+ * - `location` is the router's own object, for code that passes a whole location on (`<Navigate
+ *   state={location} />`, `useBlocker`, comparing two locations). The flat copies are for the common
+ *   case of needing one field, so `const { pathname } = usePathParams()` works. Both are the same
+ *   values and change together.
+ * - The returned object keeps its identity until the location changes, and `pathParams` and `paths`
+ *   only change when their content does, so they are safe in dependency arrays.
+ * - While a `useBlocker` blocks a navigation nothing here changes, because the router's location
+ *   does not: `reset()` leaves it as it was and `proceed()` moves it.
+ *
+ * The keys of `pathParams` can be given once, by the page that knows its route:
+ * `usePathParams<'categoryL1' | 'slug'>()` types `pathParams.slug` as `string | undefined` and
+ * rejects a misspelt key. A record type works too (`usePathParams<{ slug?: string }>()`). Without a
+ * type argument any key is allowed, as before.
  *
  * Needs to be rendered inside a React Router (`react-router-dom`) router.
  */
-export const usePathParams = () => {
+export const usePathParams = <
+  TParams extends string | Record<string, string | undefined> = string,
+>() => {
   const navigate: NavigateFunction = useNavigate();
-  const routerParams = useParams();
+  const routerParams = useParams<TParams>();
   const location = useLocation();
   const { pathname } = location;
 

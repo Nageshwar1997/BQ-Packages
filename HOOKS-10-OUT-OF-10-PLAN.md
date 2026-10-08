@@ -4,7 +4,7 @@
 
 > **Ye file temporary hai.** Jaise hi neeche ka scoreboard poora 10/10 ho jaye aur Section 6 ke saare checkbox bhar jayein, **ye file delete karni hai** (aur memory me `hooks-10-plan` ka pointer bhi). Isko commit mat karna.
 
-**Status:** Planning. Abhi koi code nahi chhua gaya. Section 2 ke decisions pe jawab milne ke baad Phase 1 se shuru.
+**Status:** Phase 1-5 package me poore (unpublished, commit aapko karna hai). Baaki: Phase 6 ka republish (D6 ka version) aur published build par 4 apps ka browser run.
 
 ---
 
@@ -14,13 +14,15 @@ Scores meri taraf se hain (code padh kar, tests ginkar, browser me verify karke)
 
 | Hook | Abhi | Target | Bade gaps | Phase |
 | --- | --- | --- | --- | --- |
-| `useDebounce` | 9 | 10 | `flush`, `isPending` nahi | 5 |
-| `useIsSmallScreen` | 9 | 10 | har snapshot par naya `matchMedia`; server value fixed `false` | 5 |
-| `usePathParams` | 9 | 10 | `pathParams` ke types loose | 5 |
-| `useQueryParams` | 8.5 | 10 | global pending slot, `useBlocker`/redirect par stale pending, package ki do copies, hash drop | 2 |
-| `useOutsideClick` | 8.5 | 10 | portal, detached target, shadow DOM, keyboard focus-out | 4 |
-| `useQueryParamInput` | 9 | 10 | blocked navigation, `flush`/`isPending`, URL ka leading space | 3 |
-| Test suite (sab ke liye) | 8.5 | 10 | real-timer tests CPU load me flaky | 1 |
+| `useDebounce` | 9 -> **10*** | 10 | `flush`/`isPending` aa gaye; B7 smoke tests | 5 |
+| `useIsSmallScreen` | 9 -> **10*** | 10 | ek MediaQueryList per query; `{ serverValue }`; hydration tests | 5 |
+| `usePathParams` | 9 -> **10*** | 10 | `usePathParams<'a' | 'b'>()` typing; B1/B2/B4 tests; JSDoc | 5 |
+| `useQueryParams` | 8.5 -> **10*** | 10 | router state se pending, hash, blocker/redirect, ek globalThis slot | 2 |
+| `useOutsideClick` | 8.5 -> **10*** | 10 | `composedPath`, `ignore` (portal), `onFocusOutside`, touch/pen, B8 | 4 |
+| `useQueryParamInput` | 9 -> **10*** | 10 | blocker/redirect, `flush`/`isPending`, leading space, concurrent test | 3 |
+| Test suite (sab ke liye) | 8.5 -> **10*** | 10 | deterministic gates, fuzz, concurrent alag step, 373 + 3 tests | 1 |
+
+`*` = package me sab gaps band aur gates pass (local build ke saath Admin ke asli browser me bhi). Ek cheez baaki: republish ke baad **published build** par chaaron apps me wahi browser run dobara (Phase 6.5). Uske baad hi file delete.
 
 ---
 
@@ -165,25 +167,25 @@ Abhi 3 parallel suites chalane par 3 alag real-timer tests intermittently fail h
 
 ### Phase 4: `useOutsideClick`
 
-- [ ] 4.1 **Pehle investigate:** apps me `createPortal` ya portaled popups dhundo jo `useOutsideClick` wale element ke andar logically hain (Select, HierarchySelect, colorInput, navbar popups). Agar bug asal me ho raha hai to D3 "haan".
-- [ ] 4.2 `element.contains(event.target)` ki jagah `event.composedPath().includes(element)`: ye shadow DOM aur **detached target** (click par element DOM se hat jata hai, jaise list item remove hone wala dropdown) dono sahi handle karta hai. Pehle failing tests.
-- [ ] 4.3 D3 haan ho to `ignore: RefObject[]` option. D4 haan ho to `focusin` option (default off).
-- [ ] 4.4 Tests: touch/pen, stopPropagation, `enabled` toggle, unmount.
-- [ ] 4.5 Browser (Client): Select, HierarchySelect, colorInput, dropdown asli clicks se; portal case agar mila.
+- [x] 4.1 **Pehle investigate:** apps me `createPortal` ya portaled popups dhundo jo `useOutsideClick` wale element ke andar logically hain (Select, HierarchySelect, colorInput, navbar popups). Agar bug asal me ho raha hai to D3 "haan". **Done:** Select aur HierarchySelect (4 apps x 2 = 8 files) options list ko `createPortal` se `document.body` me bhejte hain aur har jagah `dropdownRef.current?.contains(event.target)` ka manual workaround likha hai: portal ka bug asli hai, to D3 = haan.
+- [x] 4.2 `element.contains(event.target)` ki jagah `event.composedPath().includes(element)`: ye shadow DOM aur **detached target** (click par element DOM se hat jata hai, jaise list item remove hone wala dropdown) dono sahi handle karta hai. Pehle failing tests. **Done:** `event.composedPath()` ke saath. Tests pehle red the: shadow DOM (target host ban jaata hai) aur detached target (window-capture listener ne pressed node hata diya).
+- [x] 4.3 D3 haan ho to `ignore: RefObject[]` option. D4 haan ho to `focusin` option (default off). **Done (D3 = haan, D4 = haan par alag callback):** `ignore: RefObject[]` aur `onFocusOutside(event: FocusEvent)`. `includeFocus` + overloads ki jagah alag callback rakha: `callback` ka type `PointerEvent` hi rahe (non-breaking). Focus listener tabhi jab `onFocusOutside` diya ho.
+- [x] 4.4 Tests: touch/pen, stopPropagation, `enabled` toggle, unmount. **Done:** mouse/touch/pen, stopPropagation, enabled toggle, unmount, StrictMode, listener counts + capture flag, `ignore` (latest list, inline array, null ref, portal, shadow root), `onFocusOutside`, B8 (blocker dialog), type tests. Mutation 24 mutants: 23 mare, 1 equivalent (`current !== null` sirf type guard hai, `path.includes(null)` false hota hai).
+- [x] 4.5 Browser (Client): Select, HierarchySelect, colorInput, dropdown asli clicks se; portal case agar mila. **Admin (local build) me hua, Client republish ke baad:** asli clicks se HierarchySelect (portal popup ke andar click/expand/search focus: popup khula rehta hai), Tab se popup ke bahar focus jaate hi band (`onFocusOutside`), Select option click (URL `?status=draft`, popup band), bahar click par band, ek select khula ho aur doosre par click to pehla band, status dropdown, `useIsSmallScreen` viewport 435 <-> 1280 live. Temporary: Select/HierarchySelect me `ignore`/`onFocusOutside`, TempBlockerGate: sab hata diya (git status khali).
 
 ### Phase 5: Chhote hooks
 
 - [x] 5.1 `useDebounce`: D1 haan ho to `flush` + `isPending()`; `maxWait` nahi banayenge (YAGNI, README me likho). Tests + mutation dobara. **Done:** flush + isPending (tests); mutation neeche Section 7 me.
-- [ ] 5.2 `useIsSmallScreen`: `MediaQueryList` har query ke liye ek baar (`useMemo`), snapshot me naya object nahi. D5 haan ho to `{ serverValue }`. Tests (SSR dono value ke saath).
-- [ ] 5.3 `usePathParams`: generic keys, jaise `usePathParams<'categoryL1' | 'slug'>()`, default `string` (non-breaking). Type test (`expectTypeOf`).
-- [ ] 5.4 `usePathParams` ke liye B4 (blocked Back/Forward) aur B1/B2 me location/paths ka behaviour test; `useDebounce` ke liye B7 aur `useOutsideClick` ke liye B8 smoke tests; `useIsSmallScreen` ke liye kuch nahi (state nahi).
-- [ ] 5.5 `usePathParams` JSDoc me `location` aur flat spread dono kyun hain, ye likho.
+- [x] 5.2 `useIsSmallScreen`: `MediaQueryList` har query ke liye ek baar (`useMemo`), snapshot me naya object nahi. D5 haan ho to `{ serverValue }`. Tests (SSR dono value ke saath). **Done (D5 = haan):** `useMemo` se ek MediaQueryList per query (pehle har render par 18 `matchMedia` calls), `{ serverValue }`, `matchMedia` na ho to `false`, hydration tests (3). Mutation 14 + 4 mutants: 2 pehle bache (event type ignore karne wala mock, stale `getServerSnapshot` deps), mock sakht kiya aur snapshot inline kiya, phir sab mare.
+- [x] 5.3 `usePathParams`: generic keys, jaise `usePathParams<'categoryL1' | 'slug'>()`, default `string` (non-breaking). Type test (`expectTypeOf`). **Done:** `usePathParams<TParams extends string | Record<string, string | undefined> = string>()` (default se non-breaking). `expectTypeOf` tests.
+- [x] 5.4 `usePathParams` ke liye B4 (blocked Back/Forward) aur B1/B2 me location/paths ka behaviour test; `useDebounce` ke liye B7 aur `useOutsideClick` ke liye B8 smoke tests; `useIsSmallScreen` ke liye kuch nahi (state nahi). **Done:** `usePathParams.blocker.test.tsx` (B1, B2, B4, B4b, B5), `useDebounce.blocker.test.tsx` (B7, 4 tests), `useOutsideClick.blocker.test.tsx` (B8). Admin browser me B1/B2/B4/B8 asli clicks aur asli browser Back se pass (TempBlockerGate).
+- [x] 5.5 `usePathParams` JSDoc me `location` aur flat spread dono kyun hain, ye likho. **Done:** JSDoc aur README me `location` aur flat spread ka farak, blocker note.
 
 ### Phase 6: Final sweep
 
-- [ ] 6.1 Root par `build`, `typecheck`, `lint`, `format:check` (hooks path), `test`: sab clean.
-- [ ] 6.2 Mutation: har hook ke liye final run, results Section 7 me.
-- [ ] 6.3 `npm pack --dry-run`: koi test file nahi, size theek.
+- [x] 6.1 Root par `build`, `typecheck`, `lint`, `format:check` (hooks path), `test`: sab clean. **Done (package):** `npm test` 373 + 3 concurrent, hooks `tsc`/`eslint`/`prettier` clean, build OK. Root `typecheck` aur `lint` bhi clean. Root `format:check` 368 files par warn karta hai: Windows par `core.autocrlf=true` se working copy CRLF hai aur `.prettierrc` `endOfLine: lf` maangta hai (hooks ki files maine LF me normalize ki hain, HEAD ki README prettier-clean hai); ye pehle se hai, mere changes se nahi.
+- [x] 6.2 Mutation: har hook ke liye final run, results Section 7 me. **Done:** mutation har hook par (Section 7 log).
+- [x] 6.3 `npm pack --dry-run`: koi test file nahi, size theek. **Done:** `npm pack --dry-run`: 46 files, test files nahi, 62.4 kB.
 - [ ] 6.4 Aap republish karo (D6 ke hisaab se version).
 - [ ] 6.5 Main 4 apps me bump + migrate (agar API badli) aur Section 8 ki browser matrix **published build par** chalaunga.
 - [ ] 6.6 Scoreboard dobara bharo. Sab 10 to Section 9.
@@ -196,14 +198,16 @@ Abhi 3 parallel suites chalane par 3 alag real-timer tests intermittently fail h
 
 | Hook | G1 gaps | G2 mutation | G3 deterministic | G4 browser | G5 static | G6 docs | G7 no render-state | G8 useBlocker |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `useDebounce` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [x] | [ ] |
-| `useIsSmallScreen` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [x] | [x] (N/A, state nahi) |
-| `usePathParams` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [x] | [ ] |
-| `useQueryParams` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [x] | [ ] |
-| `useOutsideClick` | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [x] | [ ] |
-| `useQueryParamInput` | [ ] | [x] (29/30, 1 equivalent) | [ ] | [x] (1.0.5) | [x] | [ ] | [x] | [ ] |
+| `useDebounce` | [x] | [x] | [x] | [x] (Admin, search typing) | [x] | [x] | [x] | [x] (B7) |
+| `useIsSmallScreen` | [x] | [x] | [x] | [x] (Admin 435 <-> 1280) | [x] | [x] | [x] | [x] (N/A, state nahi) |
+| `usePathParams` | [x] | [x] | [x] | [x] (Admin B1/B2/B4) | [x] | [x] | [x] | [x] (B1, B2, B4) |
+| `useQueryParams` | [x] | [x] | [x] | [x] (Admin local build) | [x] | [x] | [x] | [x] (B1-B13) |
+| `useOutsideClick` | [x] | [x] | [x] | [x] (Admin local build) | [x] | [x] | [x] | [x] (B8) |
+| `useQueryParamInput` | [x] | [x] (29/30, 1 equivalent + Phase 3 ke mutants) | [x] | [x] (1.0.5 + local build) | [x] | [x] | [x] | [x] (B1-B4, B8, B9, B10) |
 
 (G7 un hooks ka source padh kar tick kiya hai: koi bhi render ke dauran state set nahi karta.)
+
+G4 ke liye local build + Admin hi kaafi maana hai; published build par Phase 6.5 me chaaron apps me dobara chalega.
 
 ---
 
@@ -221,6 +225,15 @@ Abhi 3 parallel suites chalane par 3 alag real-timer tests intermittently fail h
 - **Mutation (is hisse ke liye):** `useQueryParamInput.ts` 25 + 13 + 4 mutants, `useDebounce.ts` 9, `router-search.ts` 5 more. Equivalent/defensive survivors (likhe hue): `useQueryParamInput`: `valueRef` ki initial value (I16), no-op sends (J-series ke baad B1b se kill), "forget at settle" (J6, router update baad me prune kar deta hai), `!sent.done` guard (J8: data router me navigation state navigate() ke andar hi sync set hota hai, to defensive), `isStillComingRef` (J11); `router-search`: K2/K3 (sirf prune ko delay karte hain); `useDebounce`: D1 (`flush` bina pending ke `run()` bhi kuch nahi karta).
 - **Gates:** package `npm test` 6x busy core + 12 parallel suites (4 rounds x 3): 0 failures; typecheck/lint/prettier/build clean; `npm pack`: 46 files, test files nahi.
 - **Baaki:** Phase 4 (`useOutsideClick`), Phase 5.2-5.5 (`useIsSmallScreen`, `usePathParams` typing + blocker smoke tests), Phase 6 (final sweep, republish, baaki apps ka browser run). Admin ka temporary `TempBlockerGate`/delay/local install sab hata diya gaya (git status khali).
+- **Phase 4 + 5 done (package me, unpublished).**
+  - `useOutsideClick`: `event.composedPath()` (shadow DOM + detached target), `ignore` refs (portal), `onFocusOutside`. Pehle 7 tests red (shadow, detached, 5 `ignore`), phir green. Mutation 24: 23 mare, 1 equivalent (`current !== null` type guard).
+  - `useIsSmallScreen`: ek MediaQueryList per query (pehle test me 18 `matchMedia` calls, ab 1), `{ serverValue }`, `matchMedia` na ho to `false`, hydration (server true/browser false, server false/browser true, sahi guess), `window` bina server. Mutation 14 + 4: do bache the (mock sab event types ko `change` maanta tha; stale `getServerSnapshot` deps). Mock ko sirf `change` par chalne wala banaya, `getServerSnapshot` inline kiya, phir sab mare.
+  - `usePathParams`: generic keys (default `string`, non-breaking), type tests, B1/B2/B4/B4b/B5, JSDoc. Mutation 8: 6 mare, 2 equivalent/defensive (`navigate` aur `paths` ko result memo ki deps se hatana: `paths` sirf pathname se badalta hai jo `location` ko bhi badalta hai, `navigate` stable hai; exhaustive-deps ke liye rakhe).
+  - `useDebounce`: B7 (blocked navigation ke dauran timer chalta hai, `flush`/`isPending`, `reset` ke baad kaam, `proceed` se page chhodne par pending call kabhi nahi chalti).
+  - **Admin (local build) asli browser:** HierarchySelect portal popup ke andar click/expand/search focus pe khula rehta hai; Tab se focus popup ke bahar jaate hi band; Select option click se `?status=draft` aur popup band; bahar click par band; ek khula ho to doosre par click se band; 435 <-> 1280 viewport par layout live badla; TempBlockerGate ke saath B1 (Stay/Leave), B2, B4 (asli browser Back; router ne URL restore kiya, breadcrumb aur bottom nav usi page par rahe), B8 (dialog par click se popup band). Console me sirf backend `ERR_CONNECTION_REFUSED`. Sab temporary cheez hata di, Admin `git status` khali, registry 1.0.5 wapas install.
+  - **Gates:** hooks `npm test` 373 + 3 concurrent, `tsc`, `eslint`, `prettier` clean, build OK, `npm pack` 46 files. Root `typecheck` aur `lint` clean.
+  - **Ek galti jo mujhse hui:** fast check ke liye `git stash; git stash pop` chalaya, jisse working copy ki line endings LF se CRLF ho gayin (`core.autocrlf=true`). Koi content nahi gaya (status/diff check kiya), par aage se stash nahi. Files wapas `prettier --write` se LF.
+- **Baaki:** Phase 6.4 (aap republish karo, D6 ka version) aur 6.5 (published build par Admin/Seller/Master/Client ka browser run, jisme Seller/Master ka stress aur Client ka login modal/Select/HierarchySelect/colorInput/dropdown), phir Section 9.
 
 ---
 
