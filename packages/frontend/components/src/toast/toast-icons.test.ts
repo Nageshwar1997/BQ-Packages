@@ -1,10 +1,12 @@
 // @vitest-environment jsdom
 import { getIcon } from '@iconify/react';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
-import { TOAST_ICON_NAMES } from './toast-icons.js';
+import { registerToastIcons, TOAST_ICON_NAMES } from './toast-icons.js';
 
 describe('bundled toast icons', () => {
+  beforeAll(registerToastIcons);
+
   it('lists the icons the toasts use', () => {
     expect([...TOAST_ICON_NAMES].sort()).toEqual([
       'beautinique:loading-spin',

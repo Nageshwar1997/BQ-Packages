@@ -64,7 +64,15 @@ const TOAST_ICON_SETS: IconifyJSON[] = [
   },
 ];
 
-for (const iconSet of TOAST_ICON_SETS) addCollection(iconSet);
+/**
+ * Registers the icons above with Iconify (calling it again is harmless). It is a function that
+ * `ToastContainer` calls, and not something that happens when this file is imported, on purpose: a
+ * bare `import './toast-icons.js'` is dropped by the bundler when the package's `sideEffects` field
+ * does not list the file (the build says "ignored-bare-import"), and then the icons are missing.
+ */
+export const registerToastIcons = () => {
+  for (const iconSet of TOAST_ICON_SETS) addCollection(iconSet);
+};
 
 /** Every icon name registered above, e.g. `solar:danger-triangle-linear`. */
 export const TOAST_ICON_NAMES = TOAST_ICON_SETS.flatMap(({ prefix, icons }) =>

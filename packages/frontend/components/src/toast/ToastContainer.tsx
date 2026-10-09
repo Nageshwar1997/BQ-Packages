@@ -1,11 +1,10 @@
-import './toast-icons.js'; // bundles the icons below, so they also show without a network
-
 import { Icon } from '@iconify/react';
 import { type ComponentProps, useCallback, useEffect, useRef, useState } from 'react';
 
 import { TOAST_TYPE } from '../lib/constants.js';
 import type { IClassName } from '../types/component.js';
 import { Button } from '../ui/Button.js';
+import { registerToastIcons } from './toast-icons.js';
 import { useToastStore } from './toast.store.js';
 import type { IUploadItem, TToast, TToastItem, TUploadItemStatus } from './types.js';
 import {
@@ -14,6 +13,9 @@ import {
   getUploadsSummary,
   type IUploadsSummary,
 } from './uploads.js';
+
+// Bundles the icons the toasts use, so they also show without a network (see toast-icons.ts)
+registerToastIcons();
 
 const CircularProgress = ({ progress, ...props }: { progress: number } & ComponentProps<'svg'>) => {
   const radius = 10;

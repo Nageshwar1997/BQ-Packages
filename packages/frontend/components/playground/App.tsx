@@ -1,4 +1,9 @@
-import { runUploadsInToast, ToastContainer, toaster } from '@beautinique/frontend-components/toast';
+import {
+  runUploadsInToast,
+  ToastContainer,
+  toaster,
+  withProgressToast,
+} from '@beautinique/frontend-components/toast';
 import { Button, Tooltip } from '@beautinique/frontend-components/ui';
 import { useState } from 'react';
 
@@ -216,6 +221,20 @@ export const App = () => {
                       toaster.remove(id);
                     }, 15000);
                   },
+                }}
+              />
+            </div>
+            <div className="w-44">
+              <Button
+                pattern="outline"
+                content="Progress (6 s)"
+                buttonProps={{
+                  onClick: () =>
+                    void withProgressToast({
+                      title: 'Please wait...',
+                      description: 'Uploading image...',
+                      request: (onProgress) => fakeUpload(onProgress, 1000, 6000),
+                    }),
                 }}
               />
             </div>
