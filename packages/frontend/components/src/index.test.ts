@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 
-import type { IButton, IClassName, ITooltip } from './index.js';
+import type { IButton, IClassName, IIconButton, ITextButton, ITooltip } from './index.js';
 import * as root from './index.js';
 import type {
   IUploadGroup,
@@ -49,6 +49,9 @@ describe('the public API of the package', () => {
       'primary' | 'secondary' | 'tertiary' | 'outline' | 'transparent'
     >();
     expectTypeOf<IClassName>().toBeObject();
+    expectTypeOf<ITextButton['content']>().toBeString();
+    expectTypeOf<IIconButton['buttonProps']>().toBeObject();
+    expectTypeOf<IButton>().toEqualTypeOf<ITextButton | IIconButton>();
     expectTypeOf<ITooltip['placement']>().toEqualTypeOf<
       'top' | 'bottom' | 'left' | 'right' | undefined
     >();

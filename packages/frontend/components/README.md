@@ -12,6 +12,7 @@ npm install @beautinique/frontend-components @beautinique/frontend-styles @iconi
 ```
 
 Peer dependencies: `react`, `react-dom`, `@iconify/react`, `@beautinique/frontend-styles`.
+It needs `tailwind-merge` too, which comes with it.
 
 ## Setup (once per app)
 
@@ -57,15 +58,62 @@ const App = () => (
 );
 ```
 
+### Button
+
+```tsx
+const save = <Button pattern="primary" content="Save" buttonProps={{ type: 'submit' }} />;
+
+// only an icon: it has to be given a name, a screen reader reads it (`aria-labelledby` works too)
+const edit = (
+  <Button
+    pattern="outline"
+    content={{ icon: 'solar:pen-linear' }}
+    buttonProps={{ 'aria-label': 'Edit category' }}
+  />
+);
+```
+
+- **Classes you give win over the ones they clash with**, with no `!` (`className="rounded-md px-2"`
+  replaces the button's `rounded-lg` and `px-4`). The classes for other screen sizes are other
+  classes and stay: the button has `lg:px-5`, so to change the padding on large screens too give
+  `lg:px-2` as well. `buttonProps.className` wins over `className`.
+- **`ref`** is the `<button>` itself: `<Button ref={buttonRef} ... />`.
+- A button with only an icon does not compile without `aria-label` or `aria-labelledby` in
+  `buttonProps`.
+
+### Tooltip
+
+```tsx
+const hint = (
+  <Tooltip title="Save" description="Ctrl + S" placement="right">
+    <Button pattern="primary" content="Save" />
+  </Tooltip>
+);
+```
+
+- It opens on hover and on focus, and closes on mouse leave, blur or **Escape**.
+- **It stays inside the window**: with no room on the side asked for (`placement`) it opens on the
+  opposite side, and it is pushed along the edge to keep 8px from it, the arrow still pointing at
+  the content.
+- **For a screen reader** it is `role="tooltip"` and, while it is open, the content is described by it
+  (`aria-describedby` is put on the child element, next to what it already has).
+- **`required={false}` shows only the content.** The wrapper stays (as `display: contents`, it takes
+  no room), so `required` can change while the page is open (a locked field, the size of the
+  screen) without the content being created again and losing its state. One difference to a tooltip
+  that is not there at all: the content is one level deeper in the DOM, so a css rule that looks at
+  the parent of the content (`space-y-*` on a parent, `> :first-child`) sees the wrapper.
+
 ### Toasts
 
 `toaster` works from anywhere (an API client, a store), not only from components:
 
-```ts
+```tsx
 toaster.success({ title: 'Saved', description: 'Your changes were saved.' });
 toaster.error({ title: 'Failed' });
 toaster.warning({ title: 'Careful' });
+toaster.default({ title: 'Heads up' });
 toaster.loading({ title: 'Working' });
+toaster.custom({ type: 'custom', children: <p>Any React content</p> });
 ```
 
 Toasts that follow uploads (`withProgressToast` for one request, `createUploadsToast`,

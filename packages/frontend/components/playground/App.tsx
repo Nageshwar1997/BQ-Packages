@@ -84,6 +84,7 @@ const PLACEMENTS = ['top', 'bottom', 'left', 'right'] as const;
 
 export const App = () => {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [isRequired, setIsRequired] = useState(true);
 
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
@@ -95,6 +96,17 @@ export const App = () => {
   return (
     <div className="bg-primary-invert text-primary min-h-dvh p-6">
       <ToastContainer />
+
+      <div className="fixed right-1 bottom-1 z-10">
+        <Tooltip title="No room below" description="So it opens above" placement="bottom">
+          <button
+            type="button"
+            className="border-primary/30 bg-primary-invert rounded-md border px-3 py-1.5 text-xs"
+          >
+            corner
+          </button>
+        </Tooltip>
+      </div>
 
       <div className="mx-auto flex max-w-3xl flex-col gap-8">
         <header className="flex items-center justify-between gap-4">
@@ -119,6 +131,20 @@ export const App = () => {
             <div className="w-40">
               <Button pattern="primary" content="disabled" buttonProps={{ disabled: true }} />
             </div>
+            <div className="w-40">
+              <Button
+                pattern="outline"
+                content={{ icon: 'solar:pen-linear', className: 'size-4.5' }}
+                buttonProps={{ 'aria-label': 'Edit (icon only, named for a screen reader)' }}
+              />
+            </div>
+            <div className="w-40">
+              <Button
+                pattern="primary"
+                content="rounded-full px-10"
+                className="rounded-full px-10 lg:px-10"
+              />
+            </div>
           </div>
         </section>
 
@@ -140,6 +166,28 @@ export const App = () => {
                 </button>
               </Tooltip>
             ))}
+          </div>
+          <p className="text-tertiary text-xs">
+            The button in the bottom right corner of the window opens its tooltip below, where there
+            is no room: it opens above instead, and is pushed in from the edge.
+          </p>
+          <div className="flex flex-col gap-2">
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={isRequired}
+                onChange={(event) => {
+                  setIsRequired(event.target.checked);
+                }}
+              />
+              Tooltip required (type in the box, then untick: the text stays)
+            </label>
+            <Tooltip title="Only while required" required={isRequired}>
+              <input
+                className="border-primary/30 w-72 rounded-md border px-3 py-1.5 text-sm"
+                placeholder="Type something here"
+              />
+            </Tooltip>
           </div>
         </section>
 

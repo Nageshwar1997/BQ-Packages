@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import { type ComponentProps, useCallback, useEffect, useRef, useState } from 'react';
+import { type ComponentProps, memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { TOAST_TYPE } from '../lib/constants.js';
 import type { IClassName } from '../types/component.js';
@@ -184,7 +184,7 @@ const cardConfig = (type: TToast['type']) => {
   }
 };
 
-export const Toaster = (props: TToastItem & IClassName) => {
+const ToasterItem = (props: TToastItem & IClassName) => {
   const {
     className = '',
     type,
@@ -332,6 +332,13 @@ export const Toaster = (props: TToastItem & IClassName) => {
     </div>
   );
 };
+
+/*
+ * The store changes only the toast that was updated (the others keep the same object), and a toast
+ * that is uploading is updated many times a second. With `memo` the toasts that did not change
+ * are not rendered again for each of those updates.
+ */
+export const Toaster = memo(ToasterItem);
 
 export const ToastContainer = () => {
   const toasts = useToastStore((s) => s.toasts);

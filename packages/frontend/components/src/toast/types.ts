@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 import type { TOAST_TYPE } from '../lib/constants.js';
-import type { IButton, IClassName, ITitleDescription } from '../types/component.js';
+import type { IClassName, ITextButton, ITitleDescription } from '../types/component.js';
 
 /** What the browser tells about the progress of an upload (an `AxiosProgressEvent` fits). */
 export interface TUploadProgressEvent {
@@ -13,7 +13,7 @@ export type TUploadProgressHandler = (event: TUploadProgressEvent) => void;
 
 interface IBaseToast extends IClassName {
   icon?: ReactNode;
-  buttonProps?: Partial<IButton>;
+  buttonProps?: Partial<ITextButton>;
 }
 
 interface IToastClosable {
