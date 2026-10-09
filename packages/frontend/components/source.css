@@ -1,0 +1,11 @@
+/* @beautinique/frontend-components - tells Tailwind where the components' class names are.
+ *
+ * Tailwind v4 does not look inside node_modules for class names, so without this the classes the
+ * components use (e.g. `rounded-lg`, `shadow-primary-btn`) would not be generated and the
+ * components would look unstyled. Import it in the app's own css, after the styles package:
+ *
+ *   @import '@beautinique/frontend-styles';
+ *   @import '@beautinique/frontend-components/source.css';
+ *   @import './app.css';
+ */
+@source './dist';
