@@ -34,10 +34,21 @@ use have a path of their own, so an app only bundles what it imports.
 
 | Import path                                   | What it gives                                                                                |
 | --------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `@beautinique/frontend-components`            | Types only (`IButton`, `ITooltip`, ...)                                                      |
+| `@beautinique/frontend-components`            | Everything `/ui` and `/toast` give (the very same values), and the types (`IButton`, ...)    |
 | `@beautinique/frontend-components/ui`         | `Button`, `Tooltip`                                                                          |
 | `@beautinique/frontend-components/toast`      | `ToastContainer`, `toaster`, the toast store, and the helpers for toasts that follow uploads |
 | `@beautinique/frontend-components/source.css` | The `@source` line of the setup above                                                        |
+
+`Button` can be imported from the root or from `/ui`, it is the same component either way:
+
+```ts
+import { Button } from '@beautinique/frontend-components'; // or
+import { Button } from '@beautinique/frontend-components/ui';
+```
+
+The root only re-exports, it does not copy: a toast shown with `toaster` from one path appears in the
+`ToastContainer` of the other, and an app that imports only `Button` from the root bundles the same as
+with `/ui` (the bundler leaves out what is not used).
 
 ```tsx
 import { Button, Tooltip } from '@beautinique/frontend-components/ui';
@@ -127,7 +138,11 @@ The icons of the toasts are bundled, so a toast shows its icon without a network
 - **State lives in exactly one import path.** The toast store is part of `/toast` only. A component
   of another path that needs it must import it from `@beautinique/frontend-components/toast`, never
   copy it: every entry is built as one file, so a copy would be a second store, and a toast shown
-  through it would never reach the `ToastContainer`.
+  through it would never reach the `ToastContainer`. The root is such a path: its built file only
+  imports `/ui` and `/toast` (`tsup.config.ts` keeps them external, and `built-files.test.ts` checks
+  the built files after `npm run build`).
+- **The root has what most screens use** (`/ui`, later `/layout`, and `/toast`). A component that few
+  screens use gets a path of its own and is not in the root.
 - **A component's own css lives next to the component** and is imported by it, not by the styles
   package. It uses the variables of the styles package (`var(--smoke-eerie)`, ...) and does not
   import them again: importing them a second time, after the app's own css, would undo the app's

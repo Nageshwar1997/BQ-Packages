@@ -17,8 +17,28 @@ import * as ui from './ui/index.js';
 // What the package gives to the apps, per import path. Nothing else may be reachable: an internal
 // helper that leaks becomes a promise to keep it.
 describe('the public API of the package', () => {
-  it('exports no values from the root, only types', () => {
-    expect(Object.keys(root)).toEqual([]);
+  it('exports from the root exactly what /ui and /toast export', () => {
+    const names = new Set([...Object.keys(ui), ...Object.keys(toast)]);
+
+    expect(Object.keys(root).sort()).toEqual([...names].sort());
+  });
+
+  // A copy would not do: two copies of the toast store are two stores, and a toast shown through one
+  // never reaches the `ToastContainer` that reads the other.
+  it('gives the very same values from the root and from /ui and /toast, not copies', () => {
+    const source: Record<string, unknown> = { ...ui, ...toast };
+
+    for (const [name, value] of Object.entries(root)) {
+      expect(value, name).toBe(source[name]);
+    }
+  });
+
+  it('shows a toast added through the root in the store of /toast', () => {
+    toast.useToastStore.setState({ toasts: [] });
+    root.toaster.default({ title: 'From the root' });
+
+    expect(toast.useToastStore.getState().toasts.map(({ type }) => type)).toEqual(['default']);
+    toast.useToastStore.setState({ toasts: [] });
   });
 
   it('exports exactly these values from /ui', () => {

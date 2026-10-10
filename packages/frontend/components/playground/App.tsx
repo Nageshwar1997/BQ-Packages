@@ -1,10 +1,11 @@
 import {
+  Button,
   runUploadsInToast,
   ToastContainer,
   toaster,
+  Tooltip,
   withProgressToast,
-} from '@beautinique/frontend-components/toast';
-import { Button, Tooltip } from '@beautinique/frontend-components/ui';
+} from '@beautinique/frontend-components';
 import { useState } from 'react';
 
 const wait = (ms: number) =>
