@@ -12,7 +12,6 @@ npm install @beautinique/frontend-components @beautinique/frontend-styles @iconi
 ```
 
 Peer dependencies: `react`, `react-dom`, `@iconify/react`, `@beautinique/frontend-styles`.
-It needs `tailwind-merge` too, which comes with it.
 
 ## Setup (once per app)
 
@@ -73,10 +72,10 @@ const edit = (
 );
 ```
 
-- **Classes you give win over the ones they clash with**, with no `!` (`className="rounded-md px-2"`
-  replaces the button's `rounded-lg` and `px-4`). The classes for other screen sizes are other
-  classes and stay: the button has `lg:px-5`, so to change the padding on large screens too give
-  `lg:px-2` as well. `buttonProps.className` wins over `className`.
+- **Classes you give are added after the button's own and none of its own is removed.** To win over
+  one of them make it important with `!`: `className="rounded-md! px-2! lg:px-2!"`. The button has
+  classes for large screens (`lg:px-5`, `lg:py-4`, `xl:text-base`), they are other classes than
+  `px-4` and so on, so to change the padding on every screen give the `lg:` one too.
 - **`ref`** is the `<button>` itself: `<Button ref={buttonRef} ... />`.
 - A button with only an icon does not compile without `aria-label` or `aria-labelledby` in
   `buttonProps`.

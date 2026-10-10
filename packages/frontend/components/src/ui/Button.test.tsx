@@ -104,46 +104,26 @@ describe('Button', () => {
       },
     );
 
-    it('win over the class of the button they clash with, without a `!`', () => {
+    // The button does not merge classes: a class that is given is added after its own, and wins over
+    // the one it clashes with only when it is important (`!`), as the toast's button does.
+    it('are added after its own, and none of its own is removed', () => {
       const view = mount(<Button pattern="primary" content="Save" className="rounded-md px-2" />);
       const classes = classesOf(view.container);
 
       expect(classes).toContain('rounded-md');
-      expect(classes).not.toContain('rounded-lg');
       expect(classes).toContain('px-2');
-      expect(classes).not.toContain('px-4');
+      expect(classes).toContain('rounded-lg');
+      expect(classes).toContain('px-4');
+      expect(classes).toContain('lg:px-5'); // for another screen size, so it is another class
     });
 
-    it('leave the classes for other screen sizes alone', () => {
-      const view = mount(<Button pattern="primary" content="Save" className="px-2" />);
-
-      // `lg:px-5` is a different class from `px-2`: to change it too, the caller gives `lg:px-2`
-      expect(classesOf(view.container)).toContain('lg:px-5');
-    });
-
-    it('win over the look of the pattern', () => {
-      const view = mount(<Button pattern="primary" content="Save" className="text-red-500" />);
-      const classes = classesOf(view.container);
-
-      expect(classes).toContain('text-red-500');
-      expect(classes).not.toContain('text-white');
-    });
-
-    it('keep both when they do not clash, and the ones in buttonProps win over `className`', () => {
+    it('win over the button when they are important', () => {
       const view = mount(
-        <Button
-          pattern="primary"
-          content="Save"
-          className="uppercase rounded-md"
-          buttonProps={{ className: 'rounded-xl' }}
-        />,
+        <Button pattern="primary" content="Save" className="rounded-full! px-10! lg:px-10!" />,
       );
       const classes = classesOf(view.container);
 
-      expect(classes).toContain('uppercase');
-      expect(classes).toContain('rounded-xl');
-      expect(classes).not.toContain('rounded-md');
-      expect(classes).not.toContain('rounded-lg');
+      expect(classes).toEqual(expect.arrayContaining(['rounded-full!', 'px-10!', 'lg:px-10!']));
     });
   });
 

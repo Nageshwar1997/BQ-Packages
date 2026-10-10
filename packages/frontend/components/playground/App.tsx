@@ -141,8 +141,8 @@ export const App = () => {
             <div className="w-40">
               <Button
                 pattern="primary"
-                content="rounded-full px-10"
-                className="rounded-full px-10 lg:px-10"
+                content="rounded-full! px-10!"
+                className="rounded-full! px-10! lg:px-10!"
               />
             </div>
           </div>

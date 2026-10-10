@@ -1,5 +1,4 @@
 import { Icon } from '@iconify/react';
-import { twMerge } from 'tailwind-merge';
 
 import { getButtonCss } from '../lib/button.js';
 import type { IButton } from '../types/component.js';
@@ -16,12 +15,12 @@ export const Button = ({
   buttonProps,
   ref,
 }: IButton) => (
-  // A class that is given wins over the one it clashes with (`rounded-md` over `rounded-lg`),
-  // with no `!`; one for another screen size (`lg:px-5`) is a different class and stays.
+  // The classes that are given come last but do not remove the button's own: to win over one of
+  // them give it with `!` (`rounded-md!`), the way the toast's button does.
   <button
     {...buttonProps}
     ref={ref}
-    className={twMerge(BASE_CSS, getButtonCss(pattern), className, buttonProps?.className)}
+    className={`${BASE_CSS} ${getButtonCss(pattern)} ${className} ${buttonProps?.className ?? ''}`}
     type={buttonProps?.type ?? 'button'}
   >
     {leftIcon && <Icon {...leftIcon} />}
