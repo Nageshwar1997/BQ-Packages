@@ -27,10 +27,9 @@ import {
 import { resetAuthLogoutState } from '@/classes/ApiRequest';
 import { USER_KEY } from '@/constants/common.constants';
 import type { IUser } from '@/types/api.type';
-import type { TTheme } from '@/types/store.type';
 import { decryptData, encryptData } from '@/utils/crypto.util';
 
-export const useThemeStore = createThemeStore<TTheme>(); // TTheme = 'dark' | 'light'
+export const useThemeStore = createThemeStore();
 
 export const useUserStore = createUserStore<IUser>({
   storageKey: USER_KEY,
@@ -64,11 +63,13 @@ The theme, remembered between visits.
 | `storageKey`   | `'theme'`             | Where it is remembered                                              |
 | `storage`      | `localStorage`        | What remembers it (`sessionStorage`, or anything with `getItem`...) |
 
-State: `{ theme, toggleTheme() }`. With only dark and light, `createThemeStore<TTheme>()` is all that is needed. With other themes the list is needed, and the type comes from it (or is given and checked against it):
+State: `{ theme, toggleTheme() }`. The type of the theme, `TTheme` (`'dark' | 'light'`), is exported from here too: an app does not declare its own. With only dark and light, `createThemeStore()` is all that is needed (`createThemeStore<TTheme>()` says the same). With other themes the list is needed, and the type comes from it (or is given and checked against it):
 
 ```ts
 export const useThemeStore = createThemeStore({ themes: ['light', 'dark', 'system'] });
-export const useThemeStore = createThemeStore<TTheme>({ themes: ['light', 'dark', 'system'] });
+export const useThemeStore = createThemeStore<'light' | 'dark' | 'system'>({
+  themes: ['light', 'dark', 'system'],
+});
 ```
 
 The store only keeps the theme. Putting it on the page (`document.documentElement.setAttribute('theme', theme)`) stays in the app.

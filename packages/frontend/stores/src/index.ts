@@ -11,7 +11,7 @@ export {
   createThemeStore,
   type IThemeStore,
   type IThemeStoreOptions,
-  type TDefaultTheme,
+  type TTheme,
   type TThemeStoreHook,
 } from './theme.store.js';
 export {

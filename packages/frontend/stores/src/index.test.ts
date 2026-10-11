@@ -12,8 +12,8 @@ import type {
   IUploadItem,
   IUserStore,
   TActionFn,
-  TDefaultTheme,
   TStoreHook,
+  TTheme,
   TToastItemOf,
   TUploadItemOf,
 } from './index.js';
@@ -44,7 +44,7 @@ describe('the public API of the package', () => {
   });
 
   it('exports these types', () => {
-    expectTypeOf<TDefaultTheme>().toEqualTypeOf<'dark' | 'light'>();
+    expectTypeOf<TTheme>().toEqualTypeOf<'dark' | 'light'>();
     expectTypeOf<TActionFn>().toEqualTypeOf<() => void | Promise<void>>();
     expectTypeOf<IActionItem['retries']>().toBeNumber();
     expectTypeOf<IActionsStore['actions']>().toEqualTypeOf<IActionItem[]>();
@@ -97,12 +97,10 @@ describe('the types the app gives', () => {
   });
 
   it('the theme store has the themes of the app', () => {
-    type TTheme = 'dark' | 'light';
-
-    const useThemeStore = createThemeStore<TTheme>();
+    const useThemeStore = createThemeStore();
 
     expectTypeOf(useThemeStore.getState().theme).toEqualTypeOf<TTheme>();
-    expectTypeOf(useThemeStore.getState()).toEqualTypeOf<IThemeStore<TTheme>>();
+    expectTypeOf(useThemeStore.getState()).toEqualTypeOf<IThemeStore>();
   });
 
   it('takes the type of other themes from the list that is given', () => {
