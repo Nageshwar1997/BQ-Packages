@@ -1,11 +1,14 @@
 // The app makes the toast store, once, and gives it to `createToaster` (of the stores package) and to
 // the `ToastContainer`: the components package holds no store of its own.
 import { Button, ToastContainer, type TToast, Tooltip } from '@beautinique/frontend-components';
-import { createToaster, createToastStore } from '@beautinique/frontend-stores';
-import { useState } from 'react';
+import { createThemeStore, createToaster, createToastStore } from '@beautinique/frontend-stores';
+import { useEffect, useState } from 'react';
+
+import { Components } from './Components.js';
 
 const useToastStore = createToastStore<TToast>();
 const { toaster, withProgressToast, runUploadsInToast } = createToaster(useToastStore);
+const useThemeStore = createThemeStore();
 
 const wait = (ms: number) =>
   new Promise<void>((resolve) => {
@@ -83,15 +86,14 @@ const PATTERNS = ['primary', 'secondary', 'tertiary', 'outline', 'transparent'] 
 const PLACEMENTS = ['top', 'bottom', 'left', 'right'] as const;
 
 export const App = () => {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const theme = useThemeStore((state) => state.theme);
+  const toggleTheme = useThemeStore((state) => state.toggleTheme);
   const [isRequired, setIsRequired] = useState(true);
 
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-
-    document.documentElement.setAttribute('theme', next);
-    setTheme(next);
-  };
+  // Putting the theme on the page is the app's job, the `Theme` button only changes the store.
+  useEffect(() => {
+    document.documentElement.setAttribute('theme', theme);
+  }, [theme]);
 
   return (
     <div className="bg-primary-invert text-primary min-h-dvh p-6">
@@ -302,6 +304,8 @@ export const App = () => {
             </div>
           </div>
         </section>
+
+        <Components themeStore={useThemeStore} />
       </div>
     </div>
   );

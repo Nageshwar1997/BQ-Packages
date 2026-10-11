@@ -40,17 +40,53 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.js"
     },
-    "./ui": {
-      "types": "./dist/ui/index.d.ts",
-      "import": "./dist/ui/index.js",
-      "require": "./dist/ui/index.cjs",
-      "default": "./dist/ui/index.js"
+    "./auth": {
+      "types": "./dist/auth/index.d.ts",
+      "import": "./dist/auth/index.js",
+      "require": "./dist/auth/index.cjs",
+      "default": "./dist/auth/index.js"
+    },
+    "./layout": {
+      "types": "./dist/layout/index.d.ts",
+      "import": "./dist/layout/index.js",
+      "require": "./dist/layout/index.cjs",
+      "default": "./dist/layout/index.js"
+    },
+    "./linear-gradient": {
+      "types": "./dist/linear-gradient/index.d.ts",
+      "import": "./dist/linear-gradient/index.js",
+      "require": "./dist/linear-gradient/index.cjs",
+      "default": "./dist/linear-gradient/index.js"
+    },
+    "./resend": {
+      "types": "./dist/resend/index.d.ts",
+      "import": "./dist/resend/index.js",
+      "require": "./dist/resend/index.cjs",
+      "default": "./dist/resend/index.js"
+    },
+    "./stepper": {
+      "types": "./dist/stepper/index.d.ts",
+      "import": "./dist/stepper/index.js",
+      "require": "./dist/stepper/index.cjs",
+      "default": "./dist/stepper/index.js"
+    },
+    "./theme": {
+      "types": "./dist/theme/index.d.ts",
+      "import": "./dist/theme/index.js",
+      "require": "./dist/theme/index.cjs",
+      "default": "./dist/theme/index.js"
     },
     "./toast": {
       "types": "./dist/toast/index.d.ts",
       "import": "./dist/toast/index.js",
       "require": "./dist/toast/index.cjs",
       "default": "./dist/toast/index.js"
+    },
+    "./ui": {
+      "types": "./dist/ui/index.d.ts",
+      "import": "./dist/ui/index.js",
+      "require": "./dist/ui/index.cjs",
+      "default": "./dist/ui/index.js"
     },
     "./source.css": "./source.css",
     "./package.json": "./package.json"

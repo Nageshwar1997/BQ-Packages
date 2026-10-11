@@ -8,37 +8,52 @@ import { describe, expect, it } from 'vitest';
 const dist = new URL('../dist/', import.meta.url);
 const isBuilt = existsSync(new URL('index.js', dist)) && existsSync(new URL('index.cjs', dist));
 
+// The paths the root only re-exports, and the paths of one component each (not in the root).
+const IN_ROOT = ['ui', 'layout', 'theme', 'toast'];
+const OWN_PATH = {
+  auth: ['AuthBottomInstructions'],
+  'linear-gradient': ['LinearGradient'],
+  resend: ['Resend'],
+  stepper: ['Stepper'],
+};
+
 interface IReport {
-  /** The root has exactly the names of /ui and /toast together. */
+  /** The root has exactly the names of its paths together. */
   sameNames: boolean;
-  /** Names whose value in the root is not the very same value as in /ui or /toast. */
+  /** Names whose value in the root is not the very same value as in its paths. */
   different: string[];
+  /** The names each path of one component gives, once built; none of them is in the root. */
+  own: Record<string, string[]>;
+  inRoot: string[];
 }
 
 // Plain Node loads the files, as an app's server or bundler does: vitest has its own module loader
 // that can load one file twice, which would say the root and /toast are two copies when they are not.
-const ESM = `
-  import { pathToFileURL } from 'node:url';
-  const load = (file) => import(pathToFileURL(process.env.DIST + file).href);
-  const [root, ui, toast] = await Promise.all([load('index.js'), load('ui/index.js'), load('toast/index.js')]);
-  const source = { ...ui, ...toast };
-  const different = Object.keys(root).filter((name) => root[name] !== source[name]);
-  const sameNames = Object.keys(root).sort().join() === Object.keys(source).sort().join();
-  console.log(JSON.stringify({ sameNames, different }));
+const script = (kind: 'esm' | 'cjs') => `
+  const IN_ROOT = ${JSON.stringify(IN_ROOT)};
+  const OWN = ${JSON.stringify(Object.keys(OWN_PATH))};
+  const ext = '${kind === 'esm' ? 'js' : 'cjs'}';
+  const load = (name) => ${
+    kind === 'esm'
+      ? `import(require('node:url').pathToFileURL(process.env.DIST + name).href)`
+      : `Promise.resolve(require(process.env.DIST + name))`
+  };
+  const main = async () => {
+    const root = await load('index.' + ext);
+    const paths = await Promise.all(IN_ROOT.map((path) => load(path + '/index.' + ext)));
+    const source = Object.assign({}, ...paths);
+    const different = Object.keys(root).filter((name) => root[name] !== source[name]);
+    const sameNames = Object.keys(root).sort().join() === Object.keys(source).sort().join();
+    const own = {};
+    for (const path of OWN) own[path] = Object.keys(await load(path + '/index.' + ext)).sort();
+    console.log(JSON.stringify({ sameNames, different, own, inRoot: Object.keys(root) }));
+  };
+  main();
 `;
 
-const CJS = `
-  const load = (file) => require(process.env.DIST + file);
-  const [root, ui, toast] = [load('index.cjs'), load('ui/index.cjs'), load('toast/index.cjs')];
-  const source = { ...ui, ...toast };
-  const different = Object.keys(root).filter((name) => root[name] !== source[name]);
-  const sameNames = Object.keys(root).sort().join() === Object.keys(source).sort().join();
-  console.log(JSON.stringify({ sameNames, different }));
-`;
-
-const report = (args: string[], source: string): IReport =>
+const report = (kind: 'esm' | 'cjs'): IReport =>
   JSON.parse(
-    execFileSync(process.execPath, [...args, '-e', source], {
+    execFileSync(process.execPath, ['-e', script(kind)], {
       encoding: 'utf8',
       cwd: fileURLToPath(new URL('../', import.meta.url)),
       env: { ...process.env, DIST: fileURLToPath(dist) },
@@ -50,22 +65,55 @@ const report = (args: string[], source: string): IReport =>
 // apart) makes a root that is a second copy of `/ui` and `/toast`: twice the code in an app, and
 // the sources cannot show that.
 describe.skipIf(!isBuilt)('the built files', () => {
-  it('(ESM) give the root the very same values as /ui and /toast', () => {
-    expect(report(['--input-type=module'], ESM)).toEqual({
-      sameNames: true,
-      different: [],
-    });
-  });
+  it.each(['esm', 'cjs'] as const)(
+    '(%s) give the root the very same values as its paths, and the others a path of their own',
+    (kind) => {
+      const built = report(kind);
 
-  it('(CJS) give the root the very same values as /ui and /toast', () => {
-    expect(report([], CJS)).toEqual({ sameNames: true, different: [] });
-  });
+      expect(built.sameNames).toBe(true);
+      expect(built.different).toEqual([]);
+      expect(built.own).toEqual(
+        Object.fromEntries(Object.entries(OWN_PATH).map(([path, names]) => [path, [...names]])),
+      );
+      for (const names of Object.values(OWN_PATH)) {
+        for (const name of names) expect(built.inRoot, name).not.toContain(name);
+      }
+    },
+  );
 
-  it('keep the root a few lines long: it only points at /ui and /toast', () => {
+  it('keep the root a few lines long: it only points at its paths', () => {
     const root = readFileSync(new URL('index.js', dist), 'utf8');
 
-    expect(root).toContain("from '@beautinique/frontend-components/ui'");
-    expect(root).toContain("from '@beautinique/frontend-components/toast'");
+    for (const path of IN_ROOT) {
+      expect(root).toContain(`from '@beautinique/frontend-components/${path}'`);
+    }
     expect(root.length).toBeLessThan(1000);
+  });
+
+  // "exports" of package.json is what an app resolves: a path that points at a file the build did
+  // not make is a broken import for every app that uses it.
+  it('have a file for every path that "exports" of package.json promises', () => {
+    const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as {
+      exports: Record<string, string | Record<string, string>>;
+    };
+    const missing: string[] = [];
+
+    for (const [path, target] of Object.entries(pkg.exports)) {
+      const files = typeof target === 'string' ? [target] : Object.values(target);
+
+      for (const file of files) {
+        if (!existsSync(new URL(`../${file}`, import.meta.url))) missing.push(`${path} -> ${file}`);
+      }
+    }
+
+    expect(missing).toEqual([]);
+  });
+
+  it('have the types for the CJS file of every path too', () => {
+    const missing = ['index', ...IN_ROOT.map((p) => `${p}/index`)]
+      .concat(Object.keys(OWN_PATH).map((p) => `${p}/index`))
+      .filter((name) => !existsSync(new URL(`${name}.d.cts`, dist)));
+
+    expect(missing).toEqual([]);
   });
 });
