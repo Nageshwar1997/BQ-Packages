@@ -1,14 +1,19 @@
+import { createToastStore } from '@beautinique/frontend-stores';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 
 import type { IButton, IClassName, IIconButton, ITextButton, ITooltip } from './index.js';
 import * as root from './index.js';
 import type {
+  IToastContainer,
+  IToaster,
   IUploadGroup,
   IUploadItem,
   IUploadItemHandle,
   IUploadsSummary,
   TToast,
+  TToasterKit,
   TToastItem,
+  TToastStore,
   TUploadItemStatus,
 } from './toast/index.js';
 import * as toast from './toast/index.js';
@@ -23,8 +28,7 @@ describe('the public API of the package', () => {
     expect(Object.keys(root).sort()).toEqual([...names].sort());
   });
 
-  // A copy would not do: two copies of the toast store are two stores, and a toast shown through one
-  // never reaches the `ToastContainer` that reads the other.
+  // The root re-exports, it does not copy (see `tsup.config.ts` and `built-files.test.ts`).
   it('gives the very same values from the root and from /ui and /toast, not copies', () => {
     const source: Record<string, unknown> = { ...ui, ...toast };
 
@@ -33,12 +37,25 @@ describe('the public API of the package', () => {
     }
   });
 
-  it('shows a toast added through the root in the store of /toast', () => {
-    toast.useToastStore.setState({ toasts: [] });
-    root.toaster.default({ title: 'From the root' });
+  it('makes a toaster for the store of the app, through the root as through /toast', () => {
+    const store = createToastStore<TToast>();
 
-    expect(toast.useToastStore.getState().toasts.map(({ type }) => type)).toEqual(['default']);
-    toast.useToastStore.setState({ toasts: [] });
+    root.createToaster(store).toaster.default({ title: 'From the root' });
+    toast.createToaster(store).toaster.default({ title: 'From /toast' });
+
+    expect(store.getState().toasts.map(({ title }) => title)).toEqual([
+      'From the root',
+      'From /toast',
+    ]);
+  });
+
+  // The store is the app's: it makes it, and gives it to the container and to `createToaster`. If the
+  // package made one itself and exported it, there would be two ways to get a store.
+  it('does not export a toast store, nor a toaster that has one of its own', () => {
+    for (const name of ['useToastStore', 'toaster', 'withProgressToast', 'runUploadsInToast']) {
+      expect(Object.keys(root), name).not.toContain(name);
+      expect(Object.keys(toast), name).not.toContain(name);
+    }
   });
 
   it('exports exactly these values from /ui', () => {
@@ -50,17 +67,12 @@ describe('the public API of the package', () => {
       'TOAST_ICON_NAMES',
       'ToastContainer',
       'Toaster',
-      'createUploadsToast',
+      'createToaster',
       'getFormDataFiles',
       'getUploadItemFilesDone',
       'getUploadItemPercent',
       'getUploadsSummary',
       'isUploadItemSettled',
-      'runUploadsInToast',
-      'toaster',
-      'useToastStore',
-      'withProgressToast',
-      'withUploadsToast',
     ]);
   });
 
@@ -84,6 +96,31 @@ describe('the public API of the package', () => {
     expectTypeOf<IUploadItemHandle['run']>().toBeFunction();
     expectTypeOf<IUploadGroup['end']>().toBeFunction();
     expectTypeOf<IUploadsSummary['percent']>().toBeNumber();
+    expectTypeOf<IToastContainer['store']>().toEqualTypeOf<TToastStore>();
+    expectTypeOf<TToasterKit['toaster']>().toEqualTypeOf<IToaster>();
+    expectTypeOf<TToasterKit>().toHaveProperty('withProgressToast');
+    expectTypeOf<TToasterKit>().toHaveProperty('runUploadsInToast');
+  });
+});
+
+// The app makes the store with the toasts of this package. The `@ts-expect-error` lines are checked
+// by the type check of the package (`npm run typecheck`), not by vitest.
+describe('the store of the app', () => {
+  it('is made with the toasts of this package, and given to the toaster and to the container', () => {
+    const useToastStore = createToastStore<TToast>();
+
+    expectTypeOf(useToastStore).toEqualTypeOf<TToastStore>();
+    expectTypeOf(root.createToaster).parameter(0).toEqualTypeOf<TToastStore>();
+    expectTypeOf(root.ToastContainer).parameter(0).toEqualTypeOf<IToastContainer>();
+  });
+
+  it('has to be a store of these toasts', () => {
+    const other = createToastStore<{ type: 'other' }>();
+
+    // @ts-expect-error a store of other toasts is not a toast store of this package
+    const toaster = root.createToaster(other);
+
+    expect(toaster).toBeDefined();
   });
 });
 

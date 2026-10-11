@@ -188,8 +188,10 @@ describe('Button', () => {
     it('does not compile without a name', () => {
       // @ts-expect-error an icon alone has no name: `buttonProps` with a name is required
       const noButtonProps = <Button pattern="outline" content={{ icon: 'solar:pen-linear' }} />;
-      // @ts-expect-error `buttonProps` is there, but it names nothing
-      const noName = <Button pattern="outline" content={{ icon: 'x' }} buttonProps={{ title: 'Edit' }} />;
+      const noName = (
+        // @ts-expect-error `buttonProps` is there, but it names nothing
+        <Button pattern="outline" content={{ icon: 'x' }} buttonProps={{ title: 'Edit' }} />
+      );
 
       expect([noButtonProps, noName]).toHaveLength(2);
     });

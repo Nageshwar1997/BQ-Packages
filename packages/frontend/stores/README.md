@@ -1,6 +1,6 @@
 # @beautinique/frontend-stores
 
-The shared [zustand](https://zustand.docs.pmnd.rs) stores of the Beautinique frontends (`BQ-Client`, `BQ-Admin`, `BQ-Seller`, `BQ-Master`): **theme**, **user** and **actions** (a queue of actions that are tried again).
+The shared [zustand](https://zustand.docs.pmnd.rs) stores of the Beautinique frontends (`BQ-Client`, `BQ-Admin`, `BQ-Seller`, `BQ-Master`): **theme**, **user**, **actions** (a queue of actions that are tried again) and **toast** (the toasts that are shown).
 
 The package does not hold a store itself. It gives **functions that make a store**, and the app calls each of them once, in a variable of its own, and gives the types and what is special to the app (where the user is kept, how it is encrypted). That is how the same store code serves four apps with four different user types.
 
@@ -109,9 +109,26 @@ The first copies of these stores lived in each app. The package keeps what they 
 - **An action that is removed while it runs is not brought back** when it fails, and the next action is not dropped when it works.
 - **`crypto.randomUUID` is not needed.** It exists only on pages served over https (and localhost); the ids of actions have a fallback.
 
-## Not here: the toast store
+### `createToastStore<TToast>()`
 
-The toast store is part of [`@beautinique/frontend-components`](../components/README.md), next to the `ToastContainer` that reads it: the two have to share one store, so they live in the same package.
+The toasts that are shown: `add`, `update.progress`, `update.uploadItem` and `remove`. `TToast` is a union with one `type` for each kind of toast of whoever shows them (a toast that follows an upload has the type `'progress'`, one with a row per upload has the type `'uploads'` and its `items`).
+
+```ts
+type TToast =
+  | { type: 'success'; title: string }
+  | { type: 'progress'; title: string; progress: number }
+  | { type: 'uploads'; title: string; items: IUploadItem[] };
+
+export const useToastStore = createToastStore<TToast>();
+
+const id = useToastStore.getState().add({ type: 'progress', title: 'Uploading', progress: 0 });
+useToastStore.getState().update.progress(id, 40);
+useToastStore.getState().remove(id);
+```
+
+State: `{ toasts, add(toast), update: { progress(id, progress), uploadItem(id, itemId, patch) }, remove(id) }`. `add` gives the id of the toast. `update.progress` only changes a toast of the type `'progress'`, `update.uploadItem` only one of the type `'uploads'`; any other toast with that id is left alone.
+
+**The store has to be one for everything that shows toasts.** What adds a toast and the container that draws it must use the same store: make it once, in the one module that shows the toasts, and let the others import it from there. [`@beautinique/frontend-components`](../components/README.md) does exactly that, with its own `TToast`: its `toaster` and `ToastContainer` share the store it makes, and an app only imports `toaster` and `ToastContainer` from it.
 
 ## Development
 

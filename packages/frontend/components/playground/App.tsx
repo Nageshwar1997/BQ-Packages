@@ -1,12 +1,17 @@
+// The app makes the toast store, once, and gives it to `createToaster` and to the `ToastContainer`:
+// the package holds no store of its own. `Button`, `Tooltip` and the rest come from the root path.
 import {
   Button,
-  runUploadsInToast,
+  createToaster,
   ToastContainer,
-  toaster,
+  type TToast,
   Tooltip,
-  withProgressToast,
 } from '@beautinique/frontend-components';
+import { createToastStore } from '@beautinique/frontend-stores';
 import { useState } from 'react';
+
+const useToastStore = createToastStore<TToast>();
+const { toaster, withProgressToast, runUploadsInToast } = createToaster(useToastStore);
 
 const wait = (ms: number) =>
   new Promise<void>((resolve) => {
@@ -96,7 +101,7 @@ export const App = () => {
 
   return (
     <div className="bg-primary-invert text-primary min-h-dvh p-6">
-      <ToastContainer />
+      <ToastContainer store={useToastStore} />
 
       <div className="fixed right-1 bottom-1 z-10">
         <Tooltip title="No room below" description="So it opens above" placement="bottom">

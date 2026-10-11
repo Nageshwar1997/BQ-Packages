@@ -1,3 +1,4 @@
+import type { IToastStore as IToastStoreOf, TToastStoreHook } from '@beautinique/frontend-stores';
 import type { ReactNode } from 'react';
 
 import type { TOAST_TYPE } from '../lib/constants.js';
@@ -81,14 +82,15 @@ export type TToast = IDefaultToast | ICustomToast | ILoadingToast | IProgressToa
 
 export type TToastItem = TToast & { id: string };
 
-export interface IToastStore {
-  toasts: TToastItem[];
-  add: (toast: TToast) => string;
-  update: {
-    progress: (id: string, progress: number) => void;
-    uploadItem: (id: string, itemId: string, patch: Partial<Omit<IUploadItem, 'id'>>) => void;
-  };
-  remove: (id: string) => void;
+/** The toast store: what `@beautinique/frontend-stores` makes, with the toasts of this package. */
+export type IToastStore = IToastStoreOf<TToast>;
+
+/** What `createToastStore<TToast>()` gives: the store the app makes and gives to the container and to `createToaster`. */
+export type TToastStore = TToastStoreHook<TToast>;
+
+export interface IToastContainer {
+  /** The toast store of the app, the one that `createToaster` was given. */
+  store: TToastStore;
 }
 
 export type TProgressToastOptions<T> = ITitleDescription & {

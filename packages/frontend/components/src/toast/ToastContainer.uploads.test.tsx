@@ -3,10 +3,11 @@ import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { mount, unmountAll } from '../test-utils/react.js';
+import { makeToasts } from '../test-utils/toasts.js';
 import { ToastContainer } from './ToastContainer.js';
-import { useToastStore } from './toast.store.js';
-import { toaster } from './toaster.js';
 import type { IUploadItem } from './types.js';
+
+const { store: useToastStore, toaster } = makeToasts();
 
 const row = (patch: Partial<IUploadItem> & Pick<IUploadItem, 'id' | 'label'>): IUploadItem => ({
   status: 'pending',
@@ -72,7 +73,7 @@ describe('the uploads toast', () => {
   });
 
   it('shows the overall progress on the left, and how many files are through', () => {
-    const view = mount(<ToastContainer />);
+    const view = mount(<ToastContainer store={useToastStore} />);
 
     start(contentUploads());
 
@@ -83,7 +84,7 @@ describe('the uploads toast', () => {
   });
 
   it('shows a row for every upload when there are several, each with its own state', () => {
-    const view = mount(<ToastContainer />);
+    const view = mount(<ToastContainer store={useToastStore} />);
 
     start(contentUploads());
 
@@ -108,7 +109,7 @@ describe('the uploads toast', () => {
   });
 
   it('turns the icon of an upload that is going on by itself, not with css', () => {
-    const view = mount(<ToastContainer />);
+    const view = mount(<ToastContainer store={useToastStore} />);
 
     start(contentUploads());
 
@@ -120,7 +121,7 @@ describe('the uploads toast', () => {
   });
 
   it('shows no rows for a single upload, only the summary', () => {
-    const view = mount(<ToastContainer />);
+    const view = mount(<ToastContainer store={useToastStore} />);
 
     start([
       row({
@@ -139,7 +140,7 @@ describe('the uploads toast', () => {
   });
 
   it('follows the uploads as they go', () => {
-    const view = mount(<ToastContainer />);
+    const view = mount(<ToastContainer store={useToastStore} />);
     const toastId = start(contentUploads());
 
     patch(toastId, 'description', { loaded: 300 });
@@ -154,7 +155,7 @@ describe('the uploads toast', () => {
   });
 
   it('cannot be closed, and does not close, while something is still uploading', () => {
-    const view = mount(<ToastContainer />);
+    const view = mount(<ToastContainer store={useToastStore} />);
 
     start(contentUploads());
     advance(60_000);
@@ -164,7 +165,7 @@ describe('the uploads toast', () => {
   });
 
   it('says everything is uploaded, then closes by itself', () => {
-    const view = mount(<ToastContainer />);
+    const view = mount(<ToastContainer store={useToastStore} />);
     const toastId = start(contentUploads());
 
     patch(toastId, 'description', { status: 'success' });
@@ -183,7 +184,7 @@ describe('the uploads toast', () => {
   });
 
   it('says "Uploaded" for a single file that is through', () => {
-    const view = mount(<ToastContainer />);
+    const view = mount(<ToastContainer store={useToastStore} />);
 
     start([row({ id: 'files', label: 'Thumbnail', status: 'success' })]);
 
@@ -193,7 +194,7 @@ describe('the uploads toast', () => {
   });
 
   it('shows what failed, and stays longer so it can be read', () => {
-    const view = mount(<ToastContainer />);
+    const view = mount(<ToastContainer store={useToastStore} />);
     const toastId = start(contentUploads());
 
     patch(toastId, 'description', { status: 'error' });
@@ -215,7 +216,7 @@ describe('the uploads toast', () => {
   });
 
   it('says the upload failed when every upload failed', () => {
-    const view = mount(<ToastContainer />);
+    const view = mount(<ToastContainer store={useToastStore} />);
 
     start([row({ id: 'files', label: 'Images', status: 'error', fileSizes: [100, 100] })]);
 

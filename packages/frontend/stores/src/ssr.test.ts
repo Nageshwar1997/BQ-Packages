@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { createActionsStore } from './actions.store.js';
 import { createThemeStore } from './theme.store.js';
+import { createToastStore } from './toast.store.js';
 import { createUserStore } from './user.store.js';
 
 // On a server there is no `localStorage`. The stores are made when a module is loaded, so they
@@ -32,6 +33,17 @@ describe('the stores where there is no localStorage', () => {
 
     store.getState().setUser(null);
     expect(store.getState().authenticated).toBe(false);
+  });
+
+  it('makes the toast store, and a toast can be added and removed', () => {
+    const store = createToastStore<{ type: 'success'; title: string }>();
+    const id = store.getState().add({ type: 'success', title: 'Saved' });
+
+    expect(store.getState().toasts).toHaveLength(1);
+
+    store.getState().remove(id);
+
+    expect(store.getState().toasts).toEqual([]);
   });
 
   it('makes the actions store', () => {

@@ -5,8 +5,13 @@ import { TOAST_TYPE } from '../lib/constants.js';
 import type { IClassName } from '../types/component.js';
 import { Button } from '../ui/Button.js';
 import { registerToastIcons } from './toast-icons.js';
-import { useToastStore } from './toast.store.js';
-import type { IUploadItem, TToast, TToastItem, TUploadItemStatus } from './types.js';
+import type {
+  IToastContainer,
+  IUploadItem,
+  TToast,
+  TToastItem,
+  TUploadItemStatus,
+} from './types.js';
 import {
   getUploadItemFilesDone,
   getUploadItemPercent,
@@ -184,7 +189,8 @@ const cardConfig = (type: TToast['type']) => {
   }
 };
 
-const ToasterItem = (props: TToastItem & IClassName) => {
+/** One toast. `onRemove` is told its id once it has gone out of sight, to take it out of the store. */
+const ToasterItem = (props: TToastItem & IClassName & { onRemove?: (id: string) => void }) => {
   const {
     className = '',
     type,
@@ -193,9 +199,8 @@ const ToasterItem = (props: TToastItem & IClassName) => {
     isClosable = true,
     autoClose = true,
     closeTimer = 5000,
+    onRemove,
   } = props;
-
-  const remove = useToastStore((s) => s.remove);
 
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(true);
@@ -228,9 +233,9 @@ const ToasterItem = (props: TToastItem & IClassName) => {
 
     timeoutRef.current = setTimeout(() => {
       setMounted(false);
-      remove(props.id);
+      onRemove?.(props.id);
     }, 300);
-  }, [remove, props.id]);
+  }, [onRemove, props.id]);
 
   useEffect(() => {
     const enterTimer = setTimeout(() => {
@@ -340,15 +345,16 @@ const ToasterItem = (props: TToastItem & IClassName) => {
  */
 export const Toaster = memo(ToasterItem);
 
-export const ToastContainer = () => {
+export const ToastContainer = ({ store: useToastStore }: IToastContainer) => {
   const toasts = useToastStore((s) => s.toasts);
+  const remove = useToastStore((s) => s.remove);
 
   if (toasts.length === 0) return null;
 
   return (
     <div className="base:max-w-sm fixed right-2 bottom-2 z-999 flex w-full max-w-xs flex-col gap-2 sm:max-w-md md:right-4 md:bottom-4 md:max-w-lg lg:right-8 lg:bottom-8 lg:max-w-xl">
       {toasts.map((toast) => (
-        <Toaster key={toast.id} {...toast} id={toast.id} />
+        <Toaster key={toast.id} {...toast} id={toast.id} onRemove={remove} />
       ))}
     </div>
   );

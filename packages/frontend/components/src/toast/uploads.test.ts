@@ -1,17 +1,21 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { useToastStore } from './toast.store.js';
+import { makeToasts } from '../test-utils/toasts.js';
 import type { IUploadItem, TUploadProgressEvent } from './types.js';
 import {
-  createUploadsToast,
   getFormDataFiles,
   getUploadItemFilesDone,
   getUploadItemPercent,
   getUploadsSummary,
+} from './uploads.js';
+
+const {
+  store: useToastStore,
+  createUploadsToast,
   runUploadsInToast,
   withUploadsToast,
-} from './uploads.js';
+} = makeToasts();
 
 const file = (name: string, size: number) => new File([new Uint8Array(size)], name);
 

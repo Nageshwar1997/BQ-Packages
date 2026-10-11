@@ -8,10 +8,10 @@ The components are styled with Tailwind classes and with the tokens (colours, sh
 ## Installation
 
 ```bash
-npm install @beautinique/frontend-components @beautinique/frontend-styles @iconify/react
+npm install @beautinique/frontend-components @beautinique/frontend-stores @beautinique/frontend-styles @iconify/react
 ```
 
-Peer dependencies: `react`, `react-dom`, `@iconify/react`, `@beautinique/frontend-styles`.
+Peer dependencies: `react`, `react-dom`, `@iconify/react`, `@beautinique/frontend-styles` and [`@beautinique/frontend-stores`](../stores/README.md) (the toasts are kept in a store that the app makes with it, see [Toasts](#toasts); that needs `zustand` in the app).
 
 ## Setup (once per app)
 
@@ -32,12 +32,12 @@ generated and the components come out unstyled. (The playground has a page that 
 Components that most screens use live in `/ui` (and, later, `/layout`). Components that few screens
 use have a path of their own, so an app only bundles what it imports.
 
-| Import path                                   | What it gives                                                                                |
-| --------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `@beautinique/frontend-components`            | Everything `/ui` and `/toast` give (the very same values), and the types (`IButton`, ...)    |
-| `@beautinique/frontend-components/ui`         | `Button`, `Tooltip`                                                                          |
-| `@beautinique/frontend-components/toast`      | `ToastContainer`, `toaster`, the toast store, and the helpers for toasts that follow uploads |
-| `@beautinique/frontend-components/source.css` | The `@source` line of the setup above                                                        |
+| Import path                                   | What it gives                                                                             |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `@beautinique/frontend-components`            | Everything `/ui` and `/toast` give (the very same values), and the types (`IButton`, ...) |
+| `@beautinique/frontend-components/ui`         | `Button`, `Tooltip`                                                                       |
+| `@beautinique/frontend-components/toast`      | `ToastContainer`, `createToaster`, and the helpers and types of toasts                    |
+| `@beautinique/frontend-components/source.css` | The `@source` line of the setup above                                                     |
 
 `Button` can be imported from the root or from `/ui`, it is the same component either way:
 
@@ -46,25 +46,22 @@ import { Button } from '@beautinique/frontend-components'; // or
 import { Button } from '@beautinique/frontend-components/ui';
 ```
 
-The root only re-exports, it does not copy: a toast shown with `toaster` from one path appears in the
-`ToastContainer` of the other, and an app that imports only `Button` from the root bundles the same as
-with `/ui` (the bundler leaves out what is not used).
+The root only re-exports, it does not copy: an app that imports only `Button` from the root bundles the
+same as with `/ui` (the bundler leaves out what is not used).
 
 ```tsx
-import { Button, Tooltip } from '@beautinique/frontend-components/ui';
-import { ToastContainer, toaster } from '@beautinique/frontend-components/toast';
+import { Button, Tooltip } from '@beautinique/frontend-components';
+
+import { toaster } from '@/utils/toaster'; // made in the app, see Toasts
 
 const App = () => (
-  <>
-    <ToastContainer /> {/* once, near the root of the app */}
-    <Tooltip title="Save" description="Ctrl + S">
-      <Button
-        pattern="primary"
-        content="Save"
-        buttonProps={{ onClick: () => toaster.success({ title: 'Saved' }) }}
-      />
-    </Tooltip>
-  </>
+  <Tooltip title="Save" description="Ctrl + S">
+    <Button
+      pattern="primary"
+      content="Save"
+      buttonProps={{ onClick: () => toaster.success({ title: 'Saved' }) }}
+    />
+  </Tooltip>
 );
 ```
 
@@ -115,6 +112,38 @@ const hint = (
 
 ### Toasts
 
+The toasts are kept in a store that **the app makes**, once, with the toasts of this package, and gives to the two things that need it: the `ToastContainer` that draws them, and `createToaster` that shows them. The package holds no store of its own, and exports none.
+
+```ts
+// src/stores/toast.store.ts
+import type { TToast } from '@beautinique/frontend-components';
+import { createToastStore } from '@beautinique/frontend-stores';
+
+export const useToastStore = createToastStore<TToast>();
+```
+
+```ts
+// src/utils/toaster.ts - the toaster and the helpers, for the rest of the app to import
+import { createToaster } from '@beautinique/frontend-components';
+
+import { useToastStore } from '@/stores/toast.store';
+
+export const {
+  toaster,
+  withProgressToast,
+  withUploadsToast,
+  runUploadsInToast,
+  createUploadsToast,
+} = createToaster(useToastStore);
+```
+
+```tsx
+// once, near the root of the app
+import { ToastContainer } from '@beautinique/frontend-components';
+
+<ToastContainer store={useToastStore} />;
+```
+
 `toaster` works from anywhere (an API client, a store), not only from components:
 
 ```tsx
@@ -127,20 +156,17 @@ toaster.custom({ type: 'custom', children: <p>Any React content</p> });
 ```
 
 Toasts that follow uploads (`withProgressToast` for one request, `createUploadsToast`,
-`withUploadsToast` and `runUploadsInToast` for several) are described in `src/toast/uploads.ts`.
+`withUploadsToast` and `runUploadsInToast` for several) come out of `createToaster` too, and are described in `src/toast/uploads.ts`.
 `runUploadsInToast` shows one toast for the uploads of several fields: the overall progress on the
 left and a row (waiting, uploading, done or failed) for each field that has files.
+
+**The store has to be one.** The container and `createToaster` must be given the same store: a toast added to a store that no container draws is never shown. Make it once (a module of the app, imported from there) and the two cannot differ. `createToaster` is also checked by the compiler: it takes a store of this package's `TToast`, nothing else.
 
 The icons of the toasts are bundled, so a toast shows its icon without a network.
 
 ## Rules for the code of this package
 
-- **State lives in exactly one import path.** The toast store is part of `/toast` only. A component
-  of another path that needs it must import it from `@beautinique/frontend-components/toast`, never
-  copy it: every entry is built as one file, so a copy would be a second store, and a toast shown
-  through it would never reach the `ToastContainer`. The root is such a path: its built file only
-  imports `/ui` and `/toast` (`tsup.config.ts` keeps them external, and `built-files.test.ts` checks
-  the built files after `npm run build`).
+- **The package holds no state.** The toast store is made by the app (`createToastStore` of `@beautinique/frontend-stores`, with this package's `TToast`) and given in, to the `ToastContainer` as a prop and to `createToaster`. Nothing here makes a store or exports one, so the package can never be the cause of two of them. The root only re-exports `/ui` and `/toast` (`tsup.config.ts` keeps them external, and `built-files.test.ts` checks the built files after `npm run build`).
 - **The root has what most screens use** (`/ui`, later `/layout`, and `/toast`). A component that few
   screens use gets a path of its own and is not in the root.
 - **A component's own css lives next to the component** and is imported by it, not by the styles
@@ -153,6 +179,7 @@ The icons of the toasts are bundled, so a toast shows its icon without a network
 
 ```bash
 npm run build        # dist (needed by the playground and by the type check of the playground)
+                     # `@beautinique/frontend-stores` has to be built first (`npm run build` at the root of the repo does it in order)
 npm run playground   # http://localhost:4200 - the components, in a real browser
 npm test
 ```

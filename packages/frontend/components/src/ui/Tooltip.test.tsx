@@ -41,13 +41,13 @@ describe('Tooltip', () => {
     vi.useFakeTimers({
       toFake: ['setTimeout', 'clearTimeout', 'requestAnimationFrame', 'cancelAnimationFrame'],
     });
-    rectSpy = vi
-      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-      .mockImplementation(function (this: HTMLElement) {
-        const isTooltip = this.getAttribute('role') === 'tooltip';
+    rectSpy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      const isTooltip = this.getAttribute('role') === 'tooltip';
 
-        return (isTooltip && tooltipSize ? { ...anchor, ...tooltipSize } : anchor) as DOMRect;
-      });
+      return (isTooltip && tooltipSize ? { ...anchor, ...tooltipSize } : anchor) as DOMRect;
+    });
   });
 
   afterEach(() => {

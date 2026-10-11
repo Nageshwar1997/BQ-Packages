@@ -1,4 +1,4 @@
-import { toaster } from './toaster.js';
+import type { IToaster } from './toaster.js';
 import type {
   IUploadGroup,
   IUploadItem,
@@ -96,141 +96,146 @@ export const getFormDataFiles = (data: FormData, key = 'files'): File[] =>
 
 /* ===================== THE TOAST OF A GROUP OF UPLOADS ===================== */
 
-interface IUploadGroupOptions {
+export interface IUploadGroupOptions {
   title: string;
   description?: string;
   items: { id: string; label: string; files: File[] }[];
 }
 
-/**
- * Opens one toast for the uploads of `items`. It closes by itself a moment after every upload is
- * over. Returns nothing when there is nothing to upload, so no empty toast is shown.
- */
-export const createUploadsToast = ({
-  title,
-  description,
-  items,
-}: IUploadGroupOptions): IUploadGroup | undefined => {
-  if (items.length === 0) return undefined;
-
-  const statuses = new Map<string, TUploadItemStatus>(items.map(({ id }) => [id, 'pending']));
-
-  const toastId = toaster.uploads.start({
+/** The helpers that show the toast of uploads, for the `toaster` (so the store) they are given. */
+export const createUploadsHelpers = (toaster: IToaster) => {
+  /**
+   * Opens one toast for the uploads of `items`. It closes by itself a moment after every upload is
+   * over. Returns nothing when there is nothing to upload, so no empty toast is shown.
+   */
+  const createUploadsToast = ({
     title,
     description,
-    items: items.map(({ id, label, files }) => {
-      const fileSizes = files.map(({ size }) => size);
+    items,
+  }: IUploadGroupOptions): IUploadGroup | undefined => {
+    if (items.length === 0) return undefined;
 
-      return { id, label, status: 'pending', loaded: 0, total: sum(fileSizes), fileSizes };
-    }),
-  });
+    const statuses = new Map<string, TUploadItemStatus>(items.map(({ id }) => [id, 'pending']));
 
-  const patch = (id: string, changes: Partial<Omit<IUploadItem, 'id'>>) => {
-    if (changes.status) statuses.set(id, changes.status);
+    const toastId = toaster.uploads.start({
+      title,
+      description,
+      items: items.map(({ id, label, files }) => {
+        const fileSizes = files.map(({ size }) => size);
 
-    toaster.uploads.update(toastId, id, changes);
-  };
+        return { id, label, status: 'pending', loaded: 0, total: sum(fileSizes), fileSizes };
+      }),
+    });
 
-  return {
-    item: (id) => ({
-      run: async (request) => {
-        patch(id, { status: 'uploading' });
+    const patch = (id: string, changes: Partial<Omit<IUploadItem, 'id'>>) => {
+      if (changes.status) statuses.set(id, changes.status);
 
-        try {
-          const result = await request((event) => {
-            // The browser says nothing about the total for some requests: keep the size estimate then.
-            if (!event.total) return;
+      toaster.uploads.update(toastId, id, changes);
+    };
 
-            patch(id, { loaded: event.loaded, total: event.total });
-          });
+    return {
+      item: (id) => ({
+        run: async (request) => {
+          patch(id, { status: 'uploading' });
 
-          patch(id, { status: 'success' });
+          try {
+            const result = await request((event) => {
+              // The browser says nothing about the total for some requests: keep the size estimate then.
+              if (!event.total) return;
 
-          return result;
-        } catch (error) {
-          patch(id, { status: 'error' });
+              patch(id, { loaded: event.loaded, total: event.total });
+            });
 
-          throw error;
+            patch(id, { status: 'success' });
+
+            return result;
+          } catch (error) {
+            patch(id, { status: 'error' });
+
+            throw error;
+          }
+        },
+      }),
+
+      end: () => {
+        for (const [id, status] of statuses) {
+          if (status === 'pending' || status === 'uploading') patch(id, { status: 'error' });
         }
       },
-    }),
-
-    end: () => {
-      for (const [id, status] of statuses) {
-        if (status === 'pending' || status === 'uploading') patch(id, { status: 'error' });
-      }
-    },
+    };
   };
-};
 
-/** The toast for a single request that uploads several files at once. */
-export const withUploadsToast = async <T>({
-  title,
-  description,
-  files,
-  request,
-}: {
-  title: string;
-  description?: string;
-  files: File[];
-  request: (onProgress: TUploadProgressHandler) => Promise<T>;
-}): Promise<T> => {
-  const group = createUploadsToast({
+  /** The toast for a single request that uploads several files at once. */
+  const withUploadsToast = async <T>({
     title,
     description,
-    items: files.length > 0 ? [{ id: 'files', label: description ?? title, files }] : [],
-  });
+    files,
+    request,
+  }: {
+    title: string;
+    description?: string;
+    files: File[];
+    request: (onProgress: TUploadProgressHandler) => Promise<T>;
+  }): Promise<T> => {
+    const group = createUploadsToast({
+      title,
+      description,
+      items: files.length > 0 ? [{ id: 'files', label: description ?? title, files }] : [],
+    });
 
-  if (!group) return request(() => undefined);
+    if (!group) return request(() => undefined);
 
-  try {
-    return await group.item('files').run(request);
-  } finally {
-    group.end();
-  }
-};
+    try {
+      return await group.item('files').run(request);
+    } finally {
+      group.end();
+    }
+  };
 
-/**
- * Runs the uploads of several fields (e.g. the images of each editor of a form step) behind one
- * toast with a row for every field that has files. `run` is called for every field, with the row of
- * that field to give to its upload (nothing when the toast has no row for it). Every upload is
- * waited for, so none is shown as failed just because another one failed; if any failed, the first
- * error is thrown once all are over.
- */
-export const runUploadsInToast = async <TId extends string, TResult>({
-  title,
-  description,
-  uploads,
-  run,
-}: {
-  title: string;
-  description?: string;
-  uploads: { id: TId; label: string; files: File[] }[];
-  run: (id: TId, progress: IUploadItemHandle | undefined) => Promise<TResult>;
-}): Promise<Record<TId, TResult>> => {
-  const group = createUploadsToast({
+  /**
+   * Runs the uploads of several fields (e.g. the images of each editor of a form step) behind one
+   * toast with a row for every field that has files. `run` is called for every field, with the row of
+   * that field to give to its upload (nothing when the toast has no row for it). Every upload is
+   * waited for, so none is shown as failed just because another one failed; if any failed, the first
+   * error is thrown once all are over.
+   */
+  const runUploadsInToast = async <TId extends string, TResult>({
     title,
     description,
-    items: uploads.filter(({ files }) => files.length > 0),
-  });
+    uploads,
+    run,
+  }: {
+    title: string;
+    description?: string;
+    uploads: { id: TId; label: string; files: File[] }[];
+    run: (id: TId, progress: IUploadItemHandle | undefined) => Promise<TResult>;
+  }): Promise<Record<TId, TResult>> => {
+    const group = createUploadsToast({
+      title,
+      description,
+      items: uploads.filter(({ files }) => files.length > 0),
+    });
 
-  const settled = await Promise.allSettled(uploads.map(({ id }) => run(id, group?.item(id))));
+    const settled = await Promise.allSettled(uploads.map(({ id }) => run(id, group?.item(id))));
 
-  group?.end();
+    group?.end();
 
-  const results = {} as Record<TId, TResult>;
+    const results = {} as Record<TId, TResult>;
 
-  settled.forEach((result, index) => {
-    if (result.status === 'fulfilled') results[uploads[index].id] = result.value;
-  });
+    settled.forEach((result, index) => {
+      if (result.status === 'fulfilled') results[uploads[index].id] = result.value;
+    });
 
-  const failure = settled.find(
-    (result): result is PromiseRejectedResult => result.status === 'rejected',
-  );
+    const failure = settled.find(
+      (result): result is PromiseRejectedResult => result.status === 'rejected',
+    );
 
-  if (failure) {
-    throw failure.reason instanceof Error ? failure.reason : new Error('Upload failed');
-  }
+    if (failure) {
+      throw failure.reason instanceof Error ? failure.reason : new Error('Upload failed');
+    }
 
-  return results;
+    return results;
+  };
+
+  return { createUploadsToast, withUploadsToast, runUploadsInToast };
 };

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+import { createId } from './id.js';
 import type { TStoreHook } from './types.js';
 
 export type TActionFn = () => void | Promise<void>;
@@ -50,14 +51,6 @@ const sleep = (ms: number) =>
     setTimeout(resolve, ms);
   });
 
-let idCounter = 0;
-
-/** `crypto.randomUUID` exists only on pages served over https (and localhost). */
-const createId = () =>
-  typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-    ? crypto.randomUUID()
-    : `action-${Date.now().toString(36)}-${(idCounter += 1).toString(36)}`;
-
 /**
  * A queue of actions that are run one after the other, each tried again with a growing wait when it
  * fails (e.g. requests that could not be sent while offline). Call it once, in a module of the app,
@@ -79,7 +72,7 @@ export const createActionsStore = ({
       actions: [],
 
       addAction: (fn, options) => {
-        const id = createId();
+        const id = createId('action');
         const item: IActionItem = {
           id,
           fn,

@@ -6,13 +6,21 @@ import type {
   IActionsStore,
   IStoreStorage,
   IThemeStore,
+  IToastStore,
   IUserStore,
   TActionFn,
   TDefaultTheme,
   TStoreHook,
+  TToastItemOf,
+  TUploadItemOf,
 } from './index.js';
 import * as stores from './index.js';
-import { createActionsStore, createThemeStore, createUserStore } from './index.js';
+import {
+  createActionsStore,
+  createThemeStore,
+  createToastStore,
+  createUserStore,
+} from './index.js';
 
 interface IUser {
   id: string;
@@ -25,6 +33,7 @@ describe('the public API of the package', () => {
     expect(Object.keys(stores).sort()).toEqual([
       'createActionsStore',
       'createThemeStore',
+      'createToastStore',
       'createUserStore',
     ]);
   });
@@ -108,6 +117,50 @@ describe('the types the app gives', () => {
     const badList = createThemeStore<'dark' | 'light'>({ themes: ['dark', 'blue'] });
 
     expect([noList, badDefault, badList]).toHaveLength(3);
+  });
+
+  describe('the toast store has the toasts of the app', () => {
+    interface IUploadItem {
+      id: string;
+      label: string;
+    }
+    type TToast =
+      | { type: 'success'; title: string }
+      | { type: 'progress'; title: string; progress: number }
+      | { type: 'uploads'; title: string; items: IUploadItem[] };
+
+    it('shows them back with their id', () => {
+      const useToastStore = createToastStore<TToast>();
+
+      expectTypeOf(useToastStore.getState()).toEqualTypeOf<IToastStore<TToast>>();
+      expectTypeOf(useToastStore.getState().toasts).toEqualTypeOf<TToastItemOf<TToast>[]>();
+      expectTypeOf(useToastStore.getState().add).parameter(0).toEqualTypeOf<TToast>();
+      expectTypeOf(useToastStore.getState().add).returns.toBeString();
+    });
+
+    it('takes the type of an upload from the uploads toast of the app', () => {
+      const useToastStore = createToastStore<TToast>();
+
+      expectTypeOf<TUploadItemOf<TToast>>().toEqualTypeOf<IUploadItem>();
+      expectTypeOf<TUploadItemOf<{ type: 'success' }>>().toBeNever();
+      expectTypeOf(useToastStore.getState().update.uploadItem)
+        .parameter(2)
+        .toEqualTypeOf<Partial<Omit<IUploadItem, 'id'>>>();
+    });
+
+    it('does not take what is not a toast', () => {
+      // @ts-expect-error a toast has a type
+      const noType = createToastStore<{ title: string }>();
+      // @ts-expect-error and its type is a text
+      const wrongType = createToastStore<{ type: number }>();
+      const useToastStore = createToastStore<TToast>();
+      // @ts-expect-error 'error' is not a kind of toast of this app
+      useToastStore.getState().add({ type: 'error', title: 'Failed' });
+      // @ts-expect-error an upload has no `status` in this app
+      useToastStore.getState().update.uploadItem('id', 'item', { status: 'success' });
+
+      expect([noType, wrongType]).toHaveLength(2);
+    });
   });
 
   it('the actions store has the same actions in every app', () => {

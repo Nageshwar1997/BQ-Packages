@@ -3,8 +3,8 @@ import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { mount, unmountAll } from '../test-utils/react.js';
+import { makeToasts } from '../test-utils/toasts.js';
 import { ToastContainer } from './ToastContainer.js';
-import { useToastStore } from './toast.store.js';
 
 // Every time a toast is rendered, its action button is rendered with it (the button is not memoized
 // on purpose, so it is a fair counter of the renders of the toast around it).
@@ -18,6 +18,7 @@ vi.mock('../ui/Button.js', () => ({
   },
 }));
 
+const { store: useToastStore } = makeToasts();
 const { add, update } = useToastStore.getState();
 
 const toastWithButton = (name: string) =>
@@ -51,7 +52,7 @@ describe('the toasts that are shown', () => {
   it('are not rendered again when another toast is added', () => {
     toastWithButton('A');
     toastWithButton('B');
-    mount(<ToastContainer />);
+    mount(<ToastContainer store={useToastStore} />);
     advance(100); // they have slid in
     renders.length = 0;
 
@@ -65,7 +66,7 @@ describe('the toasts that are shown', () => {
   it('are not rendered again for each update of a toast that is uploading', () => {
     toastWithButton('A');
     const progressId = add({ type: 'progress', title: 'Uploading', progress: 0 });
-    mount(<ToastContainer />);
+    mount(<ToastContainer store={useToastStore} />);
     advance(100);
     renders.length = 0;
 
@@ -85,7 +86,7 @@ describe('the toasts that are shown', () => {
       progress: 0,
       buttonProps: { content: 'Cancel' },
     });
-    const view = mount(<ToastContainer />);
+    const view = mount(<ToastContainer store={useToastStore} />);
     advance(100);
 
     act(() => {
