@@ -1,16 +1,16 @@
-import type { IToastStore as IToastStoreOf, TToastStoreHook } from '@beautinique/frontend-stores';
+import type {
+  IToastStore as IToastStoreOf,
+  IUploadItem,
+  TToastStoreHook,
+} from '@beautinique/frontend-stores';
 import type { ReactNode } from 'react';
 
 import type { TOAST_TYPE } from '../lib/constants.js';
 import type { IClassName, ITextButton, ITitleDescription } from '../types/component.js';
 
-/** What the browser tells about the progress of an upload (an `AxiosProgressEvent` fits). */
-export interface TUploadProgressEvent {
-  loaded: number;
-  total?: number;
-}
-
-export type TUploadProgressHandler = (event: TUploadProgressEvent) => void;
+// The rows of an uploads toast are made by the toaster of `@beautinique/frontend-stores`, which
+// owns their shape; the toast here only draws them.
+export type { IUploadItem, TUploadItemStatus } from '@beautinique/frontend-stores';
 
 interface IBaseToast extends IClassName {
   icon?: ReactNode;
@@ -50,20 +50,6 @@ export interface IProgressToast extends Omit<ILoadingToast, 'type'> {
   progress: number;
 }
 
-export type TUploadItemStatus = 'pending' | 'uploading' | 'success' | 'error';
-
-/** One upload (a request) of an uploads toast, e.g. "Description" with the images of that field. */
-export interface IUploadItem {
-  id: string;
-  label: string;
-  status: TUploadItemStatus;
-  /** Bytes the browser has sent so far, and the bytes to send (the sum of the file sizes until known). */
-  loaded: number;
-  total: number;
-  /** The size of every file of this upload, in the order they are sent. */
-  fileSizes: number[];
-}
-
 /**
  * One toast for one or more uploads running together: the overall progress on the left, how many
  * files are through underneath and, when there is more than one upload, a row for each of them.
@@ -85,28 +71,10 @@ export type TToastItem = TToast & { id: string };
 /** The toast store: what `@beautinique/frontend-stores` makes, with the toasts of this package. */
 export type IToastStore = IToastStoreOf<TToast>;
 
-/** What `createToastStore<TToast>()` gives: the store the app makes and gives to the container and to `createToaster`. */
+/** What `createToastStore<TToast>()` gives: the store the app makes and gives to the container (and to `createToaster`, of the stores package). */
 export type TToastStore = TToastStoreHook<TToast>;
 
 export interface IToastContainer {
-  /** The toast store of the app, the one that `createToaster` was given. */
+  /** The toast store of the app, the one that its `createToaster` was given. */
   store: TToastStore;
-}
-
-export type TProgressToastOptions<T> = ITitleDescription & {
-  request: (onProgress: TUploadProgressHandler) => Promise<T>;
-};
-
-export interface IUploadItemHandle {
-  /**
-   * Runs the upload: shows it as uploading, follows its progress, shows it as done or failed, and
-   * gives back what the request gave back (or throws what it threw).
-   */
-  run: <T>(request: (onProgress: TUploadProgressHandler) => Promise<T>) => Promise<T>;
-}
-
-export interface IUploadGroup {
-  item: (id: string) => IUploadItemHandle;
-  /** Call when the uploads are over: an upload that never ran (or never finished) shows as failed. */
-  end: () => void;
 }

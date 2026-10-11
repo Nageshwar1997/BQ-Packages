@@ -1,6 +1,7 @@
+// @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { makeToasts } from '../test-utils/toasts.js';
+import { makeToasts } from './test-utils/toasts.js';
 
 const { store: useToastStore, toaster, withProgressToast } = makeToasts();
 

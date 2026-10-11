@@ -6,7 +6,10 @@ import type {
   IActionsStore,
   IStoreStorage,
   IThemeStore,
+  IToaster,
+  IToasterKit,
   IToastStore,
+  IUploadItem,
   IUserStore,
   TActionFn,
   TDefaultTheme,
@@ -18,6 +21,7 @@ import * as stores from './index.js';
 import {
   createActionsStore,
   createThemeStore,
+  createToaster,
   createToastStore,
   createUserStore,
 } from './index.js';
@@ -34,6 +38,7 @@ describe('the public API of the package', () => {
       'createActionsStore',
       'createThemeStore',
       'createToastStore',
+      'createToaster',
       'createUserStore',
     ]);
   });
@@ -160,6 +165,67 @@ describe('the types the app gives', () => {
       useToastStore.getState().update.uploadItem('id', 'item', { status: 'success' });
 
       expect([noType, wrongType]).toHaveLength(2);
+    });
+  });
+
+  describe('the toaster takes the toasts of the store it is made for', () => {
+    type TToast =
+      | { type: 'success' | 'error'; title: string; description?: string }
+      | { type: 'custom'; children: string }
+      | { type: 'progress'; title: string; progress: number }
+      | { type: 'uploads'; title: string; items: IUploadItem[] };
+
+    const useToastStore = createToastStore<TToast>();
+    const kit = createToaster(useToastStore); // the types come from the store
+
+    it('has what each kind of toast is made of', () => {
+      expectTypeOf(kit).toEqualTypeOf<IToasterKit<TToast>>();
+      expectTypeOf(kit.toaster).toEqualTypeOf<IToaster<TToast>>();
+      expectTypeOf(kit.toaster.success).parameter(0).toEqualTypeOf<{
+        title: string;
+        description?: string;
+      }>();
+      expectTypeOf(kit.toaster.error).parameter(0).toEqualTypeOf<{
+        title: string;
+        description?: string;
+      }>();
+      expectTypeOf(kit.toaster.custom).parameter(0).toEqualTypeOf<{
+        type: 'custom';
+        children: string;
+      }>();
+      expectTypeOf(kit.toaster.progress.start).parameter(0).toEqualTypeOf<{
+        title: string;
+        progress: number;
+      }>();
+      expectTypeOf(kit.toaster.uploads.update)
+        .parameter(2)
+        .toEqualTypeOf<Partial<Omit<IUploadItem, 'id'>>>();
+      expectTypeOf(kit.toaster.success).returns.toBeString();
+    });
+
+    it('takes the title of the progress toast for the toast of a request', () => {
+      expectTypeOf(kit.withProgressToast<string>)
+        .parameter(0)
+        .toHaveProperty('title');
+      expectTypeOf(kit.withProgressToast<string>).returns.resolves.toBeString();
+    });
+
+    it('does not take data that is not of the kind, or a kind the store does not have', () => {
+      // only compiled by the type check, never run (the store at the end is not a store)
+      const check = () => {
+        // @ts-expect-error a success toast has a title
+        kit.toaster.success({});
+        // @ts-expect-error a progress toast starts with its progress
+        kit.toaster.progress.start({ title: 'Uploading' });
+        // @ts-expect-error there is no loading toast in this store
+        kit.toaster.loading({ title: 'Working' });
+        // @ts-expect-error an upload of this store has no `speed`
+        kit.toaster.uploads.update('toast', 'item', { speed: 3 });
+        // @ts-expect-error a store of no toasts at all is not a store of toasts
+        createToaster({});
+      };
+
+      expect(check).toBeTypeOf('function');
     });
   });
 

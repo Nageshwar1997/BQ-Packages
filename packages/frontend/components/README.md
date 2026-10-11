@@ -32,12 +32,12 @@ generated and the components come out unstyled. (The playground has a page that 
 Components that most screens use live in `/ui` (and, later, `/layout`). Components that few screens
 use have a path of their own, so an app only bundles what it imports.
 
-| Import path                                   | What it gives                                                                             |
-| --------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `@beautinique/frontend-components`            | Everything `/ui` and `/toast` give (the very same values), and the types (`IButton`, ...) |
-| `@beautinique/frontend-components/ui`         | `Button`, `Tooltip`                                                                       |
-| `@beautinique/frontend-components/toast`      | `ToastContainer`, `createToaster`, and the helpers and types of toasts                    |
-| `@beautinique/frontend-components/source.css` | The `@source` line of the setup above                                                     |
+| Import path                                   | What it gives                                                                               |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `@beautinique/frontend-components`            | Everything `/ui` and `/toast` give (the very same values), and the types (`IButton`, ...)   |
+| `@beautinique/frontend-components/ui`         | `Button`, `Tooltip`                                                                         |
+| `@beautinique/frontend-components/toast`      | `ToastContainer`, `Toaster`, the types of the toasts, and what works out what a toast shows |
+| `@beautinique/frontend-components/source.css` | The `@source` line of the setup above                                                       |
 
 `Button` can be imported from the root or from `/ui`, it is the same component either way:
 
@@ -112,7 +112,7 @@ const hint = (
 
 ### Toasts
 
-The toasts are kept in a store that **the app makes**, once, with the toasts of this package, and gives to the two things that need it: the `ToastContainer` that draws them, and `createToaster` that shows them. The package holds no store of its own, and exports none.
+This package draws the toasts; the store that keeps them and the `toaster` that shows them are [`@beautinique/frontend-stores`](../stores/README.md)'s. The store is **made by the app**, once, with the toasts of this package, and given to the two things that need it: the `ToastContainer` here, as a prop, and `createToaster` of the stores package. This package holds no store and no toaster of its own, and exports none.
 
 ```ts
 // src/stores/toast.store.ts
@@ -124,7 +124,7 @@ export const useToastStore = createToastStore<TToast>();
 
 ```ts
 // src/utils/toaster.ts - the toaster and the helpers, for the rest of the app to import
-import { createToaster } from '@beautinique/frontend-components';
+import { createToaster } from '@beautinique/frontend-stores';
 
 import { useToastStore } from '@/stores/toast.store';
 
@@ -156,17 +156,15 @@ toaster.custom({ type: 'custom', children: <p>Any React content</p> });
 ```
 
 Toasts that follow uploads (`withProgressToast` for one request, `createUploadsToast`,
-`withUploadsToast` and `runUploadsInToast` for several) come out of `createToaster` too, and are described in `src/toast/uploads.ts`.
-`runUploadsInToast` shows one toast for the uploads of several fields: the overall progress on the
-left and a row (waiting, uploading, done or failed) for each field that has files.
+`withUploadsToast` and `runUploadsInToast` for several) come out of `createToaster` too, and are described in the [stores README](../stores/README.md#createtoasterstore). The toast draws what they show: the overall progress on the left and a row (waiting, uploading, done or failed) for each upload.
 
-**The store has to be one.** The container and `createToaster` must be given the same store: a toast added to a store that no container draws is never shown. Make it once (a module of the app, imported from there) and the two cannot differ. `createToaster` is also checked by the compiler: it takes a store of this package's `TToast`, nothing else.
+**The store has to be one.** The container and `createToaster` must be given the same store: a toast added to a store that no container draws is never shown. Make it once (a module of the app, imported from there) and the two cannot differ. The compiler checks it: the container takes a store of this package's `TToast`, and `createToaster` takes its types from the store it is given.
 
 The icons of the toasts are bundled, so a toast shows its icon without a network.
 
 ## Rules for the code of this package
 
-- **The package holds no state.** The toast store is made by the app (`createToastStore` of `@beautinique/frontend-stores`, with this package's `TToast`) and given in, to the `ToastContainer` as a prop and to `createToaster`. Nothing here makes a store or exports one, so the package can never be the cause of two of them. The root only re-exports `/ui` and `/toast` (`tsup.config.ts` keeps them external, and `built-files.test.ts` checks the built files after `npm run build`).
+- **The package holds no state.** The toast store is made by the app (`createToastStore` of `@beautinique/frontend-stores`, with this package's `TToast`) and given in, to the `ToastContainer` as a prop. The toaster is the stores package's too (`createToaster`). Nothing here makes a store or a toaster, or exports one, so the package can never be the cause of two stores. The root only re-exports `/ui` and `/toast` (`tsup.config.ts` keeps them external, and `built-files.test.ts` checks the built files after `npm run build`).
 - **The root has what most screens use** (`/ui`, later `/layout`, and `/toast`). A component that few
   screens use gets a path of its own and is not in the root.
 - **A component's own css lives next to the component** and is imported by it, not by the styles

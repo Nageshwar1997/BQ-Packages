@@ -128,7 +128,48 @@ useToastStore.getState().remove(id);
 
 State: `{ toasts, add(toast), update: { progress(id, progress), uploadItem(id, itemId, patch) }, remove(id) }`. `add` gives the id of the toast. `update.progress` only changes a toast of the type `'progress'`, `update.uploadItem` only one of the type `'uploads'`; any other toast with that id is left alone.
 
-**The store has to be one for everything that shows toasts.** What adds a toast and the container that draws it must use the same store: make it once, in the one module that shows the toasts, and let the others import it from there. [`@beautinique/frontend-components`](../components/README.md) does exactly that, with its own `TToast`: its `toaster` and `ToastContainer` share the store it makes, and an app only imports `toaster` and `ToastContainer` from it.
+**The store has to be one for everything that shows toasts.** What adds a toast (`createToaster`, below) and what draws it (the `ToastContainer` of [`@beautinique/frontend-components`](../components/README.md), which takes the store as a prop) must be given the same store: make it once, in one module of the app, and import it from there.
+
+### `createToaster(store)`
+
+The `toaster` and the helpers that show toasts in a store. The types come from the store (the `TToast` it was made with), so the app gives them once, when it makes the store:
+
+```ts
+import type { TToast } from '@beautinique/frontend-components';
+import { createToaster, createToastStore } from '@beautinique/frontend-stores';
+
+export const useToastStore = createToastStore<TToast>();
+export const {
+  toaster,
+  withProgressToast,
+  withUploadsToast,
+  runUploadsInToast,
+  createUploadsToast,
+} = createToaster(useToastStore);
+```
+
+`toaster` works from anywhere (an API client, a store), not only from components:
+
+```ts
+toaster.success({ title: 'Saved', description: 'Your changes were saved.' });
+toaster.error({ title: 'Failed' });
+toaster.warning({ title: 'Careful' });
+toaster.default({ title: 'Heads up' });
+toaster.loading({ title: 'Working' });
+toaster.custom({ type: 'custom', children: <p>Any React content</p> });
+toaster.remove(id);
+```
+
+What each of them takes is what that kind of toast of the app is made of, without its `type`: `toaster.success({ title })` takes what the toast of the type `'success'` has, a kind the store does not have is an error. The compiler checks it, and `createToaster` takes only a store of toasts.
+
+| What                                          | What it does                                                                                                                                                    |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `withProgressToast({ title, request })`       | A toast for one request: it follows the progress the request tells (`onProgress({ loaded, total })`, an axios `onUploadProgress` fits) and goes when it is over |
+| `withUploadsToast({ title, files, request })` | The toast for one request that uploads several files at once                                                                                                    |
+| `runUploadsInToast({ title, uploads, run })`  | One toast for the uploads of several fields: the overall progress, and a row (waiting, uploading, done or failed) for each field that has files                 |
+| `createUploadsToast({ title, items })`        | What the two above are made of: one toast for the uploads of `items`, with `item(id).run(request)` for each and `end()` when all are over                       |
+
+An upload is one request, so files are counted from the bytes sent; the toast closes by itself a moment after every upload is over, later when one failed. The uploads toast of the app has to be made of `IUploadItem`s (`{ id, label, status, loaded, total, fileSizes }`, exported here).
 
 ## Development
 

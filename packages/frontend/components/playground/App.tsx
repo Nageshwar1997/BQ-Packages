@@ -1,13 +1,7 @@
-// The app makes the toast store, once, and gives it to `createToaster` and to the `ToastContainer`:
-// the package holds no store of its own. `Button`, `Tooltip` and the rest come from the root path.
-import {
-  Button,
-  createToaster,
-  ToastContainer,
-  type TToast,
-  Tooltip,
-} from '@beautinique/frontend-components';
-import { createToastStore } from '@beautinique/frontend-stores';
+// The app makes the toast store, once, and gives it to `createToaster` (of the stores package) and to
+// the `ToastContainer`: the components package holds no store of its own.
+import { Button, ToastContainer, type TToast, Tooltip } from '@beautinique/frontend-components';
+import { createToaster, createToastStore } from '@beautinique/frontend-stores';
 import { useState } from 'react';
 
 const useToastStore = createToastStore<TToast>();

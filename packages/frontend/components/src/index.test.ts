@@ -1,17 +1,14 @@
-import { createToastStore } from '@beautinique/frontend-stores';
+import { createToaster, createToastStore } from '@beautinique/frontend-stores';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 
 import type { IButton, IClassName, IIconButton, ITextButton, ITooltip } from './index.js';
 import * as root from './index.js';
 import type {
+  IDefaultToast,
   IToastContainer,
-  IToaster,
-  IUploadGroup,
   IUploadItem,
-  IUploadItemHandle,
   IUploadsSummary,
   TToast,
-  TToasterKit,
   TToastItem,
   TToastStore,
   TUploadItemStatus,
@@ -37,22 +34,20 @@ describe('the public API of the package', () => {
     }
   });
 
-  it('makes a toaster for the store of the app, through the root as through /toast', () => {
-    const store = createToastStore<TToast>();
-
-    root.createToaster(store).toaster.default({ title: 'From the root' });
-    toast.createToaster(store).toaster.default({ title: 'From /toast' });
-
-    expect(store.getState().toasts.map(({ title }) => title)).toEqual([
-      'From the root',
-      'From /toast',
-    ]);
-  });
-
-  // The store is the app's: it makes it, and gives it to the container and to `createToaster`. If the
-  // package made one itself and exported it, there would be two ways to get a store.
+  // The store is the app's: it makes it with `createToastStore` and gets its toaster from
+  // `createToaster`, both of `@beautinique/frontend-stores`. If this package made a store itself, or a
+  // toaster that has one, and exported it, there would be two ways to get one.
   it('does not export a toast store, nor a toaster that has one of its own', () => {
-    for (const name of ['useToastStore', 'toaster', 'withProgressToast', 'runUploadsInToast']) {
+    for (const name of [
+      'useToastStore',
+      'createToastStore',
+      'createToaster',
+      'toaster',
+      'withProgressToast',
+      'createUploadsToast',
+      'withUploadsToast',
+      'runUploadsInToast',
+    ]) {
       expect(Object.keys(root), name).not.toContain(name);
       expect(Object.keys(toast), name).not.toContain(name);
     }
@@ -67,7 +62,6 @@ describe('the public API of the package', () => {
       'TOAST_ICON_NAMES',
       'ToastContainer',
       'Toaster',
-      'createToaster',
       'getFormDataFiles',
       'getUploadItemFilesDone',
       'getUploadItemPercent',
@@ -93,34 +87,40 @@ describe('the public API of the package', () => {
       'pending' | 'uploading' | 'success' | 'error'
     >();
     expectTypeOf<IUploadItem['status']>().toEqualTypeOf<TUploadItemStatus>();
-    expectTypeOf<IUploadItemHandle['run']>().toBeFunction();
-    expectTypeOf<IUploadGroup['end']>().toBeFunction();
     expectTypeOf<IUploadsSummary['percent']>().toBeNumber();
     expectTypeOf<IToastContainer['store']>().toEqualTypeOf<TToastStore>();
-    expectTypeOf<TToasterKit['toaster']>().toEqualTypeOf<IToaster>();
-    expectTypeOf<TToasterKit>().toHaveProperty('withProgressToast');
-    expectTypeOf<TToasterKit>().toHaveProperty('runUploadsInToast');
   });
 });
 
 // The app makes the store with the toasts of this package. The `@ts-expect-error` lines are checked
 // by the type check of the package (`npm run typecheck`), not by vitest.
 describe('the store of the app', () => {
-  it('is made with the toasts of this package, and given to the toaster and to the container', () => {
+  it('is made with the toasts of this package, and given to the container', () => {
     const useToastStore = createToastStore<TToast>();
 
     expectTypeOf(useToastStore).toEqualTypeOf<TToastStore>();
-    expectTypeOf(root.createToaster).parameter(0).toEqualTypeOf<TToastStore>();
     expectTypeOf(root.ToastContainer).parameter(0).toEqualTypeOf<IToastContainer>();
+  });
+
+  it('gives the toaster of the stores package what each toast of this package is made of', () => {
+    const { toaster } = createToaster(createToastStore<TToast>());
+
+    expectTypeOf(toaster.success).parameter(0).toEqualTypeOf<Omit<IDefaultToast, 'type'>>();
+    expectTypeOf(toaster.uploads.update)
+      .parameter(2)
+      .toEqualTypeOf<Partial<Omit<IUploadItem, 'id'>>>();
   });
 
   it('has to be a store of these toasts', () => {
     const other = createToastStore<{ type: 'other' }>();
 
-    // @ts-expect-error a store of other toasts is not a toast store of this package
-    const toaster = root.createToaster(other);
+    // only compiled by the type check, never run
+    const check = () => {
+      // @ts-expect-error a store of other toasts is not a toast store of this package
+      root.ToastContainer({ store: other });
+    };
 
-    expect(toaster).toBeDefined();
+    expect(check).toBeTypeOf('function');
   });
 });
 

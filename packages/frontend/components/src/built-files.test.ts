@@ -13,8 +13,6 @@ interface IReport {
   sameNames: boolean;
   /** Names whose value in the root is not the very same value as in /ui or /toast. */
   different: string[];
-  /** Toasts in a store of the app after one was shown with the root's `createToaster` and one with the one of /toast. */
-  shown: number;
 }
 
 // Plain Node loads the files, as an app's server or bundler does: vitest has its own module loader
@@ -26,11 +24,7 @@ const ESM = `
   const source = { ...ui, ...toast };
   const different = Object.keys(root).filter((name) => root[name] !== source[name]);
   const sameNames = Object.keys(root).sort().join() === Object.keys(source).sort().join();
-  const { createToastStore } = await import('@beautinique/frontend-stores');
-  const store = createToastStore();
-  root.createToaster(store).toaster.default({ title: 'From the root' });
-  toast.createToaster(store).toaster.default({ title: 'From /toast' });
-  console.log(JSON.stringify({ sameNames, different, shown: store.getState().toasts.length }));
+  console.log(JSON.stringify({ sameNames, different }));
 `;
 
 const CJS = `
@@ -39,11 +33,7 @@ const CJS = `
   const source = { ...ui, ...toast };
   const different = Object.keys(root).filter((name) => root[name] !== source[name]);
   const sameNames = Object.keys(root).sort().join() === Object.keys(source).sort().join();
-  const { createToastStore } = require('@beautinique/frontend-stores');
-  const store = createToastStore();
-  root.createToaster(store).toaster.default({ title: 'From the root' });
-  toast.createToaster(store).toaster.default({ title: 'From /toast' });
-  console.log(JSON.stringify({ sameNames, different, shown: store.getState().toasts.length }));
+  console.log(JSON.stringify({ sameNames, different }));
 `;
 
 const report = (args: string[], source: string): IReport =>
@@ -60,16 +50,15 @@ const report = (args: string[], source: string): IReport =>
 // apart) makes a root that is a second copy of `/ui` and `/toast`: twice the code in an app, and
 // the sources cannot show that.
 describe.skipIf(!isBuilt)('the built files', () => {
-  it('(ESM) give the root the very same values as /ui and /toast, and a toaster made through either shows in the store of the app', () => {
+  it('(ESM) give the root the very same values as /ui and /toast', () => {
     expect(report(['--input-type=module'], ESM)).toEqual({
       sameNames: true,
       different: [],
-      shown: 2,
     });
   });
 
-  it('(CJS) give the root the very same values as /ui and /toast, and a toaster made through either shows in the store of the app', () => {
-    expect(report([], CJS)).toEqual({ sameNames: true, different: [], shown: 2 });
+  it('(CJS) give the root the very same values as /ui and /toast', () => {
+    expect(report([], CJS)).toEqual({ sameNames: true, different: [] });
   });
 
   it('keep the root a few lines long: it only points at /ui and /toast', () => {
