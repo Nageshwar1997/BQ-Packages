@@ -5,6 +5,7 @@ import { createThemeStore, createToaster, createToastStore } from '@beautinique/
 import { useEffect, useState } from 'react';
 
 import { Components } from './Components.js';
+import { Library } from './Library.js';
 
 const useToastStore = createToastStore<TToast>();
 const { toaster, withProgressToast, runUploadsInToast } = createToaster(useToastStore);
@@ -306,6 +307,7 @@ export const App = () => {
         </section>
 
         <Components themeStore={useThemeStore} />
+        <Library toaster={toaster} />
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 // would be a second store, and a toast shown through it would never reach the `ToastContainer` of the
 // other path. A component that few screens use (`/auth`, `/linear-gradient`, `/resend`, `/stepper`)
 // has a path of its own and is not here.
+export * from './inputs/index.js';
 export * from './layout/index.js';
 export * from './theme/index.js';
 export * from './toast/index.js';

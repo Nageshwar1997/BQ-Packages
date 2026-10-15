@@ -1,7 +1,7 @@
 import { type ComponentProps, useEffect, useRef, useState } from 'react';
 
 import { getSecondsLeft, isPromiseLike, toSeconds } from '../lib/countdown.js';
-import { GradientText } from '../ui/GradientText.js';
+import { GradientText } from '../ui/index.js';
 
 export interface IResend extends Omit<ComponentProps<'p'>, 'children'> {
   /** What is said before the countdown or the button, e.g. `"Didn't get the code?"`. */

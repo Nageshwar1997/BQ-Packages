@@ -1,6 +1,6 @@
 import type { ComponentProps, ComponentPropsWithRef, ElementType, ReactNode } from 'react';
 
-import { GradientText } from '../ui/GradientText.js';
+import { GradientText } from '../ui/index.js';
 
 /**
  * What the link to a page needs, as the component that makes the link asks for it: `{ to: '/terms' }`

@@ -46,6 +46,36 @@
       "require": "./dist/auth/index.cjs",
       "default": "./dist/auth/index.js"
     },
+    "./breadcrumb": {
+      "types": "./dist/breadcrumb/index.d.ts",
+      "import": "./dist/breadcrumb/index.js",
+      "require": "./dist/breadcrumb/index.cjs",
+      "default": "./dist/breadcrumb/index.js"
+    },
+    "./color-input": {
+      "types": "./dist/color-input/index.d.ts",
+      "import": "./dist/color-input/index.js",
+      "require": "./dist/color-input/index.cjs",
+      "default": "./dist/color-input/index.js"
+    },
+    "./file-input": {
+      "types": "./dist/file-input/index.d.ts",
+      "import": "./dist/file-input/index.js",
+      "require": "./dist/file-input/index.cjs",
+      "default": "./dist/file-input/index.js"
+    },
+    "./hierarchy-select": {
+      "types": "./dist/hierarchy-select/index.d.ts",
+      "import": "./dist/hierarchy-select/index.js",
+      "require": "./dist/hierarchy-select/index.cjs",
+      "default": "./dist/hierarchy-select/index.js"
+    },
+    "./inputs": {
+      "types": "./dist/inputs/index.d.ts",
+      "import": "./dist/inputs/index.js",
+      "require": "./dist/inputs/index.cjs",
+      "default": "./dist/inputs/index.js"
+    },
     "./layout": {
       "types": "./dist/layout/index.d.ts",
       "import": "./dist/layout/index.js",
@@ -58,17 +88,41 @@
       "require": "./dist/linear-gradient/index.cjs",
       "default": "./dist/linear-gradient/index.js"
     },
+    "./loading-screen": {
+      "types": "./dist/loading-screen/index.d.ts",
+      "import": "./dist/loading-screen/index.js",
+      "require": "./dist/loading-screen/index.cjs",
+      "default": "./dist/loading-screen/index.js"
+    },
+    "./media": {
+      "types": "./dist/media/index.d.ts",
+      "import": "./dist/media/index.js",
+      "require": "./dist/media/index.cjs",
+      "default": "./dist/media/index.js"
+    },
     "./resend": {
       "types": "./dist/resend/index.d.ts",
       "import": "./dist/resend/index.js",
       "require": "./dist/resend/index.cjs",
       "default": "./dist/resend/index.js"
     },
+    "./static-page": {
+      "types": "./dist/static-page/index.d.ts",
+      "import": "./dist/static-page/index.js",
+      "require": "./dist/static-page/index.cjs",
+      "default": "./dist/static-page/index.js"
+    },
     "./stepper": {
       "types": "./dist/stepper/index.d.ts",
       "import": "./dist/stepper/index.js",
       "require": "./dist/stepper/index.cjs",
       "default": "./dist/stepper/index.js"
+    },
+    "./testimonials": {
+      "types": "./dist/testimonials/index.d.ts",
+      "import": "./dist/testimonials/index.js",
+      "require": "./dist/testimonials/index.cjs",
+      "default": "./dist/testimonials/index.js"
     },
     "./theme": {
       "types": "./dist/theme/index.d.ts",
@@ -111,8 +165,18 @@
     "@beautinique/frontend-stores": "^1.1.1",
     "@beautinique/frontend-styles": "^1.1.0",
     "@iconify/react": "^6.0.2",
+    "hls.js": "^1.5.0",
     "react": "^19.0.0",
+    "react-color-palette": "^7.3.0",
     "react-dom": "^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "hls.js": {
+      "optional": true
+    },
+    "react-color-palette": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@beautinique/frontend-stores": "^1.1.1",
@@ -126,8 +190,10 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "eslint-plugin-react-hooks": "^7.1.1",
+    "hls.js": "^1.7.3",
     "jsdom": "^30.1.2",
     "react": "^19.3.0",
+    "react-color-palette": "^7.3.1",
     "react-dom": "^19.3.0",
     "tailwindcss": "^4.3.3",
     "vite": "^8.3.2",

@@ -56,6 +56,41 @@ async function emitDeclarations() {
 }
 
 /* -------------------------------------------------------------------------- */
+/*                               STYLE IMPORTS                                */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * `tsc` keeps a side-effect import (`import '@scope/styles/teddy.css';`) in the `.d.ts` of the file
+ * that has it. A declaration has no use for it, and a consumer whose TypeScript checks side-effect
+ * imports (`noUncheckedSideEffectImports`) would get an error for a style file it cannot resolve. The
+ * line is made empty (not removed), so the lines of the declaration map keep their places.
+ *
+ * @param {string} directory
+ * @returns {Promise<void>}
+ */
+async function stripStyleImports(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+
+  await Promise.all(
+    entries.map(async (entry) => {
+      const entryPath = path.join(directory, entry.name);
+
+      if (entry.isDirectory()) {
+        await stripStyleImports(entryPath);
+        return;
+      }
+
+      if (!entry.name.endsWith('.d.ts')) return;
+
+      const content = await readFile(entryPath, 'utf8');
+      const stripped = content.replace(/^import ['"][^'"\r\n]+\.css['"];?[ \t]*$/gm, '');
+
+      if (stripped !== content) await writeFile(entryPath, stripped, 'utf8');
+    }),
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*                                CJS MIRRORING                               */
 /* -------------------------------------------------------------------------- */
 
@@ -99,7 +134,11 @@ async function duplicateForCjs(directory) {
           map.file = map.file.replace(/\.d\.ts$/, '.d.cts');
         }
 
-        await writeFile(entryPath.replace(/\.d\.ts\.map$/, '.d.cts.map'), JSON.stringify(map), 'utf8');
+        await writeFile(
+          entryPath.replace(/\.d\.ts\.map$/, '.d.cts.map'),
+          JSON.stringify(map),
+          'utf8',
+        );
       }
     }),
   );
@@ -116,6 +155,7 @@ try {
     throw new Error(`"dist" was not created at ${DIST_DIRECTORY}.`);
   }
 
+  await stripStyleImports(DIST_DIRECTORY);
   await duplicateForCjs(DIST_DIRECTORY);
 
   reportSuccess('Declaration files generated.');

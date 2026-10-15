@@ -3,7 +3,7 @@ import { type ComponentProps, memo, useCallback, useEffect, useRef, useState } f
 
 import { TOAST_TYPE } from '../lib/constants.js';
 import type { IClassName } from '../types/component.js';
-import { Button } from '../ui/Button.js';
+import { Button } from '../ui/index.js';
 import { registerToastIcons } from './toast-icons.js';
 import type {
   IToastContainer,
