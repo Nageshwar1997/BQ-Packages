@@ -1,12 +1,14 @@
 {
   "name": "@beautinique/frontend-quill",
   "version": "1.0.0",
-  "description": "React quill (Markup Editor) for the Beautinique frontends.",
+  "description": "The rich-text editor and the safe viewer of the Beautinique frontends: Quill with image uploads held back until save, and sanitized HTML.",
   "keywords": [
     "frontend",
     "react",
     "quill",
-    "markup editor",
+    "rich text editor",
+    "wysiwyg",
+    "dompurify",
     "beautinique"
   ],
   "author": "Nageshwar Pawar",
@@ -25,7 +27,8 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "source.css"
   ],
   "sideEffects": false,
   "exports": {
@@ -35,13 +38,23 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.js"
     },
+    "./editor": {
+      "types": "./dist/editor/index.d.ts",
+      "import": "./dist/editor/index.js",
+      "require": "./dist/editor/index.cjs",
+      "default": "./dist/editor/index.js"
+    },
+    "./source.css": "./source.css",
     "./package.json": "./package.json"
   },
   "scripts": {
     "build": "tsup",
     "postbuild": "node ../../../scripts/build-types/index.mjs",
     "dev": "tsup --watch",
+    "playground": "vite --config playground/vite.config.ts",
     "lint": "eslint .",
+    "test": "vitest run --environment jsdom",
+    "test:watch": "vitest --environment jsdom",
     "typecheck": "tsc --noEmit"
   },
   "publishConfig": {
@@ -49,5 +62,38 @@
   },
   "engines": {
     "node": ">=24"
+  },
+  "dependencies": {
+    "@beautinique/frontend-constants": "^1.1.2",
+    "@beautinique/shared-utils": "^1.1.2",
+    "dompurify": "^3.4.17",
+    "nanoid": "^6.0.2"
+  },
+  "peerDependencies": {
+    "@beautinique/frontend-styles": "^1.1.2",
+    "quill": "^2.0.3",
+    "react": "^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "quill": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@beautinique/frontend-styles": "^1.1.2",
+    "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "jsdom": "^30.1.3",
+    "quill": "^2.0.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5"
   }
 }

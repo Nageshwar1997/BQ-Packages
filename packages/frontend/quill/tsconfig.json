@@ -1,7 +1,13 @@
 {
   "extends": "../../../configs/tsconfig/tsconfig.frontend.json",
-  "exclude": [
-    "dist",
-    "tsup.config.ts"
-  ]
+  "compilerOptions": {
+    /* Quill's declarations are written for a bundler: with Node's own rules (`NodeNext`) its `Delta`
+       (from the CommonJS package `quill-delta`) comes out as a module and not as a class, and
+       `quill/modules/toolbar` needs a file extension. The apps that use this package are bundled. */
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    /* The tests read files of the monorepo (package.json, dist). */
+    "types": ["node"]
+  },
+  "exclude": ["dist", "tsup.config.ts"]
 }

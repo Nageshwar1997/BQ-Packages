@@ -1,3 +1,7 @@
-import config from "../../../configs/eslint/eslint.frontend.config.mjs";
+import { defineConfig } from 'eslint/config';
+import reactHooks from 'eslint-plugin-react-hooks';
 
-export default config;
+import frontendConfig from '../../../configs/eslint/eslint.frontend.config.mjs';
+
+/* The editor uses hooks: this package needs the rules of hooks (rules-of-hooks, exhaustive-deps). */
+export default defineConfig(frontendConfig, reactHooks.configs.flat.recommended);
