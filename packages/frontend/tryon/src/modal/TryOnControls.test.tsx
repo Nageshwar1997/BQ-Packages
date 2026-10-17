@@ -87,6 +87,14 @@ describe('TryOnShadeSwatches', () => {
     expect(view.container.innerHTML).toBe('');
   });
 
+  it('clips its row with the rounded bottom corners of its card, so the fades on the two edges of a row that scrolls do not poke out of them', () => {
+    const view = mount(swatches());
+
+    const card = required(view.container.querySelector('.rounded-2xl'), 'the card');
+
+    expect(card.querySelector('.overflow-hidden.rounded-b-2xl')).not.toBeNull();
+  });
+
   it('says how many shades there are, and asks to tap one while none is applied', () => {
     mount(swatches());
 

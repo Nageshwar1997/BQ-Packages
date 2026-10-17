@@ -198,6 +198,14 @@ describe('TryOnPatternSwatches', () => {
     expect(view.container.innerHTML).toBe('');
   });
 
+  it('clips its row with the rounded bottom corners of its card, so the fades on the two edges of a row that scrolls do not poke out of them', () => {
+    const view = mount(withAssets(swatches()));
+
+    const card = required(view.container.querySelector('.rounded-2xl'), 'the card');
+
+    expect(card.querySelector('.overflow-hidden.rounded-b-2xl')).not.toBeNull();
+  });
+
   it('shows a preview for each pattern, from `assets`, named for it', () => {
     mount(withAssets(swatches(), { baseUrl: '/tryon-assets/' }));
 

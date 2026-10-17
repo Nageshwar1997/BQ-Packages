@@ -46,9 +46,12 @@ const TryOnPatternSwatches = ({
           {appliedLabel ?? 'Pick a style'}
         </span>
       </div>
+      {/* The row is at the bottom of a rounded card: its container (it clips what is in it) gets the
+          rounded bottom corners of the card, or the fades on its two edges poke out of them. */}
       <ScrollableGradientContainer
         direction="horizontal"
         label="Styles"
+        containerClassName="rounded-b-2xl"
         className="px-4 pt-2.5 pb-2.5 [&>div]:gap-3"
         gradientClassNames={{
           left: 'from-black/60! w-8!',
