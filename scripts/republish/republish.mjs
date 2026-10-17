@@ -12,6 +12,7 @@ import { parseData, readFileByPath, writeJson } from '../common/utils.mjs';
 import { VERSION_TYPES } from './constants.mjs';
 import { applyDependencyUpdates, planDependencyUpdatesFor } from './dependency-update.mjs';
 import { updateInternalDependencyVersions } from './dependency-version.mjs';
+import { assertInternalDependenciesAvailable } from './internal-dependency-check.mjs';
 import {
   confirmRepublish,
   confirmRepublishMany,
@@ -105,10 +106,15 @@ async function buildReleasePlan(packages) {
  * A name that npm cannot be asked about (offline) is left as it is, with a warning: the republish goes
  * on, it is not stopped by a lookup.
  *
+ * Then it checks the package.json files as they are about to be written (see
+ * `assertInternalDependenciesAvailable`): if one depends on a package of the repository that npm does
+ * not have in a version that fits, it throws, before anything is asked or written.
+ *
  * @param {ReleasePlan} releasePlan
+ * @param {{ run?: import('./dependency-update.mjs').CommandRunner }} [options]
  * @returns {Promise<Map<string, DependencyUpdatePlan>>}
  */
-async function buildDependencyUpdatePlans(releasePlan) {
+export async function buildDependencyUpdatePlans(releasePlan, options = {}) {
   reportInfo('Checking the latest versions of the dependencies...');
 
   /** @type {Map<string, import('../common/types.mjs').PackageJson>} */
@@ -120,11 +126,26 @@ async function buildDependencyUpdatePlans(releasePlan) {
     packageJsons.set(metadata.npmPackageName, parseData(content));
   }
 
-  const { plans, failures } = await planDependencyUpdatesFor(packageJsons, { releasePlan });
+  const { plans, failures } = await planDependencyUpdatesFor(packageJsons, {
+    releasePlan,
+    run: options.run,
+  });
 
   for (const [name, message] of failures) {
     reportWarning(`Could not ask npm about "${name}" (${message}). It is left as it is.`);
   }
+
+  /** @type {Map<string, import('../common/types.mjs').PackageJson>} */
+  const finalPackageJsons = new Map();
+
+  for (const entry of getReleasePlanEntries(releasePlan)) {
+    const packageJson = structuredClone(packageJsons.get(entry.metadata.npmPackageName));
+
+    applyReleaseToPackageJson(packageJson, entry, releasePlan, plans);
+    finalPackageJsons.set(entry.metadata.npmPackageName, packageJson);
+  }
+
+  await assertInternalDependenciesAvailable(finalPackageJsons, releasePlan, { run: options.run });
 
   return plans;
 }
@@ -170,6 +191,26 @@ function getSortedReleasePlanEntries(releasePlan) {
 }
 
 /**
+ * Changes a parsed package.json the way the release does: its version, the packages of the same
+ * release that it depends on, and every other dependency the plan moves. It is what gets written, and
+ * what the check of the dependencies looks at, so the two cannot differ.
+ *
+ * @param {import('../common/types.mjs').PackageJson} packageJson
+ * @param {ReleasePlanEntry} entry
+ * @param {ReleasePlan} releasePlan
+ * @param {Map<string, DependencyUpdatePlan>} dependencyPlans
+ * @returns {void}
+ */
+function applyReleaseToPackageJson(packageJson, entry, releasePlan, dependencyPlans) {
+  packageJson.version = entry.nextVersion;
+  updateInternalDependencyVersions(packageJson, releasePlan);
+  applyDependencyUpdates(
+    packageJson,
+    dependencyPlans.get(entry.metadata.npmPackageName)?.updates ?? [],
+  );
+}
+
+/**
  * Updates one package.json from the release plan and writes it once: its version, the packages of
  * the same release that it depends on (they take the version they are released with), and every
  * other dependency that has a newer version (see `planDependencyUpdates`).
@@ -184,12 +225,7 @@ export async function updatePackageJsonForRelease(entry, releasePlan, dependency
   const content = await readFileByPath(packageJsonPath);
   const packageJson = parseData(content);
 
-  packageJson.version = entry.nextVersion;
-  updateInternalDependencyVersions(packageJson, releasePlan);
-  applyDependencyUpdates(
-    packageJson,
-    dependencyPlans.get(entry.metadata.npmPackageName)?.updates ?? [],
-  );
+  applyReleaseToPackageJson(packageJson, entry, releasePlan, dependencyPlans);
 
   await writeJson(packageJsonPath, packageJson, {
     indent: detectJsonIndent(content),

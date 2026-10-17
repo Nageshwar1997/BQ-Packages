@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { after, before, describe, it } from 'node:test';
+import { after, afterEach, before, beforeEach, describe, it, mock } from 'node:test';
 
 import { buildDependencyLines } from './prompts.mjs';
-import { updatePackageJsonForRelease } from './republish.mjs';
+import { buildDependencyUpdatePlans, updatePackageJsonForRelease } from './republish.mjs';
 
 /** Strips the colours of a terminal line. */
 // eslint-disable-next-line no-control-regex
@@ -211,5 +211,177 @@ describe('buildDependencyLines', () => {
     const lines = buildDependencyLines({ updates: [], skipped: [] }, '  ').map(plain);
 
     assert.ok(lines[0]?.startsWith('  Dependencies'));
+  });
+});
+
+describe('buildDependencyUpdatePlans: the check of the packages of the repository', () => {
+  const TRYON = '@beautinique/frontend-tryon';
+  const COMPONENTS = '@beautinique/frontend-components';
+
+  /** @type {string} */
+  let root;
+
+  const folder = (name) => path.join(root, name);
+  const writePackage = (name, packageJson) =>
+    writeFile(path.join(folder(name), 'package.json'), JSON.stringify(packageJson, null, 2));
+
+  const entry = (name, npmPackageName, nextVersion) => [
+    npmPackageName,
+    {
+      metadata: { directory: folder(name), npmPackageName },
+      currentVersion: '1.0.0',
+      nextVersion,
+      releaseType: 'patch',
+    },
+  ];
+
+  /** A stand-in for npm: what is the latest, and which versions exist, of each package. */
+  const npm = ({ versions, fail } = {}) => {
+    /** @type {string[]} */
+    const asked = [];
+
+    const run = async (_command, args) => {
+      const [, name, field] = args;
+
+      asked.push(`${field}:${name}`);
+
+      if (fail?.includes(name) && field === 'versions') {
+        throw new Error('ETIMEDOUT');
+      }
+
+      const list = versions?.[name];
+
+      if (list === undefined) {
+        throw new Error('npm error code E404');
+      }
+
+      return { stdout: JSON.stringify(field === 'versions' ? list : list.at(-1)) };
+    };
+
+    return { run, asked };
+  };
+
+  before(async () => {
+    root = await mkdtemp(path.join(tmpdir(), 'republish-check-'));
+  });
+
+  after(async () => {
+    await rm(root, { recursive: true, force: true });
+  });
+
+  beforeEach(async () => {
+    mock.method(console, 'log', () => {});
+    mock.method(console, 'warn', () => {});
+    await mkdir(folder('tryon'), { recursive: true });
+    await mkdir(folder('components'), { recursive: true });
+  });
+
+  afterEach(() => {
+    mock.restoreAll();
+  });
+
+  it('stops a republish whose package would need a version of another package that is not on npm', async () => {
+    const original = {
+      name: TRYON,
+      version: '1.0.0',
+      peerDependencies: { [COMPONENTS]: '^1.0.6' },
+    };
+
+    await writePackage('tryon', original);
+
+    const { run } = npm({ versions: { [COMPONENTS]: ['1.0.4', '1.0.5'] } });
+
+    await assert.rejects(
+      buildDependencyUpdatePlans(new Map([entry('tryon', TRYON, '1.0.1')]), { run }),
+      (error) => {
+        assert.match(error.message, /Not republished/);
+        assert.match(
+          error.message,
+          /peerDependencies: @beautinique\/frontend-components \^1\.0\.6/,
+        );
+        assert.match(error.message, /the latest on npm is 1\.0\.5/);
+
+        return true;
+      },
+    );
+    // nothing was written
+    assert.deepEqual(
+      JSON.parse(await readFile(path.join(folder('tryon'), 'package.json'), 'utf8')),
+      original,
+    );
+  });
+
+  it('lets it through when the package it needs is in the same release, and does not ask npm about it', async () => {
+    await writePackage('tryon', {
+      name: TRYON,
+      version: '1.0.0',
+      peerDependencies: { [COMPONENTS]: '^1.0.6' },
+    });
+    await writePackage('components', { name: COMPONENTS, version: '1.0.6' });
+
+    const { run, asked } = npm({ versions: { [COMPONENTS]: ['1.0.5'] } });
+
+    const plans = await buildDependencyUpdatePlans(
+      new Map([entry('tryon', TRYON, '1.0.1'), entry('components', COMPONENTS, '1.0.7')]),
+      { run },
+    );
+
+    assert.deepEqual([...plans.keys()], [TRYON, COMPONENTS]);
+    assert.equal(
+      asked.some((question) => question.startsWith('versions:')),
+      false,
+    );
+  });
+
+  it('checks the ranges as they are about to be written, not the ones in the file now', async () => {
+    // the file says ^1.0.0, which a release of components as 2.0.0 does not fit; the republish writes ^2.0.0
+    await writePackage('tryon', {
+      name: TRYON,
+      version: '1.0.0',
+      dependencies: { [COMPONENTS]: '^1.0.0' },
+    });
+    await writePackage('components', { name: COMPONENTS, version: '1.0.0' });
+
+    const { run } = npm();
+
+    await buildDependencyUpdatePlans(
+      new Map([entry('tryon', TRYON, '1.0.1'), entry('components', COMPONENTS, '2.0.0')]),
+      { run },
+    );
+  });
+
+  it('lets a republish through when the version it needs is on npm', async () => {
+    await writePackage('tryon', {
+      name: TRYON,
+      version: '1.0.0',
+      peerDependencies: { [COMPONENTS]: '^1.0.4' },
+    });
+
+    const { run } = npm({ versions: { [COMPONENTS]: ['1.0.4', '1.0.5'] } });
+
+    const plans = await buildDependencyUpdatePlans(new Map([entry('tryon', TRYON, '1.0.1')]), {
+      run,
+    });
+
+    // the republish also moves the range to the latest on npm
+    assert.deepEqual(
+      plans.get(TRYON)?.updates.map(({ name, to }) => [name, to]),
+      [[COMPONENTS, '^1.0.5']],
+    );
+  });
+
+  it('stops when npm cannot say what versions exist', async () => {
+    await writePackage('tryon', {
+      name: TRYON,
+      version: '1.0.0',
+      peerDependencies: { [COMPONENTS]: '^1.0.4' },
+    });
+
+    const { run } = npm({ versions: { [COMPONENTS]: ['1.0.4'] }, fail: [COMPONENTS] });
+
+    await assert.rejects(
+      buildDependencyUpdatePlans(new Map([entry('tryon', TRYON, '1.0.1')]), { run }),
+      /could not be asked.*ETIMEDOUT/s,
+    );
   });
 });

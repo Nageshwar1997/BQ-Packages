@@ -91,6 +91,7 @@ BQ-Packages/
 │       ├── reporter.mjs
 │       ├── republish.mjs
 │       ├── dependency-update.mjs
+│       ├── internal-dependency-check.mjs
 │       ├── table.mjs
 │       ├── types.mjs
 │       ├── utils.mjs
@@ -123,22 +124,22 @@ BQ-Packages/
 
 ### Available Scripts
 
-| Script         | Command                                      | Description                                 |
-| -------------- | -------------------------------------------- | ------------------------------------------- |
-| `build`        | `node ./scripts/build-order/index.mjs`       | Build all workspace packages in dependency order |
-| `lint`         | `npm run lint --workspaces`                  | Lint all workspace packages                 |
-| `lint:fix`     | `npm run lint:fix --workspaces`              | Lint and fix all workspace packages         |
-| `typecheck`    | `npm run typecheck --workspaces`             | Type-check all workspace packages           |
-| `format`       | `prettier . --write`                         | Format all files with Prettier              |
-| `format:check` | `prettier . --check`                         | Check formatting with Prettier              |
-| `clean`        | `node ./scripts/clean.mjs`                   | Clean build artifacts (not yet implemented) |
-| `create`       | `node ./scripts/create-package/index.mjs`    | Launch interactive package generator        |
-| `publish`      | `node ./scripts/package-publisher/index.mjs` | Launch interactive package publisher        |
-| `clean`        | `node ./scripts/clean.mjs`                   | Launch interactive package publisher        |
-| `republish`    | `node ./scripts/republish/index.mjs`         | Republish packages (also updates their dependencies, see 6.3.15) |
-| `update-deps`  | `node ./scripts/update-dependencies/index.mjs` | Update the dependencies of **every package and the root** to the latest version (see below) |
-| `sync-allow-scripts` | `node ./scripts/sync-allow-scripts/index.mjs` | Move the `allowScripts` approval of a package to its new installed version (see "Install scripts" below) |
-| `test:scripts` | `node --test "scripts/**/*.test.mjs"`        | Tests of the scripts themselves (Node's own test runner) |
+| Script               | Command                                        | Description                                                                                              |
+| -------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `build`              | `node ./scripts/build-order/index.mjs`         | Build all workspace packages in dependency order                                                         |
+| `lint`               | `npm run lint --workspaces`                    | Lint all workspace packages                                                                              |
+| `lint:fix`           | `npm run lint:fix --workspaces`                | Lint and fix all workspace packages                                                                      |
+| `typecheck`          | `npm run typecheck --workspaces`               | Type-check all workspace packages                                                                        |
+| `format`             | `prettier . --write`                           | Format all files with Prettier                                                                           |
+| `format:check`       | `prettier . --check`                           | Check formatting with Prettier                                                                           |
+| `clean`              | `node ./scripts/clean.mjs`                     | Clean build artifacts (not yet implemented)                                                              |
+| `create`             | `node ./scripts/create-package/index.mjs`      | Launch interactive package generator                                                                     |
+| `publish`            | `node ./scripts/package-publisher/index.mjs`   | Launch interactive package publisher                                                                     |
+| `clean`              | `node ./scripts/clean.mjs`                     | Launch interactive package publisher                                                                     |
+| `republish`          | `node ./scripts/republish/index.mjs`           | Republish packages (also updates their dependencies, see 6.3.15)                                         |
+| `update-deps`        | `node ./scripts/update-dependencies/index.mjs` | Update the dependencies of **every package and the root** to the latest version (see below)              |
+| `sync-allow-scripts` | `node ./scripts/sync-allow-scripts/index.mjs`  | Move the `allowScripts` approval of a package to its new installed version (see "Install scripts" below) |
+| `test:scripts`       | `node --test "scripts/**/*.test.mjs"`          | Tests of the scripts themselves (Node's own test runner)                                                 |
 
 #### `npm run update-deps`
 
@@ -175,26 +176,26 @@ npm run sync-allow-scripts -- --help
 
 When to use it: after you ran `npm install` or `npm update` yourself and npm printed `npm warn install-scripts ... had install scripts blocked`. Run `npm run sync-allow-scripts`; the output is one of
 
-| Output | Meaning |
-| --- | --- |
-| `No install script is waiting` | Nothing is blocked: `allowScripts` covers everything npm installed. |
-| `the approval of "esbuild" moved from esbuild@0.27.7 to esbuild@0.28.2` | The key in the root `package.json` is changed and the script was run. Commit the `package.json` change. |
+| Output                                                                         | Meaning                                                                                                                                                        |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `No install script is waiting`                                                 | Nothing is blocked: `allowScripts` covers everything npm installed.                                                                                            |
+| `the approval of "esbuild" moved from esbuild@0.27.7 to esbuild@0.28.2`        | The key in the root `package.json` is changed and the script was run. Commit the `package.json` change.                                                        |
 | `npm blocked the install script of sharp@1.0.0, which was never approved here` | It is new to the project, so it is not approved for you. Look at what it does, then `npm install-scripts approve sharp` (or `npm install-scripts deny sharp`). |
 
 It needs npm 12 (the `install-scripts` command; tried with npm 12.2.0 and Node 24.21.0). With an older npm it stops with npm's own error, and the checks that run after the scripts' `npm install` only warn. `--dry-run` is done by this command, not by `npm install-scripts approve --dry-run`, which in npm 12.2 still writes the `package.json`. Code: `scripts/sync-allow-scripts/` (the entry) and `scripts/common/allow-scripts.mjs` (the logic).
 
 ### Key DevDependencies
 
-| Dependency          | Version   | Purpose                      |
-| ------------------- | --------- | ---------------------------- |
-| `typescript`        | `^6.0.3`  | TypeScript compiler          |
-| `tsup`              | `^9.0.0`  | Build tool (esbuild wrapper) |
-| `eslint`            | `^10.13.0` | Linting                     |
-| `typescript-eslint` | `^8.71.2` | TypeScript ESLint rules      |
-| `prettier`          | `^3.9.10` | Code formatting              |
-| `inquirer`          | `^14.2.3` | Interactive CLI prompts      |
-| `semver`            | `^7.8.5`  | Semantic versioning          |
-| `picocolors`        | `^1.1.1`  | Terminal colors              |
+| Dependency          | Version    | Purpose                      |
+| ------------------- | ---------- | ---------------------------- |
+| `typescript`        | `^6.0.3`   | TypeScript compiler          |
+| `tsup`              | `^9.0.0`   | Build tool (esbuild wrapper) |
+| `eslint`            | `^10.13.0` | Linting                      |
+| `typescript-eslint` | `^8.71.2`  | TypeScript ESLint rules      |
+| `prettier`          | `^3.9.10`  | Code formatting              |
+| `inquirer`          | `^14.2.3`  | Interactive CLI prompts      |
+| `semver`            | `^7.8.5`   | Semantic versioning          |
+| `picocolors`        | `^1.1.1`   | Terminal colors              |
 
 ---
 
@@ -256,7 +257,7 @@ This is an **interactive CLI** (`node ./scripts/create-package/index.mjs`) that 
 | File                              | Lines | Purpose                                                                                                                                                                                        |
 | --------------------------------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `constants.mjs`                   | 154   | All constants: regex, validation bounds, metadata (scope, version, license, author, repo URLs, publish access, node engine), build outputs (main, module, types), scripts, shared configs path |
-| `prompts.mjs`                     | 63    | Uses `inquirer`: select, input, confirm                                                                                                                                               |
+| `prompts.mjs`                     | 63    | Uses `inquirer`: select, input, confirm                                                                                                                                                        |
 | `validators.mjs`                  | 143   | Validates package name, description (length + alphanumeric), keywords (count + length)                                                                                                         |
 | `utils.mjs`                       | 39    | `normalizeText` (trim, collapse spaces), `normalizeKeywords` (split, lowercase, dedupe)                                                                                                        |
 | `metadata.mjs`                    | 45    | Builds metadata object: scopedPackageName, packageDirectory, description, keywords, config                                                                                                     |
@@ -301,7 +302,7 @@ This is a **full interactive CLI** (`node ./scripts/package-publisher/index.mjs`
 | Republish Package        | `REPUBLISH_PACKAGE`        | Republish a single published package with version bump |
 | Republish Packages       | `REPUBLISH_PACKAGES`       | Republish selected published packages                  |
 | Republish All Packages   | `REPUBLISH_ALL_PACKAGES`   | Republish all published packages                       |
-| Package Status           | `PACKAGE_STATUS_MAP`           | View status table of all packages                      |
+| Package Status           | `PACKAGE_STATUS_MAP`       | View status table of all packages                      |
 | Login                    | `LOGIN`                    | npm login                                              |
 | Logout                   | `LOGOUT`                   | npm logout                                             |
 | Exit                     | `EXIT`                     | Exit CLI                                               |
@@ -405,19 +406,44 @@ Uses `inquirer` to build prompts for:
 
 **What a republish does with the dependencies of the package** (`republish/dependency-update.mjs`). The confirmation shows every change before anything is written (a major step is in yellow, and what is left on purpose is listed); after "yes" the ranges are written, `npm install` runs, the package is built and published:
 
-| Dependency | What happens |
-| --- | --- |
-| A package of this repository that is in the **same** release | takes the version it is released with (as before) |
-| A package of this repository that is **not** in the release (its `dependencies`, `devDependencies` **and** `peerDependencies`) | goes to the latest version on npm, so a package never keeps a peer range that lacks a fix |
-| Any other package (`dependencies`, `devDependencies`, `optionalDependencies`) | goes to the latest version on npm, in the style of its range (`^1.2.3` → `^1.4.0`, `~` stays `~`) |
-| An **exact** version (`"1.0.1"`) | left: an exact version is a pin, put there on purpose (for example `@mediapipe/tasks-vision`, which has to be the same version as the constants that load its WebAssembly) |
-| `typescript` | left: a major version of the compiler is raised by hand. The list is `DEPENDENCY_UPDATE_EXCLUDED_PACKAGES` in `republish/constants.mjs` |
-| The `peerDependencies` of other people's packages (`react ^19.0.0`) | left: a peer range says what the package works with, and raising it would shut out everyone who has an older one |
-| A range that is not one version (`^7 \|\| ^8`, `>=18`, a tag, `workspace:`), a package npm does not know, or one npm cannot be asked about (offline) | left (offline gives a warning; it does not stop the republish) |
+| Dependency                                                                                                                                           | What happens                                                                                                                                                               |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A package of this repository that is in the **same** release                                                                                         | takes the version it is released with (as before)                                                                                                                          |
+| A package of this repository that is **not** in the release (its `dependencies`, `devDependencies` **and** `peerDependencies`)                       | goes to the latest version on npm, so a package never keeps a peer range that lacks a fix                                                                                  |
+| Any other package (`dependencies`, `devDependencies`, `optionalDependencies`)                                                                        | goes to the latest version on npm, in the style of its range (`^1.2.3` → `^1.4.0`, `~` stays `~`)                                                                          |
+| An **exact** version (`"1.0.1"`)                                                                                                                     | left: an exact version is a pin, put there on purpose (for example `@mediapipe/tasks-vision`, which has to be the same version as the constants that load its WebAssembly) |
+| `typescript`                                                                                                                                         | left: a major version of the compiler is raised by hand. The list is `DEPENDENCY_UPDATE_EXCLUDED_PACKAGES` in `republish/constants.mjs`                                    |
+| The `peerDependencies` of other people's packages (`react ^19.0.0`)                                                                                  | left: a peer range says what the package works with, and raising it would shut out everyone who has an older one                                                           |
+| A range that is not one version (`^7 \|\| ^8`, `>=18`, a tag, `workspace:`), a package npm does not know, or one npm cannot be asked about (offline) | left (offline gives a warning; it does not stop the republish)                                                                                                             |
 
 A dependency is never moved to an older version.
 
 The logic is in pure functions (`planDependencyUpdates`, `applyDependencyUpdates`) tested with Node's own runner: `npm run test:scripts`.
+
+**The check before a republish** (`republish/internal-dependency-check.mjs`). Before the confirmation, it looks at the `package.json` files **as they are about to be written** (the new ranges included) and asks npm (`npm view <name> versions --json`) whether every package of this repository they depend on can be installed. A package that depends on `@beautinique/x ^1.0.6` while npm only has `x` up to `1.0.5` would be published, and then fail to install for everyone. So:
+
+| Case                                                                                                                      | Result                                                                                                                                                               |
+| ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A range that a version on npm fits (any of `dependencies`, `devDependencies`, `peerDependencies`, `optionalDependencies`) | passes                                                                                                                                                               |
+| A package of the **same release**, and the version it is released with fits the range                                     | passes (it is published first, see 6.3.17)                                                                                                                           |
+| A range that no version on npm fits, or a package that is not on npm at all                                               | **stops**, before anything is asked or written, and says what to do: add the package to the same republish, or change the range to one npm has (it names the latest) |
+| npm cannot be asked (offline, timeout)                                                                                    | **stops** too: a check that passes when it could not look is not a check. Try again                                                                                  |
+| Other people's packages, and `workspace:`, `file:`, `link:`, `github:`, tags (`latest`)                                   | not looked at                                                                                                                                                        |
+
+Example of the message:
+
+```text
+Not republished: a package would depend on a version that nobody can install.
+
+@beautinique/frontend-tryon
+  - peerDependencies: @beautinique/frontend-components ^1.0.11
+      npm has no version of @beautinique/frontend-components that fits it (the latest on npm is 1.0.10).
+      Add @beautinique/frontend-components to this republish, or change the range to one npm has (e.g. ^1.0.10).
+
+Nothing was changed.
+```
+
+It only reads: nothing is written, so there is nothing to put back. It is for `republish` only; `update-deps` publishes nothing, and moves a range of this repository only to a version that is on npm.
 
 #### 6.3.16 `batch-operation.mjs`
 Generic batch runner with:
