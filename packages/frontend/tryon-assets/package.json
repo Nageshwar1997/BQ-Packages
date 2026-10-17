@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/frontend-tryon-assets",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "The models and images of the Beautinique try-on: MediaPipe models, eye patterns, lip textures and sample models.",
   "keywords": [
     "frontend",

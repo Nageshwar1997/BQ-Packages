@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/frontend-components",
-  "version": "1.0.10",
+  "version": "1.0.12",
   "description": "Shared React UI components for the Beautinique frontends.",
   "keywords": [
     "frontend",
@@ -162,8 +162,8 @@
     "node": ">=24"
   },
   "peerDependencies": {
-    "@beautinique/frontend-stores": "^1.1.1",
-    "@beautinique/frontend-styles": "^1.1.0",
+    "@beautinique/frontend-stores": "^1.1.3",
+    "@beautinique/frontend-styles": "^1.1.2",
     "@iconify/react": "^6.0.2",
     "hls.js": "^1.5.0",
     "react": "^19.0.0",
@@ -179,8 +179,8 @@
     }
   },
   "devDependencies": {
-    "@beautinique/frontend-stores": "^1.1.1",
-    "@beautinique/frontend-styles": "^1.1.0",
+    "@beautinique/frontend-stores": "^1.1.3",
+    "@beautinique/frontend-styles": "^1.1.2",
     "@iconify/react": "^6.0.2",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.3",

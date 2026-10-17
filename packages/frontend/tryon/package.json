@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/frontend-tryon",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "The virtual try-on of the Beautinique frontends: live camera or photo, for lips, face, eyes, hair and nails.",
   "keywords": [
     "frontend",
@@ -77,14 +77,14 @@
     "node": ">=24"
   },
   "dependencies": {
-    "@beautinique/frontend-constants": "^1.1.0",
-    "@beautinique/frontend-types": "^1.1.0",
-    "@beautinique/shared-utils": "^1.1.0",
+    "@beautinique/frontend-constants": "^1.1.2",
+    "@beautinique/frontend-types": "^1.1.2",
+    "@beautinique/shared-utils": "^1.1.2",
     "@mediapipe/tasks-vision": "1.0.1"
   },
   "peerDependencies": {
-    "@beautinique/frontend-components": "^1.0.10",
-    "@beautinique/frontend-styles": "^1.1.0",
+    "@beautinique/frontend-components": "^1.0.12",
+    "@beautinique/frontend-styles": "^1.1.2",
     "@iconify/react": "^6.0.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -96,9 +96,9 @@
     }
   },
   "devDependencies": {
-    "@beautinique/frontend-components": "^1.0.10",
-    "@beautinique/frontend-styles": "^1.1.0",
-    "@beautinique/frontend-tryon-assets": "^1.0.0",
+    "@beautinique/frontend-components": "^1.0.12",
+    "@beautinique/frontend-styles": "^1.1.2",
+    "@beautinique/frontend-tryon-assets": "^1.0.2",
     "@iconify/react": "^6.0.2",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/dom": "^10.4.2",

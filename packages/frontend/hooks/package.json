@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/frontend-hooks",
-  "version": "1.0.8",
+  "version": "1.0.10",
   "description": "Shared React hooks for the Beautinique frontends.",
   "keywords": [
     "frontend",
@@ -71,6 +71,6 @@
     "vitest": "^5.0.5"
   },
   "dependencies": {
-    "@beautinique/shared-utils": "^1.1.0"
+    "@beautinique/shared-utils": "^1.1.2"
   }
 }
