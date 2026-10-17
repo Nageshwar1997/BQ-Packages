@@ -22,6 +22,10 @@ export interface IFakeStageMount {
   initialState: Record<string, unknown>;
 }
 
+type TEmit = (partial: Record<string, unknown>) => void;
+
+const noEmit: TEmit = () => undefined;
+
 /** Every stage that was mounted, in order, and how many were taken away again. */
 export const fakeStages = {
   mounts: [] as IFakeStageMount[],
@@ -30,11 +34,18 @@ export const fakeStages = {
   photo: null as string | null,
   /** The calls of `setMakeupState` the modal made on the stage that is mounted now. */
   makeupCalls: [] as Record<string, unknown>[],
+  /**
+   * Tells the modal a change of the state of the stage that is mounted now, as its engine does (a
+   * detection status, an error, the camera that is not ready): the part that is given is put over the
+   * state the stage has. Does nothing while no stage is mounted.
+   */
+  emit: noEmit,
   reset() {
     this.mounts.length = 0;
     this.unmounts = 0;
     this.photo = null;
     this.makeupCalls.length = 0;
+    this.emit = noEmit;
   },
 };
 
@@ -86,8 +97,14 @@ export const createFakeStage = (category: string) =>
       };
       notify.current(state.current);
 
+      fakeStages.emit = (partial) => {
+        state.current = { ...state.current, ...partial };
+        notify.current(state.current);
+      };
+
       return () => {
         fakeStages.unmounts += 1;
+        fakeStages.emit = noEmit;
       };
       // like the real stage: set up once per mount
       // eslint-disable-next-line react-hooks/exhaustive-deps

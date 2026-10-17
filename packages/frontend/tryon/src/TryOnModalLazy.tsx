@@ -2,6 +2,7 @@ import { LoadingRings, ModalWrapper } from '@beautinique/frontend-components';
 import { lazy, Suspense, useState } from 'react';
 
 import type { ITryOnModalProps } from './modal/TryOnModal.js';
+import { TRYON_DIALOG_CLASS_NAME, TRYON_DIALOG_CONTAINER_PROPS } from './tryOnDialog.js';
 
 // The heavy file of the package (the engines, MediaPipe) is loaded by a dynamic import of its own
 // entry (`@beautinique/frontend-tryon/modal`): a bundler of the app puts it in a chunk of its own, that
@@ -31,12 +32,16 @@ export const TryOnModal = (props: ITryOnModalProps) => {
   return (
     <Suspense
       fallback={
+        // The same size as the modal that is coming (see `tryOnDialog.ts`), so the dialog does not
+        // jump from a small one to a full one when the engines arrive.
         <ModalWrapper
           isOpen={isOpen}
           onClose={onClose}
           header={{ title: 'Try-On', showCloseIcon: true }}
+          containerProps={TRYON_DIALOG_CONTAINER_PROPS}
+          className={TRYON_DIALOG_CLASS_NAME}
         >
-          <div className="h-60 w-full">
+          <div className="flex h-full min-h-60 w-full items-center justify-center">
             <LoadingRings text="Loading Try-On" />
           </div>
         </ModalWrapper>

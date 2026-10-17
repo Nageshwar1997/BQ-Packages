@@ -135,13 +135,13 @@ fetched, and the images are drawn on a canvas that the try-on reads back (for th
 
 ## Import paths
 
-| Import path                              | What it gives                                                                                                                                                                     |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@beautinique/frontend-tryon`            | `TryOnModal` (loads its engines the first time it is opened, with a dialog meanwhile), the constants, and the types. The light entry; start here.                                 |
-| `@beautinique/frontend-tryon/constants`  | Only the data: categories and their titles, modes, curated shades, the instructions, and `resolveTryOnAssetUrl`. **No React and no MediaPipe**, for a form that needs only these. |
-| `@beautinique/frontend-tryon/modal`      | The same `TryOnModal`, with the engines in your bundle at once (no `import()`), for whoever wants it eager.                                                                       |
-| `@beautinique/frontend-tryon/vite`       | `tryOnVitePlugin`.                                                                                                                                                                |
-| `@beautinique/frontend-tryon/source.css` | The line that tells Tailwind where the class names are.                                                                                                                           |
+| Import path                              | What it gives                                                                                                                                                                                |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@beautinique/frontend-tryon`            | `TryOnModal` (loads its engines the first time it is opened, with a loading dialog meanwhile that is the same size as the modal), the constants, and the types. The light entry; start here. |
+| `@beautinique/frontend-tryon/constants`  | Only the data: categories and their titles, modes, curated shades, the instructions, and `resolveTryOnAssetUrl`. **No React and no MediaPipe**, for a form that needs only these.            |
+| `@beautinique/frontend-tryon/modal`      | The same `TryOnModal`, with the engines in your bundle at once (no `import()`), for whoever wants it eager.                                                                                  |
+| `@beautinique/frontend-tryon/vite`       | `tryOnVitePlugin`.                                                                                                                                                                           |
+| `@beautinique/frontend-tryon/source.css` | The line that tells Tailwind where the class names are.                                                                                                                                      |
 
 The root costs the page nothing until the modal is opened: MediaPipe is not in it, and `TryOnModal` of the
 root renders nothing (and loads nothing) while `isOpen` is `false`. Once opened it stays mounted, so what it

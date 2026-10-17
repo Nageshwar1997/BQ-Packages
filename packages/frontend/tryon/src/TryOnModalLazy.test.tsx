@@ -2,9 +2,10 @@
 import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { installResizeObserver } from './test-utils/dom.js';
+import { installResizeObserver, required } from './test-utils/dom.js';
 import { mount, unmountAll } from './test-utils/react.js';
 import { TryOnModal } from './TryOnModalLazy.js';
+import { TRYON_DIALOG_CLASS_NAME, TRYON_DIALOG_CONTAINER_PROPS } from './tryOnDialog.js';
 
 // The modal of the `/modal` entry is replaced by a small one, and the moment it is loaded is held by the
 // test: what is looked at is what the root does around it (when it loads it, what it shows meanwhile,
@@ -82,12 +83,19 @@ describe('TryOnModal of the root', () => {
     const onClose = vi.fn();
     const view = mount(modal(true, { onClose }));
 
-    const dialog = document.querySelector('[role="dialog"]');
+    const dialog = required(document.querySelector('[role="dialog"]'), 'the loading dialog');
 
-    expect(dialog).not.toBeNull();
     expect(document.body.textContent).toContain('Try-On');
     expect(document.body.textContent).toContain('Loading Try-On');
     expect(document.querySelector('[data-testid="loaded-modal"]')).toBeNull();
+
+    // As big as the modal that is coming: it is sized by the same classes (`tryOnDialog.ts`), so the
+    // dialog does not jump from a small one to a full one when the engines arrive. (The lazy component
+    // is cached after the first load, so this is looked at here and not in a test of its own.)
+    expect(dialog.className).toContain(TRYON_DIALOG_CLASS_NAME);
+    expect(required(dialog.parentElement, 'its backdrop').className).toContain(
+      String(TRYON_DIALOG_CONTAINER_PROPS.className),
+    );
 
     // a person who changed their mind while it loads is not stuck: the loading dialog can be closed
     act(() => {

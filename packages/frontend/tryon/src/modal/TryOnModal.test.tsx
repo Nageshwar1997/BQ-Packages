@@ -11,6 +11,7 @@ import { NAIL_RANGE_BOUNDS } from '../constants/nail.js';
 import { click, installResizeObserver, keyDown, required } from '../test-utils/dom.js';
 import { fakeStages } from '../test-utils/fake-stage.js';
 import { mount, unmountAll } from '../test-utils/react.js';
+import { TRYON_DIALOG_CLASS_NAME, TRYON_DIALOG_CONTAINER_PROPS } from '../tryOnDialog.js';
 import type { ITryOnModalProps } from './TryOnModal.js';
 import TryOnModal from './TryOnModal.js';
 
@@ -126,6 +127,16 @@ describe('TryOnModal for a shopper', () => {
     expect(document.querySelector('[role="dialog"]')).toBeNull();
   });
 
+  it('is sized by the classes it shares with the loading dialog of the light entry (the two are the same size)', () => {
+    open();
+
+    const dialog = required(document.querySelector('[role="dialog"]'), 'the modal');
+    const backdrop = required(dialog.parentElement, 'its backdrop');
+
+    expect(dialog.className).toContain(TRYON_DIALOG_CLASS_NAME);
+    expect(backdrop.className).toContain(String(TRYON_DIALOG_CONTAINER_PROPS.className));
+  });
+
   it('is a dialog named Try-On, and starts by asking how to try', () => {
     open();
 
@@ -151,6 +162,15 @@ describe('TryOnModal for a shopper', () => {
     expect(document.body.textContent).toContain('Try-On not available');
     expect(document.body.textContent).toContain('This product has no Try-On configured yet.');
     expect(stage()).toBeNull();
+  });
+
+  it('says "coming soon" for a category this version has no stage for, and does not draw the stage of another category (the product can get one before the app has the package that knows it)', () => {
+    open({ tryOn: { category: 'BODY', subCategory: 'TATTOO' } as unknown as TTryOnSelection });
+
+    expect(document.body.textContent).toContain('Coming soon');
+    expect(document.body.textContent).toContain('Try-on for BODY is coming soon.');
+    expect(stage()).toBeNull();
+    expect(fakeStages.mounts).toHaveLength(0);
   });
 
   describe('the stage', () => {

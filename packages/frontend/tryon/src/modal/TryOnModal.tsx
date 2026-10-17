@@ -9,19 +9,18 @@ import type { IHairTryOnState } from '../engine/categories/hair/index.js';
 import type { ILipTryOnState } from '../engine/categories/lip/index.js';
 import type { INailTryOnState } from '../engine/categories/nail/index.js';
 import { getTryOnShades, TRYON_CATEGORY_OPTIONS, TRYON_MODE_MAP } from '../constants/index.js';
-import { EYE_DEFAULT_PATTERNS, EYE_PATTERNS, EYE_RANGE_BOUNDS } from '../constants/eye.js';
-import { FACE_RANGE_BOUNDS } from '../constants/face.js';
-import { HAIR_RANGE_BOUNDS } from '../constants/hair.js';
-import { LIP_RANGE_BOUNDS } from '../constants/lip.js';
-import { NAIL_RANGE_BOUNDS } from '../constants/nail.js';
+import { EYE_DEFAULT_PATTERNS, EYE_PATTERNS } from '../constants/eye.js';
+import { getRangeBounds } from '../constants/range-bounds.js';
 import useDebouncedDetectionStatus from './hooks/useDebouncedDetectionStatus.js';
 import useFullscreen from './hooks/useFullscreen.js';
 import useTryOnFlow from './hooks/useTryOnFlow.js';
 import { registerTryOnIcons } from '../icons/try-on-icons.js';
 import type { ITryOnAssets } from '../types/assets.js';
-import type { IShade, ITryOnError, ITryOnStageRef, TDetectionStatus } from '../types/index.js';
+import { TRYON_DIALOG_CLASS_NAME, TRYON_DIALOG_CONTAINER_PROPS } from '../tryOnDialog.js';
+import type { IShade, ITryOnError, ITryOnStageRef } from '../types/index.js';
 
 import BottomButtons from './BottomButtons.js';
+import { hasStage } from './emptyState.js';
 import EyeTryOnStage from './eye/EyeTryOnStage.js';
 import FaceTryOnStage from './face/FaceTryOnStage.js';
 import HairTryOnStage from './hair/HairTryOnStage.js';
@@ -31,8 +30,10 @@ import { TryOnAssetsProvider } from './TryOnAssetsContext.js';
 import TryOnBottomSheet from './TryOnBottomSheet.js';
 import TryOnCompareSlider from './TryOnCompareSlider.js';
 import TryOnDock from './TryOnDock.js';
+import TryOnEmptyState from './TryOnEmptyState.js';
 import TryOnInstructions from './TryOnInstructions.js';
 import TryOnModelList from './TryOnModelList.js';
+import { getGuideCopy, getNotReadyCopy } from './overlayCopy.js';
 import TryOnModeSelect from './TryOnModeSelect.js';
 import TryOnOverlay from './TryOnOverlay.js';
 import TryOnPatternSwatches from './TryOnPatternSwatches.js';
@@ -195,117 +196,20 @@ const TryOnModal = ({
   const detectionStatus = isTryOnReady ? debouncedDetectionStatus : undefined;
   const canInteract = isTryOnReady && detectionStatus === 'detected';
 
-  // Copy for the not-ready overlay below (TryOnOverlay - the very same component the
-  // detection-status guide further down uses) - split out here since it's a 2x2 matrix (loading/
-  // error x live/upload), too much for the JSX to carry inline. `notReadyError` set is exactly
-  // when this used to switch from a spinner to an error card, so the icon/title mirror that
-  // same split. An error always carries its own title and description (see `ITryOnError`), so only
-  // the loading copy is per-mode.
+  // What the overlay over the picture says: while the try-on is not ready (the setup failed, or the
+  // camera / the photo is still loading), and, once it is, the guide for what the detection reports
+  // (in frame, turned, ...) in the words of what the category tracks. See `overlayCopy.ts`.
   const notReadyError = flow.engineState?.error;
-  const notReadyIcon = notReadyError
-    ? 'solar:danger-triangle-linear'
-    : flow.mode === TRYON_MODE_MAP.LIVE
-      ? 'solar:videocamera-record-linear'
-      : 'solar:gallery-add-linear';
-  const notReadyTitle =
-    notReadyError?.title ??
-    (flow.mode === TRYON_MODE_MAP.LIVE
-      ? 'Waiting for camera permission...'
-      : 'Processing photo...');
-  const notReadyDescription = notReadyError?.description ?? 'This should only take a moment.';
+  const notReadyCopy = getNotReadyCopy(flow.mode, notReadyError);
+  // `detectionStatus` is only set while the try-on is ready (see above), and 'detected' needs no guide.
+  const guideCopy =
+    detectionStatus && detectionStatus !== 'detected'
+      ? getGuideCopy(tryOn?.category, detectionStatus)
+      : undefined;
 
-  // `detectionStatus` is one shared state field every category's engine reuses (see
-  // `HandLandmarkerEngineBase`/`HairSegmenterEngineBase`'s own comments), but what it's actually
-  // reporting differs by what that category tracks: LIP/FACE/EYE track a real face, HAIR tracks
-  // `getHairDetectionStatus`'s hair mask, NAIL tracks `getHandDetectionStatus`'s hand landmarks.
-  // The overlay copy has to match *that*, not always say "face" - a shopper doing a NAIL try-on
-  // who moves their hand out of frame was seeing "Face not in frame", which doesn't match
-  // anything on screen for them to fix.
-  const trackedSubjectCopy =
-    tryOn?.category === 'HAIR'
-      ? { subject: 'hair', possessive: 'your hair' }
-      : tryOn?.category === 'NAIL'
-        ? { subject: 'hand', possessive: 'your whole hand' }
-        : { subject: 'face', possessive: 'your whole face' };
-
-  // 'turned' now reaches three categories with two different real-world meanings: FACE's and
-  // EYE's own "head angled too far to one side" (`FaceEngineBase.refineDetectionStatus`/
-  // `EyeEngineBase.refineDetectionStatus` - EYE tracks the same face mesh, added in a later
-  // robustness pass after FACE's own), and NAIL's "a hand is in frame but not facing the camera
-  // nail-side-up" (`getHandDetectionStatus`, utils/tryon-utils/nail.ts - reusing this status
-  // rather than inventing a new one, since it's exactly the same "in frame, just not correctly
-  // oriented" situation). Without this, a shopper who tilted their hand palm-out or edge-on got
-  // zero nails painted with no on-screen explanation at all - the hand itself still counted as
-  // "detected" (`hands.length > 0`), so the guide overlay never showed anything. HAIR/LIP never
-  // produce 'turned' - this entry is unreachable there, same as 'not-clear' below, but still needs
-  // to type-check against something.
-  const turnedCopy =
-    tryOn?.category === 'NAIL'
-      ? {
-          // Same icon NAIL's own upload/live instructions already use for this exact tip
-          // (`NAIL_UPLOAD_INSTRUCTIONS`/`NAIL_LIVE_INSTRUCTIONS`, constants/tryon-constants/nail.ts)
-          // - consistent iconography for the same underlying guidance.
-          icon: 'solar:hand-stars-linear',
-          title: 'Hand turned the wrong way',
-          description:
-            'Show the back of your hand to the camera - your nails need to be visible, not your palm.',
-        }
-      : {
-          // Same icon as the "facing the camera directly" instruction-screen tip
-          // (FACE_UPLOAD_INSTRUCTIONS/FACE_LIVE_INSTRUCTIONS) - deliberately not 'not-in-frame's
-          // scanner icon, even though both guide the shopper toward a better frame, since this one
-          // reads as its own distinct situation (in frame, just angled) rather than another flavor
-          // of "not in frame at all".
-          icon: 'solar:face-scan-circle-linear',
-          title: 'Face turned too much',
-          description: 'Face the camera directly - a slight turn is fine, just not a big one.',
-        };
-
-  // Copy for the detection-guide overlay below, keyed by every non-'detected' `TDetectionStatus`
-  // value - a `Record` (not another inline ternary chain like `notReadyIcon` above) specifically
-  // so TS forces a new entry here the moment a category ever adds another status value, instead
-  // of that new case silently falling through to the wrong copy. 'not-clear' only ever actually
-  // shows for FACE (see `FaceEngineBase.refineDetectionStatus`) - it stays face-specific
-  // (unreachable for HAIR/NAIL, but the `Record` still needs every key filled in). 'not-in-frame'
-  // is the one status every category can actually hit, so it's the one that needs to read
-  // correctly for all of them.
-  const DETECTION_GUIDE_COPY: Record<
-    Exclude<TDetectionStatus, 'detected'>,
-    { icon: string; title: string; description: string }
-  > = {
-    'not-in-frame': {
-      icon: 'solar:scanner-linear',
-      title: `${trackedSubjectCopy.subject} not in frame`,
-      description: `Move so ${trackedSubjectCopy.possessive} is inside the frame.`,
-    },
-    'not-clear': {
-      icon: 'solar:danger-triangle-linear',
-      title: 'Face not clearly visible',
-      description: "Move closer, and make sure there's good, even lighting.",
-    },
-    turned: turnedCopy,
-  };
-
-  // Only meaningful inside the supported-category branch below, but declared here (not
-  // further down) to stay next to the other pre-render derived values. Each *finish* tunes its
-  // own intensity-slider bounds now (see FACE_RANGE_BOUNDS/LIP_RANGE_BOUNDS's own per-finish
-  // comments) - keyed by `tryOn.subCategory`, not just `tryOn.category`, since e.g. FOUNDATION
-  // and BLUSH read very differently at the same raw alpha. The fallback below is never actually
-  // reached by the UI (both real usages further down sit inside the branch that's already
-  // confirmed `tryOn.category` is 'LIP' | 'FACE') - it exists purely so this stays a plain
-  // object instead of `IRangeBounds | undefined`.
-  const rangeBounds =
-    tryOn?.category === 'FACE'
-      ? FACE_RANGE_BOUNDS[tryOn.subCategory]
-      : tryOn?.category === 'LIP'
-        ? LIP_RANGE_BOUNDS[tryOn.subCategory]
-        : tryOn?.category === 'EYE'
-          ? EYE_RANGE_BOUNDS[tryOn.subCategory]
-          : tryOn?.category === 'HAIR'
-            ? HAIR_RANGE_BOUNDS[tryOn.subCategory]
-            : tryOn?.category === 'NAIL'
-              ? NAIL_RANGE_BOUNDS[tryOn.subCategory]
-              : { min: 0, max: 1, default: 0.5 };
+  // The bounds of the intensity slider: each finish has its own (see `getRangeBounds`), and there is
+  // always an object, so the code below never has to ask whether it is there.
+  const rangeBounds = getRangeBounds(tryOn);
 
   // Only meaningful inside the EYE branch below, same "declared up top, next to rangeBounds"
   // reasoning - `undefined` for any EYE subcategory without a pattern picker yet (see
@@ -326,18 +230,10 @@ const TryOnModal = ({
         isOpen={isOpen}
         onClose={onClose}
         header={{ title: 'Try-On', showCloseIcon: true }}
-        // Mobile/tablet: edge-to-edge, no backdrop margin - matches a native full-screen sheet.
-        // `lg:` restores the original centered-dialog sizing exactly. Every one of these needs
-        // `!` - ModalWrapper's own classes (`max-w-md rounded-xl border` etc.) can otherwise win
-        // regardless of source order (`max-w-full` without `!` here once genuinely lost to the
-        // component's own `max-w-md`, which - combined with `min-w-[80dvw]!` - clamped the whole
-        // modal to exactly 80dvw even where `w-full!` should have taken it edge-to-edge instead,
-        // since a conflicting `min-width` always wins over `max-width` regardless of importance).
-        // `lg:w-auto!` un-forces the mobile `w-full!` back on large screens - width there is
-        // meant to be driven by `min-w-[80dvw]` as a floor (content can still grow past it), not
-        // pinned to 100% of the backdrop's padded space, which `w-full!` alone would do.
-        containerProps={{ className: 'p-0! lg:p-8!' }}
-        className="h-full max-h-full! w-full! max-w-full! min-w-[80dvw]! rounded-none! border-0! lg:max-h-[90dvh]! lg:w-auto! lg:rounded-xl! lg:border!"
+        // How the dialog is sized (and why each class needs `!`) is in `tryOnDialog.ts`: the loading
+        // dialog of the light entry takes its size from the same place, so the two are the same size.
+        containerProps={TRYON_DIALOG_CONTAINER_PROPS}
+        className={TRYON_DIALOG_CLASS_NAME}
       >
         <TryOnSelectableFrame
           enabled={selectable}
@@ -346,48 +242,12 @@ const TryOnModal = ({
           onCancel={onClose}
           onApply={handleApply}
         >
-          {/* Only LIP, FACE, EYE, HAIR, and NAIL have a rendering engine built so far - see
-          docs/tryons/TRYON.md. The discriminant check stays inline (not a separately-computed
-          boolean) so TS keeps narrowing `tryOn` to `{category: 'LIP' | 'FACE' | 'EYE' | 'HAIR' |
-          'NAIL', ...}` for every access inside the branch below - a plain boolean variable would
-          lose that link. `TTryOnCategory` only has these same 5 members today, so both this
-          exclusion chain and the `tryOn` check just below it are provably unreachable *right now*
-          - TS narrows `tryOn` to `never` in that branch, which is exactly why both need an
-          explicit disable rather than being simplified away: the moment a 6th category lands in
-          `@beautinique/shared-constants` before this app's own code catches up, this is the
-          fallback that's supposed to catch it, not dead weight to delete. */}
-          {!tryOn ||
-          (tryOn.category !== 'LIP' &&
-            tryOn.category !== 'FACE' &&
-            tryOn.category !== 'EYE' &&
-            tryOn.category !== 'HAIR' &&
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            tryOn.category !== 'NAIL') ? (
-            <div className="mx-auto flex max-w-sm flex-col items-center gap-3 p-8 text-center">
-              <span className="bg-primary/5 flex size-14 items-center justify-center rounded-2xl">
-                <Icon icon="solar:hourglass-linear" className="text-primary/50 size-7" />
-              </span>
-              <p className="text-primary text-base font-semibold">
-                {
-                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                  tryOn
-                    ? 'Coming soon'
-                    : selectable
-                      ? 'Choose what to try on'
-                      : 'Try-On not available'
-                }
-              </p>
-              <p className="text-tertiary text-sm">
-                {
-                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                  tryOn
-                    ? `Try-on for ${(tryOn as TTryOnSelection).category} is coming soon.`
-                    : selectable
-                      ? 'Choose a category and a subcategory above to start.'
-                      : 'This product has no Try-On configured yet.'
-                }
-              </p>
-            </div>
+          {/* Only LIP, FACE, EYE, HAIR and NAIL have a stage (an engine and its screen) in this version - see
+          `hasStage`. A selection of another category (the product can get one before the app has a package
+          that knows it) and no selection at all are told so, instead of being drawn with another category's
+          stage. `hasStage` also narrows `tryOn` for the stages below. */}
+          {!hasStage(tryOn) ? (
+            <TryOnEmptyState tryOn={tryOn} selectable={selectable} />
           ) : (
             <>
               {/* The sidebar (mode-toggle + model list) is always visible on `lg:` and up, on every
@@ -533,9 +393,7 @@ const TryOnModal = ({
                     orchestrator knows which mode is active. */}
                       {!isTryOnReady && (
                         <TryOnOverlay
-                          icon={notReadyIcon}
-                          title={notReadyTitle}
-                          description={notReadyDescription}
+                          {...notReadyCopy}
                           action={
                             notReadyError ? { label: 'Retry', onClick: handleRetry } : undefined
                           }
@@ -546,13 +404,7 @@ const TryOnModal = ({
                     setup gate like the overlay above) - covers the canvas again if the user
                     drifts out of frame or too far away mid-session, even after already having
                     been ready once. */}
-                      {isTryOnReady && detectionStatus && detectionStatus !== 'detected' && (
-                        <TryOnOverlay
-                          icon={DETECTION_GUIDE_COPY[detectionStatus].icon}
-                          title={DETECTION_GUIDE_COPY[detectionStatus].title}
-                          description={DETECTION_GUIDE_COPY[detectionStatus].description}
-                        />
-                      )}
+                      {guideCopy && <TryOnOverlay {...guideCopy} />}
 
                       {canInteract && compareCanvas && (
                         <TryOnCompareSlider
