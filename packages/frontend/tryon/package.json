@@ -1,6 +1,6 @@
 {
   "name": "@beautinique/frontend-tryon",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "The virtual try-on of the Beautinique frontends: live camera or photo, for lips, face, eyes, hair and nails.",
   "keywords": [
     "frontend",
