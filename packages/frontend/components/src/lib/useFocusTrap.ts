@@ -1,6 +1,7 @@
 import { type RefObject, useEffect, useRef } from 'react';
 
 import { getTabbable } from './focus.js';
+import { sharedState } from './shared-state.js';
 
 export interface IFocusTrapOptions {
   /** Turn the trap on (while the dialog is open). */
@@ -12,8 +13,9 @@ export interface IFocusTrapOptions {
 }
 
 // The traps that are on, the last one on top: with a dialog open over another one only the top one
-// keeps the focus in.
-const activeTraps: symbol[] = [];
+// keeps the focus in. One stack for the whole page (see `sharedState`): the dialogs can be in different
+// entries of the package.
+const activeTraps = sharedState('focus-traps', (): symbol[] => []);
 
 /**
  * Keeps the keyboard inside a dialog, the way a dialog has to behave:

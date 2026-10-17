@@ -1,5 +1,7 @@
 import { type RefObject, useEffect, useLayoutEffect, useRef } from 'react';
 
+import { sharedState } from './shared-state.js';
+
 export type TDismissReason = 'outside' | 'escape';
 
 export interface IDismissOptions {
@@ -19,8 +21,9 @@ export interface IDismissOptions {
 }
 
 // The popups that are open, the last one on top. Escape closes the one on top only: a select that is
-// open inside a dialog closes first, and the dialog stays until the next Escape.
-const openStack: symbol[] = [];
+// open inside a dialog closes first, and the dialog stays until the next Escape. One stack for the whole
+// page (see `sharedState`): the select and the dialog can be in different entries of the package.
+const openStack = sharedState('dismiss-stack', (): symbol[] => []);
 
 /**
  * Closes a popup (a select, a dialog, a menu) the way people expect: a press (mouse, touch or pen)

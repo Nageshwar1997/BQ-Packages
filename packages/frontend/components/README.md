@@ -313,6 +313,21 @@ group (the arrows move the choice), and `Select` a combobox: the arrow keys, Hom
 work, the list is drawn in `document.body` (a parent that scrolls does not cut it) and it flips to the other side when
 there is no room.
 
+**A field inside a modal needs one class.** Because the list is drawn in `document.body`, it is not in the stacking of
+the modal its field is in: with its own `z-3` it opens behind a `ModalWrapper` (`z-100`), where nobody can see it. Give
+the list a `z-` above the modal through its class name:
+
+```tsx
+<ModalWrapper isOpen={isOpen} onClose={close} label="Product">
+  <Select label="Fruit" options={options} selectProps={selectProps} optionsClassName="z-110" />
+</ModalWrapper>
+```
+
+`z-110` is above a modal and below the toasts (`z-999`, which stay on top of everything). The same goes for
+`HierarchySelect` (`optionsClassName`) and for the picker of `ColorInput` (`pickerClassName`). A bigger `z-` than the
+default is the one that applies: Tailwind writes the bigger one last (a test of the package checks it). To go under
+`z-3`, add `!` (`z-1!`).
+
 ### Layout parts
 
 - `ApiStatus`: the state of a request in the middle of its place: rings while it loads, an icon with a title for `error` (said as an alert), `empty` and `success`.
@@ -408,6 +423,7 @@ A field that opens a tree of options with a search field above it. Only an optio
 open and close. The focus stays in the search field while the arrow keys move through the tree (Right and Left open and
 close a branch, Enter chooses, Escape closes and gives the focus back, Tab closes). A search shows the matches and the
 branches that lead to them, all open. Give `inputProps={{ value, onChange }}` to own the search (to search on a server).
+Inside a modal give `optionsClassName="z-110"`, or the box opens behind it (see [Inputs](#inputs-input-textarea-checkbox-radio-select)).
 
 ### ColorInput
 
@@ -419,7 +435,8 @@ import { ColorInput } from '@beautinique/frontend-components/color-input';
 
 Needs `react-color-palette`. The field is one button that opens a picker (a dialog that holds the focus until it is closed
 and gives it back). `value` and what `onChange` gets are hex strings; text that is no colour is not passed on. The
-sliders need a mouse or a finger; the hex and rgb fields in the picker work from the keyboard.
+sliders need a mouse or a finger; the hex and rgb fields in the picker work from the keyboard. Inside a modal give
+`pickerClassName="z-110"`, or the picker opens behind it (see [Inputs](#inputs-input-textarea-checkbox-radio-select)).
 
 ### FileInput
 

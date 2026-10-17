@@ -55,7 +55,11 @@ export interface ISelect extends IFieldBase {
   options: ISelectOption[];
   /** An icon at each end of the field. One with an `onClick` is a button and needs a `label`. */
   icons?: TInputIcons;
-  /** Classes for the list of options. */
+  /**
+   * Classes for the list of options. The list is drawn in `document.body`, so for a field **inside a
+   * modal** it needs a `z-` above the modal's: `optionsClassName="z-110"` (`ModalWrapper` is `z-100`, the
+   * toasts are `z-999`). A bigger `z-` than the default (`z-3`) is the one that applies.
+   */
   optionsClassName?: string;
   /** Which side of the field the list opens on, unless there is no room there. @default 'bottom' */
   position?: TDropdownPlacement;
@@ -331,6 +335,8 @@ export const Select = ({
       {isOpen &&
         list &&
         createPortal(
+          // It is drawn in the body, so it is not in the stacking of a modal its field is in: it is behind
+          // a modal (`ModalWrapper`, `z-100`) unless `optionsClassName` raises it (see there).
           <div
             ref={listRef}
             className={`border-primary/10 bg-smoke-eerie fixed z-3 overflow-hidden rounded-lg border shadow-md ${optionsClassName}`}

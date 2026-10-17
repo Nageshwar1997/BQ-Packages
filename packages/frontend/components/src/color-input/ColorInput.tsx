@@ -30,6 +30,12 @@ export interface IColorInput extends IFieldBase {
   hideAlpha?: boolean;
   /** The name of the picker for assistive technology, when the field has no `label`. @default 'Colour picker' */
   pickerLabel?: string;
+  /**
+   * Classes for the picker (the box that opens). It is drawn in `document.body`, so for a field **inside
+   * a modal** it needs a `z-` above the modal's: `pickerClassName="z-110"` (`ModalWrapper` is `z-100`,
+   * the toasts are `z-999`). A bigger `z-` than the default (`z-3`) is the one that applies.
+   */
+  pickerClassName?: string;
 }
 
 // The tallest the picker gets: its area, its sliders and its fields.
@@ -59,6 +65,7 @@ export const ColorInput = ({
   position = 'bottom',
   hideAlpha = false,
   pickerLabel = 'Colour picker',
+  pickerClassName = '',
 }: IColorInput) => {
   registerColorInputIcons();
 
@@ -158,13 +165,15 @@ export const ColorInput = ({
       <InputError id={errorId} error={error} />
       {isShown &&
         createPortal(
+          // It is drawn in the body, so it is not in the stacking of a modal its field is in: it is behind
+          // a modal (`ModalWrapper`, `z-100`) unless `pickerClassName` raises it (see there).
           <div
             ref={mergedPickerRef}
             id={pickerId}
             role="dialog"
             tabIndex={-1}
             aria-label={label || pickerLabel}
-            className="border-primary/10 bg-smoke-eerie fixed z-3 overflow-hidden rounded-lg border shadow-md outline-none"
+            className={`border-primary/10 bg-smoke-eerie fixed z-3 overflow-hidden rounded-lg border shadow-md outline-none ${pickerClassName}`}
             style={getDropdownStyle(box.rect, box.placement, window.innerHeight)}
           >
             <ColorPicker

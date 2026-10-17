@@ -66,7 +66,12 @@ export interface IHierarchySelect extends IFieldBase {
   options: readonly IHierarchySelectOption[];
   /** An icon at each end of the field. One with an `onClick` is a button and needs a `label`. */
   icons?: TInputIcons;
-  /** Classes for the box that opens (the search and the options). */
+  /**
+   * Classes for the box that opens (the search and the options). The box is drawn in `document.body`,
+   * so for a field **inside a modal** it needs a `z-` above the modal's: `optionsClassName="z-110"`
+   * (`ModalWrapper` is `z-100`, the toasts are `z-999`). A bigger `z-` than the default (`z-3`) is the
+   * one that applies.
+   */
   optionsClassName?: string;
   /** Which side of the field it opens on, unless there is no room there. @default 'bottom' */
   position?: TDropdownPlacement;
@@ -382,6 +387,8 @@ export const HierarchySelect = ({
       {isOpen &&
         popup &&
         createPortal(
+          // It is drawn in the body, so it is not in the stacking of a modal its field is in: it is behind
+          // a modal (`ModalWrapper`, `z-100`) unless `optionsClassName` raises it (see there).
           <div
             ref={popupRef}
             id={popupId}
