@@ -197,6 +197,13 @@ const TryOnModal = ({
   const detectionStatus = isTryOnReady ? debouncedDetectionStatus : undefined;
   const canInteract = isTryOnReady && detectionStatus === 'detected';
 
+  // The actions over the picture need a shade that is applied (there is nothing to compare, reset or
+  // save before it) and a subject that is detected. While the before/after is on, what is on screen is
+  // a comparison and not the picture with the makeup, so Reset and Download wait for it to be turned
+  // off; the toggle itself stays pressable, it is the way out.
+  const isComparing = !!compareCanvas;
+  const canUseActions = canInteract && !!flow.engineState?.color;
+
   // What the overlay over the picture says: while the try-on is not ready (the setup failed, or the
   // camera / the photo is still loading), and, once it is, the guide for what the detection reports
   // (in frame, turned, ...) in the words of what the category tracks. See `overlayCopy.ts`.
@@ -446,16 +453,16 @@ const TryOnModal = ({
                     itself (to turn compare back off) stays clickable while it's active. */}
                       <TryOnTopControls
                         compareProps={{
-                          active: !!compareCanvas,
-                          disabled: !canInteract || !flow.engineState?.color,
+                          active: isComparing,
+                          disabled: !canUseActions,
                           onClick: handleCompareToggle,
                         }}
                         resetProps={{
-                          disabled: !canInteract || !flow.engineState?.color,
+                          disabled: !canUseActions || isComparing,
                           onClick: handleResetMakeup,
                         }}
                         downloadProps={{
-                          disabled: !canInteract || !flow.engineState?.color || !!compareCanvas,
+                          disabled: !canUseActions || isComparing,
                           onClick: handleDownload,
                         }}
                         // Not rendered at all where the browser can't fullscreen an element. Stays
@@ -476,7 +483,7 @@ const TryOnModal = ({
                     and fight it for clicks, and isn't meaningful mid-comparison. Otherwise the
                     shopper can collapse it with its own handle (open by default). */}
                       <TryOnDock
-                        hidden={!!compareCanvas}
+                        hidden={isComparing}
                         appliedColor={flow.engineState?.color ?? null}
                       >
                         {/* Intensity slider - only meaningful once a shade is actually applied. */}

@@ -16,6 +16,7 @@ import { click, installResizeObserver, keyDown, required } from '../test-utils/d
 import { fakeStages } from '../test-utils/fake-stage.js';
 import { mount, unmountAll } from '../test-utils/react.js';
 import { TRYON_DIALOG_CLASS_NAME, TRYON_DIALOG_CONTAINER_PROPS } from '../tryOnDialog.js';
+import { DETECTION_GUIDE_DEBOUNCE_MS } from './hooks/useDebouncedDetectionStatus.js';
 import type { ITryOnModalProps } from './TryOnModal.js';
 import TryOnModal from './TryOnModal.js';
 
@@ -357,6 +358,121 @@ describe('TryOnModal for a shopper', () => {
       expect(stage()).toBeNull();
       expect(document.body.textContent).toContain('How would you like to try it?');
     });
+  });
+});
+
+describe('TryOnModal while the before/after is on', () => {
+  const reset = () => buttonNamed('Reset applied makeup');
+  const download = () => buttonNamed('Download snapshot');
+  const compare = () => buttonNamed('Compare before/after');
+
+  it('has nothing to compare, reset or save before a shade is applied', () => {
+    open();
+    startLive();
+
+    expect(compare().disabled).toBe(true);
+    expect(reset().disabled).toBe(true);
+    expect(download().disabled).toBe(true);
+  });
+
+  it('keeps Reset and Download from being pressed while it is on (it is a comparison on the screen, not the picture with the makeup), and gives them back when it is off', () => {
+    open();
+    startLive();
+    click(buttonNamed('Apply Rose'));
+
+    expect(reset().disabled).toBe(false);
+    expect(download().disabled).toBe(false);
+
+    click(compare());
+
+    expect(compare().getAttribute('aria-pressed')).toBe('true');
+    expect(reset().disabled).toBe(true);
+    expect(download().disabled).toBe(true);
+
+    click(compare());
+
+    expect(compare().getAttribute('aria-pressed')).toBe('false');
+    expect(reset().disabled).toBe(false);
+    expect(download().disabled).toBe(false);
+  });
+
+  it('keeps the way out: the toggle can be pressed while it is on', () => {
+    open();
+    startLive();
+    click(buttonNamed('Apply Rose'));
+    click(compare());
+
+    expect(compare().disabled).toBe(false);
+  });
+
+  it('does not take the makeup off when Reset is pressed meanwhile', () => {
+    open();
+    startLive();
+    click(buttonNamed('Apply Rose'));
+    click(compare());
+    const calls = fakeStages.makeupCalls.length;
+
+    click(reset());
+
+    expect(fakeStages.makeupCalls).toHaveLength(calls);
+    expect(buttonNamed('Remove Rose')).toBeTruthy(); // the shade is still on
+  });
+
+  it('takes the makeup off with Reset when it is not comparing', () => {
+    open();
+    startLive();
+    click(buttonNamed('Apply Rose'));
+
+    click(reset());
+
+    expect(buttonNamed('Apply Rose')).toBeTruthy();
+  });
+
+  it('hides the dock while it is on (it would sit over the surface that is dragged) and shows it again after', () => {
+    open();
+    startLive();
+    click(buttonNamed('Apply Rose'));
+    const dockOf = () => buttonNamed('Remove Rose').closest('.hidden');
+
+    expect(dockOf()).toBeNull();
+
+    click(compare());
+    expect(dockOf()).not.toBeNull();
+
+    click(compare());
+    expect(dockOf()).toBeNull();
+  });
+
+  it('keeps all three from being pressed while the subject is not detected, comparing or not', () => {
+    vi.useFakeTimers();
+
+    try {
+      open();
+      startLive();
+      click(buttonNamed('Apply Rose'));
+      expect(reset().disabled).toBe(false);
+
+      act(() => {
+        fakeStages.emit({ detectionStatus: 'not-in-frame' });
+      });
+      act(() => {
+        vi.advanceTimersByTime(DETECTION_GUIDE_DEBOUNCE_MS);
+      });
+
+      expect(compare().disabled).toBe(true);
+      expect(reset().disabled).toBe(true);
+      expect(download().disabled).toBe(true);
+
+      act(() => {
+        fakeStages.emit({ detectionStatus: 'detected' });
+      });
+
+      expect(compare().disabled).toBe(false);
+      expect(reset().disabled).toBe(false);
+      expect(download().disabled).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 
