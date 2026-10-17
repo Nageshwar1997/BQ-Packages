@@ -1,0 +1,12 @@
+/* @beautinique/frontend-tryon - tells Tailwind where the class names of the try-on are.
+ *
+ * Tailwind v4 does not look inside node_modules for class names, so without this the classes the
+ * try-on uses (e.g. `rounded-3xl`, `bg-accent-duo`) would not be generated and it would look
+ * unstyled. Import it in the app's own css, after the styles package:
+ *
+ *   @import '@beautinique/frontend-styles';
+ *   @import '@beautinique/frontend-components/source.css';
+ *   @import '@beautinique/frontend-tryon/source.css';
+ *   @import './app.css';
+ */
+@source './dist';

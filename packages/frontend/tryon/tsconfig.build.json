@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "dist",
+    "tsup.config.ts",
+    "playground",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/test-utils"
+  ]
+}

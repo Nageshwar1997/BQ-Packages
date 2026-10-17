@@ -1,0 +1,11 @@
+{
+  "extends": "../../../configs/tsconfig/tsconfig.frontend.json",
+  "compilerOptions": {
+    /* The try-on was written with it (arr[i] and Record[key] are `T | undefined`, which the
+       rendering code checks): without it those checks are reported as unnecessary. */
+    "noUncheckedIndexedAccess": true,
+    /* The tests read files of the monorepo (the assets package, package.json). */
+    "types": ["node"]
+  },
+  "exclude": ["dist", "tsup.config.ts"]
+}

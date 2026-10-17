@@ -1,0 +1,44 @@
+{
+  "name": "@beautinique/frontend-tryon-assets",
+  "version": "1.0.0",
+  "description": "The models and images of the Beautinique try-on: MediaPipe models, eye patterns, lip textures and sample models.",
+  "keywords": [
+    "frontend",
+    "tryon",
+    "assets",
+    "mediapipe",
+    "beautinique"
+  ],
+  "author": "Nageshwar Pawar",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nageshwar1997/BQ-Packages.git",
+    "directory": "packages/frontend/tryon-assets"
+  },
+  "bugs": {
+    "url": "https://github.com/Nageshwar1997/BQ-Packages/issues"
+  },
+  "homepage": "https://github.com/Nageshwar1997/BQ-Packages/tree/main/packages/frontend/tryon-assets#readme",
+  "type": "module",
+  "files": [
+    "models",
+    "images",
+    "NOTICE.md"
+  ],
+  "sideEffects": false,
+  "exports": {
+    "./models/*": "./models/*",
+    "./images/*": "./images/*",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
