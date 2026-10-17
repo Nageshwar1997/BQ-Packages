@@ -1,3 +1,4 @@
+import { TRY_ON_SUB_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import type { NormalizedLandmark } from '@mediapipe/tasks-vision';
 
 import {
@@ -14,6 +15,7 @@ import type {
   ILipDoubleTextureRenderParams,
   ILipRenderParams,
   ILipSingleTextureRenderParams,
+  TLipFinish,
 } from '../types/lip.js';
 import { createOffscreenCtx } from './index.js';
 
@@ -269,11 +271,13 @@ interface ITexturedFinishTuning {
 
 // Exported for `lip.test.ts` only - nothing outside this file needs it at runtime,
 // `applyTexturedLips` below already closes over it directly.
-export const TEXTURED_FINISH_TUNING: Record<
-  'GLOSS' | 'CRAYON' | 'SHIMMER' | 'OIL' | 'METALLIC' | 'PLUMPER',
-  ITexturedFinishTuning
-> = {
-  GLOSS: {
+//
+// The keys of this table are the one place that says which finishes are drawn with a texture: the type
+// of `applyTexturedLips`'s `finish` is taken from it (`keyof typeof`), so there is no second list to
+// keep. `satisfies` only lets a key be a finish of LIP, each with a complete entry (a finish of another
+// category, or a missing number, is a compile error).
+export const TEXTURED_FINISH_TUNING = {
+  [TRY_ON_SUB_CATEGORY_MAP.GLOSS]: {
     baseAlphaUpper: 0.6,
     baseAlphaLower: 0.4,
     brightOpacity: 0.3,
@@ -282,7 +286,7 @@ export const TEXTURED_FINISH_TUNING: Record<
     darkInsetOpacityLower: 0.3,
     applyFilters: true,
   },
-  CRAYON: {
+  [TRY_ON_SUB_CATEGORY_MAP.CRAYON]: {
     // Crayon fills with the caller's own alpha (waxy, more opaque than gloss) rather than a
     // fixed base, and skips the final saturating filter pass (matte-ish finish, no shine boost).
     baseAlphaUpper: -1, // sentinel: use the passed-in `alpha` instead
@@ -293,7 +297,7 @@ export const TEXTURED_FINISH_TUNING: Record<
     darkInsetOpacityLower: 0.2,
     applyFilters: false,
   },
-  SHIMMER: {
+  [TRY_ON_SUB_CATEGORY_MAP.SHIMMER]: {
     baseAlphaUpper: 0.4,
     baseAlphaLower: 0.4,
     brightOpacity: 0.7,
@@ -305,7 +309,7 @@ export const TEXTURED_FINISH_TUNING: Record<
   // Same shape as GLOSS's tuning - the blurred oil-u/oil-l textures (see
   // OIL_TEXTURE_PATH_UPPER/_LOWER) already carry the "softer, more spread-out" difference, so
   // only a slightly higher base alpha is added here for a wetter, more saturated-looking sheen.
-  OIL: {
+  [TRY_ON_SUB_CATEGORY_MAP.OIL]: {
     baseAlphaUpper: 0.65,
     baseAlphaLower: 0.5,
     brightOpacity: 0.3,
@@ -318,7 +322,7 @@ export const TEXTURED_FINISH_TUNING: Record<
   // sharper highlight core plus a flake-sparkle layer (see METALLIC_TEXTURE_PATH_UPPER/_LOWER),
   // and a more opaque/higher-contrast fill here makes that flake texture actually read as
   // reflective foil rather than getting lost under GLOSS-level opacity.
-  METALLIC: {
+  [TRY_ON_SUB_CATEGORY_MAP.METALLIC]: {
     baseAlphaUpper: 0.7,
     baseAlphaLower: 0.55,
     brightOpacity: 0.5,
@@ -333,7 +337,7 @@ export const TEXTURED_FINISH_TUNING: Record<
   // sheer wash (GLOSS's own tuning at a caller-side alpha*0.5) and GLOSS's full shine.
   // Everything else matches GLOSS's tuning - only the base intensity was the original design
   // intent here.
-  PLUMPER: {
+  [TRY_ON_SUB_CATEGORY_MAP.PLUMPER]: {
     baseAlphaUpper: 0.5,
     baseAlphaLower: 0.35,
     brightOpacity: 0.3,
@@ -342,7 +346,7 @@ export const TEXTURED_FINISH_TUNING: Record<
     darkInsetOpacityLower: 0.3,
     applyFilters: true,
   },
-};
+} satisfies Partial<Record<TLipFinish, ITexturedFinishTuning>>;
 
 const drawLipHalfTextured = (
   canvasElement: HTMLCanvasElement,
@@ -466,7 +470,16 @@ export const applyGlossLips = ({
   dimension,
   alpha,
 }: ILipDoubleTextureRenderParams) => {
-  applyTexturedLips('GLOSS', face, ctx, color, textureUpper, textureLower, dimension, alpha);
+  applyTexturedLips(
+    TRY_ON_SUB_CATEGORY_MAP.GLOSS,
+    face,
+    ctx,
+    color,
+    textureUpper,
+    textureLower,
+    dimension,
+    alpha,
+  );
 };
 
 export const applyCrayonLips = ({
@@ -478,7 +491,16 @@ export const applyCrayonLips = ({
   alpha,
 }: ILipSingleTextureRenderParams) => {
   // Crayon uses one texture file for both halves (see constants/tryon-constants/lip.ts).
-  applyTexturedLips('CRAYON', face, ctx, color, texture, texture, dimension, alpha);
+  applyTexturedLips(
+    TRY_ON_SUB_CATEGORY_MAP.CRAYON,
+    face,
+    ctx,
+    color,
+    texture,
+    texture,
+    dimension,
+    alpha,
+  );
 };
 
 export const applyShimmerLips = ({
@@ -490,7 +512,16 @@ export const applyShimmerLips = ({
   alpha,
 }: ILipSingleTextureRenderParams) => {
   // Shimmer also uses one texture file for both halves.
-  applyTexturedLips('SHIMMER', face, ctx, color, texture, texture, dimension, alpha);
+  applyTexturedLips(
+    TRY_ON_SUB_CATEGORY_MAP.SHIMMER,
+    face,
+    ctx,
+    color,
+    texture,
+    texture,
+    dimension,
+    alpha,
+  );
 };
 
 // Sharp, foil-like reflective finish - the metallic-u/metallic-l textures already bake in both
@@ -506,7 +537,16 @@ export const applyMetallicLips = ({
   dimension,
   alpha,
 }: ILipDoubleTextureRenderParams) => {
-  applyTexturedLips('METALLIC', face, ctx, color, textureUpper, textureLower, dimension, alpha);
+  applyTexturedLips(
+    TRY_ON_SUB_CATEGORY_MAP.METALLIC,
+    face,
+    ctx,
+    color,
+    textureUpper,
+    textureLower,
+    dimension,
+    alpha,
+  );
 };
 
 /* ================= APPROXIMATED FINISHES (SATIN / STAIN / BALM / OIL / PLUMPER) =============
@@ -548,7 +588,16 @@ export const applyBalmLips = ({
   dimension,
   alpha,
 }: ILipDoubleTextureRenderParams) => {
-  applyTexturedLips('GLOSS', face, ctx, color, textureUpper, textureLower, dimension, alpha * 0.5);
+  applyTexturedLips(
+    TRY_ON_SUB_CATEGORY_MAP.GLOSS,
+    face,
+    ctx,
+    color,
+    textureUpper,
+    textureLower,
+    dimension,
+    alpha * 0.5,
+  );
 };
 
 // Dewy "plumped" shine - PLUMPER's own tuning entry (see TEXTURED_FINISH_TUNING) sets the
@@ -564,7 +613,16 @@ export const applyPlumperLips = ({
   dimension,
   alpha,
 }: ILipDoubleTextureRenderParams) => {
-  applyTexturedLips('PLUMPER', face, ctx, color, textureUpper, textureLower, dimension, alpha);
+  applyTexturedLips(
+    TRY_ON_SUB_CATEGORY_MAP.PLUMPER,
+    face,
+    ctx,
+    color,
+    textureUpper,
+    textureLower,
+    dimension,
+    alpha,
+  );
 };
 
 // High-gloss fluid shine - the oil-u/oil-l textures are the same gloss highlights blurred into
@@ -579,5 +637,14 @@ export const applyOilLips = ({
   dimension,
   alpha,
 }: ILipDoubleTextureRenderParams) => {
-  applyTexturedLips('OIL', face, ctx, color, textureUpper, textureLower, dimension, alpha);
+  applyTexturedLips(
+    TRY_ON_SUB_CATEGORY_MAP.OIL,
+    face,
+    ctx,
+    color,
+    textureUpper,
+    textureLower,
+    dimension,
+    alpha,
+  );
 };

@@ -1,3 +1,4 @@
+import { TRY_ON_SUB_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import type { NormalizedLandmark } from '@mediapipe/tasks-vision';
 
 import { FACE_DEFAULT_RANGE } from '../../../constants/face.js';
@@ -94,28 +95,28 @@ export abstract class FaceEngineBase extends FaceLandmarkerEngineBase<IFaceTryOn
     }
 
     switch (state.type) {
-      case 'FOUNDATION':
+      case TRY_ON_SUB_CATEGORY_MAP.FOUNDATION:
         applyFoundationFace(params);
         return;
-      case 'BLUSH':
+      case TRY_ON_SUB_CATEGORY_MAP.BLUSH:
         applyBlushFace(params);
         return;
-      case 'CONCEALER':
+      case TRY_ON_SUB_CATEGORY_MAP.CONCEALER:
         applyConcealerFace(params);
         return;
-      case 'HIGHLIGHTER':
+      case TRY_ON_SUB_CATEGORY_MAP.HIGHLIGHTER:
         applyHighlighterFace(params);
         return;
-      case 'CONTOUR':
+      case TRY_ON_SUB_CATEGORY_MAP.CONTOUR:
         applyContourFace(params);
         return;
-      case 'BRONZER':
+      case TRY_ON_SUB_CATEGORY_MAP.BRONZER:
         applyBronzerFace(params);
         return;
-      case 'BBCREAM':
+      case TRY_ON_SUB_CATEGORY_MAP.BBCREAM:
         applyBbCreamFace(params);
         return;
-      case 'COMPACTPOWDER':
+      case TRY_ON_SUB_CATEGORY_MAP.COMPACTPOWDER:
         applyCompactPowderFace(params);
         return;
     }

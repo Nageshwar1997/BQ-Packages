@@ -1,3 +1,5 @@
+import { TRY_ON_SUB_CATEGORY_MAP } from '@beautinique/frontend-constants';
+
 import { resolveTryOnAssetUrl } from '../../../constants/assets.js';
 import {
   CRAYON_TEXTURE_PATH,
@@ -154,13 +156,13 @@ export abstract class LipEngineBase extends FaceLandmarkerEngineBase<ILipTryOnSt
     }
 
     switch (state.type) {
-      case 'MATTE':
+      case TRY_ON_SUB_CATEGORY_MAP.MATTE:
         applyMatteLips(base);
         return;
-      case 'STAIN':
+      case TRY_ON_SUB_CATEGORY_MAP.STAIN:
         applyStainLips(base);
         return;
-      case 'LINER':
+      case TRY_ON_SUB_CATEGORY_MAP.LINER:
         applyLinerLips(base);
         return;
     }
@@ -169,40 +171,40 @@ export abstract class LipEngineBase extends FaceLandmarkerEngineBase<ILipTryOnSt
     if (!assets) return;
 
     switch (state.type) {
-      case 'SATIN':
+      case TRY_ON_SUB_CATEGORY_MAP.SATIN:
         applySatinLips({
           ...base,
           textureUpper: assets.satinUpper,
           textureLower: assets.satinLower,
         });
         return;
-      case 'GLOSS':
+      case TRY_ON_SUB_CATEGORY_MAP.GLOSS:
         applyGlossLips({
           ...base,
           textureUpper: assets.glossUpper,
           textureLower: assets.glossLower,
         });
         return;
-      case 'BALM':
+      case TRY_ON_SUB_CATEGORY_MAP.BALM:
         applyBalmLips({ ...base, textureUpper: assets.balmUpper, textureLower: assets.balmLower });
         return;
-      case 'PLUMPER':
+      case TRY_ON_SUB_CATEGORY_MAP.PLUMPER:
         applyPlumperLips({
           ...base,
           textureUpper: assets.plumperUpper,
           textureLower: assets.plumperLower,
         });
         return;
-      case 'OIL':
+      case TRY_ON_SUB_CATEGORY_MAP.OIL:
         applyOilLips({ ...base, textureUpper: assets.oilUpper, textureLower: assets.oilLower });
         return;
-      case 'SHIMMER':
+      case TRY_ON_SUB_CATEGORY_MAP.SHIMMER:
         applyShimmerLips({ ...base, texture: assets.shimmer });
         return;
-      case 'CRAYON':
+      case TRY_ON_SUB_CATEGORY_MAP.CRAYON:
         applyCrayonLips({ ...base, texture: assets.crayon });
         return;
-      case 'METALLIC':
+      case TRY_ON_SUB_CATEGORY_MAP.METALLIC:
         applyMetallicLips({
           ...base,
           textureUpper: assets.metallicUpper,

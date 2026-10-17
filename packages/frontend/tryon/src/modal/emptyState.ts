@@ -1,3 +1,4 @@
+import { TRY_ON_CATEGORIES } from '@beautinique/frontend-constants';
 import type { TTryOnCategory, TTryOnSelection } from '@beautinique/frontend-types';
 
 /** What the modal says when there is nothing to try on: a heading and the sentence under it. */
@@ -11,13 +12,7 @@ export interface IEmptyStateCopy {
 // before an app has the package that has a stage for it, and that selection is told "coming soon"
 // instead of being drawn with the stage of another category. A `Set`, so that a text of the product
 // that is none of them (`constructor`) is not found.
-const STAGE_CATEGORIES: ReadonlySet<string> = new Set<TTryOnCategory>([
-  'LIP',
-  'FACE',
-  'EYE',
-  'HAIR',
-  'NAIL',
-]);
+const STAGE_CATEGORIES: ReadonlySet<string> = new Set<TTryOnCategory>(TRY_ON_CATEGORIES);
 
 /**
  * Whether there is something to try on: a selection of a category that has a stage. It narrows

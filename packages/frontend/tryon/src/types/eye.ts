@@ -1,8 +1,9 @@
+import type { TRY_ON_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import type { TTryOnSubCategory } from '@beautinique/frontend-types';
 
 import type { IMakeupState, IRenderEffectBaseParams, TRGBTuple } from './index.js';
 
-export type TEyeFinish = TTryOnSubCategory<'EYE'>;
+export type TEyeFinish = TTryOnSubCategory<typeof TRY_ON_CATEGORY_MAP.EYE>;
 
 // EYE is the first category with a second customizable dimension beyond color - `pattern` (see
 // docs/tryons/EYE-PLAN.md, the planning doc written before any of this existed). LIP/FACE never

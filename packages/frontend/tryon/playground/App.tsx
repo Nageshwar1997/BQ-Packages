@@ -1,8 +1,8 @@
-import { TRY_ON_MAP } from '@beautinique/frontend-constants';
-import type { TTryOnCategory, TTryOnSelection } from '@beautinique/frontend-types';
+import { TRY_ON_CATEGORY_MAP, TRY_ON_MAP } from '@beautinique/frontend-constants';
 import { TryOnModal as LazyTryOnModal } from '@beautinique/frontend-tryon';
 import { TRYON_CATEGORY_OPTIONS } from '@beautinique/frontend-tryon/constants';
 import { TryOnModal as EagerTryOnModal } from '@beautinique/frontend-tryon/modal';
+import type { TTryOnCategory, TTryOnSelection } from '@beautinique/frontend-types';
 import { useState } from 'react';
 
 // What a page of an app does with the try-on: a shopper gets the category and subcategory the product
@@ -22,8 +22,8 @@ const button =
   'rounded-lg border border-primary/20 bg-secondary-invert px-4 py-2 text-sm font-medium text-primary hover:border-blue-crayola-c';
 
 export const App = () => {
-  const [category, setCategory] = useState<TTryOnCategory>('LIP');
-  const [subCategory, setSubCategory] = useState<string>(TRY_ON_MAP.LIP[0]);
+  const [category, setCategory] = useState<TTryOnCategory>(TRY_ON_CATEGORY_MAP.LIP);
+  const [subCategory, setSubCategory] = useState<string>(TRY_ON_MAP[TRY_ON_CATEGORY_MAP.LIP][0]);
   const [hasSelection, setHasSelection] = useState(true);
   const [withShades, setWithShades] = useState(true);
   const [isOpen, setIsOpen] = useState(false);

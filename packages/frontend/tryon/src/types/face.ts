@@ -1,8 +1,9 @@
+import type { TRY_ON_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import type { TTryOnSubCategory } from '@beautinique/frontend-types';
 
 import type { IMakeupState, IRenderEffectBaseParams, TRGBTuple } from './index.js';
 
-export type TFaceFinish = TTryOnSubCategory<'FACE'>;
+export type TFaceFinish = TTryOnSubCategory<typeof TRY_ON_CATEGORY_MAP.FACE>;
 export type IFaceTryOnState = IMakeupState<TFaceFinish>;
 
 // No textures yet - every finish built so far is a pure color/blend effect, no asset needed.

@@ -1,3 +1,4 @@
+import { TRY_ON_SUB_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import type { NormalizedLandmark } from '@mediapipe/tasks-vision';
 
 import {
@@ -107,25 +108,25 @@ export abstract class EyeEngineBase extends FaceLandmarkerEngineBase<IEyeTryOnSt
     const pattern = state.pattern ?? EYE_DEFAULT_PATTERNS[state.type] ?? '';
 
     switch (state.type) {
-      case 'EYELINER':
+      case TRY_ON_SUB_CATEGORY_MAP.EYELINER:
         applyEyelinerEye({ face, ctx, rgb, dimension, alpha, pattern });
         return;
-      case 'KAJAL':
+      case TRY_ON_SUB_CATEGORY_MAP.KAJAL:
         applyKajalEye({ face, ctx, rgb, dimension, alpha, pattern });
         return;
-      case 'EYESHADOW':
+      case TRY_ON_SUB_CATEGORY_MAP.EYESHADOW:
         applyEyeshadowEye({ face, ctx, rgb, dimension, alpha, pattern });
         return;
-      case 'EYEBROW':
+      case TRY_ON_SUB_CATEGORY_MAP.EYEBROW:
         applyEyebrowEye({ face, ctx, rgb, dimension, alpha, pattern });
         return;
-      case 'BROWGEL':
+      case TRY_ON_SUB_CATEGORY_MAP.BROWGEL:
         applyBrowgelEye({ face, ctx, rgb, dimension, alpha, pattern });
         return;
-      case 'MASCARA':
+      case TRY_ON_SUB_CATEGORY_MAP.MASCARA:
         applyMascaraEye({ face, ctx, rgb, dimension, alpha, pattern });
         return;
-      case 'LASHES':
+      case TRY_ON_SUB_CATEGORY_MAP.LASHES:
         applyLashesEye({ face, ctx, rgb, dimension, alpha, pattern });
         return;
     }

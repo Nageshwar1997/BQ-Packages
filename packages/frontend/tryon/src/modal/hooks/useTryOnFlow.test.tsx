@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { TRY_ON_SUB_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -29,7 +30,7 @@ const setup = () => {
 /** What an engine tells the modal about itself. */
 const engineState = (patch: Record<string, unknown> = {}) =>
   ({
-    type: 'MATTE',
+    type: TRY_ON_SUB_CATEGORY_MAP.MATTE,
     color: null,
     range: 0.4,
     cameraReady: false,

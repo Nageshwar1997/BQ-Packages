@@ -1,3 +1,4 @@
+import { TRY_ON_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import type { TTryOnCategory } from '@beautinique/frontend-types';
 
 import type { ITryOnError, TDetectionStatus, TTryOnMode } from '../types/index.js';
@@ -52,8 +53,8 @@ export type TGuideStatus = Exclude<TDetectionStatus, 'detected'>;
 type TTrackedSubject = 'face' | 'hair' | 'hand';
 
 const SUBJECT_OF_CATEGORY = new Map<string, TTrackedSubject>([
-  ['HAIR', 'hair'],
-  ['NAIL', 'hand'],
+  [TRY_ON_CATEGORY_MAP.HAIR, 'hair'],
+  [TRY_ON_CATEGORY_MAP.NAIL, 'hand'],
 ]);
 
 const notInFrame = (subject: string, possessive: string): IOverlayCopy => ({

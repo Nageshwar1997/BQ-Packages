@@ -2,6 +2,7 @@
 import type { TTryOnSelection } from '@beautinique/frontend-types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { TRY_ON_CATEGORY_MAP, TRY_ON_SUB_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import { click, required } from '../test-utils/dom.js';
 import { mount, unmountAll } from '../test-utils/react.js';
 import TryOnApplyBar from './TryOnApplyBar.js';
@@ -60,7 +61,10 @@ describe('TryOnApplyBar', () => {
 });
 
 describe('TryOnSelectableFrame', () => {
-  const selection: TTryOnSelection = { category: 'LIP', subCategory: 'MATTE' };
+  const selection: TTryOnSelection = {
+    category: TRY_ON_CATEGORY_MAP.LIP,
+    subCategory: TRY_ON_SUB_CATEGORY_MAP.MATTE,
+  };
 
   beforeEach(() => {
     window.innerHeight = 900;
@@ -152,6 +156,9 @@ describe('TryOnSelectableFrame', () => {
       ),
     );
 
-    expect(onSelect).toHaveBeenCalledWith({ category: 'HAIR', subCategory: 'COLOR' });
+    expect(onSelect).toHaveBeenCalledWith({
+      category: TRY_ON_CATEGORY_MAP.HAIR,
+      subCategory: TRY_ON_SUB_CATEGORY_MAP.COLOR,
+    });
   });
 });

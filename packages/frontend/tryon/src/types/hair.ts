@@ -1,8 +1,9 @@
+import type { TRY_ON_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import type { TTryOnSubCategory } from '@beautinique/frontend-types';
 
 import type { IMakeupState, TDimension, TRGBTuple } from './index.js';
 
-export type THairFinish = TTryOnSubCategory<'HAIR'>;
+export type THairFinish = TTryOnSubCategory<typeof TRY_ON_CATEGORY_MAP.HAIR>;
 export type IHairTryOnState = IMakeupState<THairFinish>;
 
 // No assets needed yet - COLOR (the only finish with dedicated rendering so far, see

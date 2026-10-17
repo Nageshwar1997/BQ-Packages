@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { TRY_ON_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
@@ -67,11 +68,11 @@ type TEngine = new (
 };
 
 const CATEGORIES: [string, TEngine, keyof typeof TRYON_MODEL_PATHS][] = [
-  ['LIP', LipUploadEngine, 'face'],
-  ['FACE', FaceUploadEngine, 'face'],
-  ['EYE', EyeUploadEngine, 'face'],
-  ['HAIR', HairUploadEngine, 'hair'],
-  ['NAIL', NailUploadEngine, 'hand'],
+  [TRY_ON_CATEGORY_MAP.LIP, LipUploadEngine, 'face'],
+  [TRY_ON_CATEGORY_MAP.FACE, FaceUploadEngine, 'face'],
+  [TRY_ON_CATEGORY_MAP.EYE, EyeUploadEngine, 'face'],
+  [TRY_ON_CATEGORY_MAP.HAIR, HairUploadEngine, 'hair'],
+  [TRY_ON_CATEGORY_MAP.NAIL, NailUploadEngine, 'hand'],
 ];
 
 // Every case uses an address of its own: the models are cached for the page by address (and must be

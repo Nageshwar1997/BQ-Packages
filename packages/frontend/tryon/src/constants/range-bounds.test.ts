@@ -1,5 +1,10 @@
 // @vitest-environment node
-import { TRY_ON_CATEGORIES, TRY_ON_MAP } from '@beautinique/frontend-constants';
+import {
+  TRY_ON_CATEGORIES,
+  TRY_ON_CATEGORY_MAP,
+  TRY_ON_MAP,
+  TRY_ON_SUB_CATEGORY_MAP,
+} from '@beautinique/frontend-constants';
 import type { TTryOnCategory, TTryOnSelection } from '@beautinique/frontend-types';
 import { describe, expect, it } from 'vitest';
 
@@ -58,28 +63,36 @@ describe('getRangeBounds', () => {
     });
 
     it('gives the default for a finish the category does not have', () => {
-      expect(getRangeBounds(selection('LIP', 'NO_SUCH_FINISH'))).toBe(DEFAULT_RANGE_BOUNDS);
+      expect(getRangeBounds(selection(TRY_ON_CATEGORY_MAP.LIP, 'NO_SUCH_FINISH'))).toBe(
+        DEFAULT_RANGE_BOUNDS,
+      );
     });
 
     it('gives the default for a finish of another category (the eyeliner is not a lip finish)', () => {
-      expect(getRangeBounds(selection('LIP', 'EYELINER'))).toBe(DEFAULT_RANGE_BOUNDS);
+      expect(
+        getRangeBounds(selection(TRY_ON_CATEGORY_MAP.LIP, TRY_ON_SUB_CATEGORY_MAP.EYELINER)),
+      ).toBe(DEFAULT_RANGE_BOUNDS);
     });
 
     it('gives the default for a category this version does not know (the product can get one before the app has the package for it)', () => {
-      expect(getRangeBounds(selection('BODY', 'MATTE'))).toBe(DEFAULT_RANGE_BOUNDS);
+      expect(getRangeBounds(selection('BODY', TRY_ON_SUB_CATEGORY_MAP.MATTE))).toBe(
+        DEFAULT_RANGE_BOUNDS,
+      );
     });
 
     it.each(['constructor', 'toString', '__proto__', 'hasOwnProperty'])(
       'does not hand back something of the prototype of an object for the text %s, as a category or a finish',
       (text) => {
-        expect(getRangeBounds(selection(text, 'MATTE'))).toBe(DEFAULT_RANGE_BOUNDS);
-        expect(getRangeBounds(selection('LIP', text))).toBe(DEFAULT_RANGE_BOUNDS);
+        expect(getRangeBounds(selection(text, TRY_ON_SUB_CATEGORY_MAP.MATTE))).toBe(
+          DEFAULT_RANGE_BOUNDS,
+        );
+        expect(getRangeBounds(selection(TRY_ON_CATEGORY_MAP.LIP, text))).toBe(DEFAULT_RANGE_BOUNDS);
       },
     );
   });
 
   it('gives the same object every time, so nothing is made per render', () => {
-    const lip = selection('LIP', TRY_ON_MAP.LIP[0]);
+    const lip = selection(TRY_ON_CATEGORY_MAP.LIP, TRY_ON_MAP[TRY_ON_CATEGORY_MAP.LIP][0]);
 
     expect(getRangeBounds(lip)).toBe(getRangeBounds(lip));
   });

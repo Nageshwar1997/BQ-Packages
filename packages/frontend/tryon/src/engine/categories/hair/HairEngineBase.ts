@@ -1,3 +1,5 @@
+import { TRY_ON_SUB_CATEGORY_MAP } from '@beautinique/frontend-constants';
+
 import { HAIR_DEFAULT_RANGE } from '../../../constants/hair.js';
 import type {
   IApplyHairEffectParams,
@@ -69,16 +71,16 @@ export abstract class HairEngineBase extends HairSegmenterEngineBase<IHairTryOnS
     }
 
     switch (state.type) {
-      case 'COLOR':
+      case TRY_ON_SUB_CATEGORY_MAP.COLOR:
         applyColorHair(params);
         return;
-      case 'HENNA':
+      case TRY_ON_SUB_CATEGORY_MAP.HENNA:
         applyHennaHair(params);
         return;
-      case 'OMBRE':
+      case TRY_ON_SUB_CATEGORY_MAP.OMBRE:
         applyOmbreHair(params);
         return;
-      case 'HIGHLIGHTS':
+      case TRY_ON_SUB_CATEGORY_MAP.HIGHLIGHTS:
         applyHighlightsHair(params);
         return;
     }

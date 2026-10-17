@@ -2,6 +2,7 @@ import { ScrollableGradientContainer } from '@beautinique/frontend-components';
 import type { TTryOnCategory } from '@beautinique/frontend-types';
 import { Icon } from '@iconify/react';
 
+import { TRY_ON_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import { resolveTryOnAssetUrl } from '../constants/assets.js';
 import {
   TRYON_MODE_MAP,
@@ -31,13 +32,13 @@ const getModelLabel = (url: string): string => {
 // is a TS error at the `never` default, not a silent fallback to the wrong photo set.
 const getModelImages = (category: TTryOnCategory): string[] => {
   switch (category) {
-    case 'HAIR':
+    case TRY_ON_CATEGORY_MAP.HAIR:
       return TRYON_MODEL_IMAGES_HAIR;
-    case 'NAIL':
+    case TRY_ON_CATEGORY_MAP.NAIL:
       return TRYON_MODEL_IMAGES_HAND;
-    case 'LIP':
-    case 'FACE':
-    case 'EYE':
+    case TRY_ON_CATEGORY_MAP.LIP:
+    case TRY_ON_CATEGORY_MAP.FACE:
+    case TRY_ON_CATEGORY_MAP.EYE:
       return TRYON_MODEL_IMAGES_FACE;
     default: {
       const exhaustiveCheck: never = category;

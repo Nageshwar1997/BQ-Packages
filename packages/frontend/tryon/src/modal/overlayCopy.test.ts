@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { TRY_ON_CATEGORIES } from '@beautinique/frontend-constants';
+import { TRY_ON_CATEGORIES, TRY_ON_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import type { TTryOnCategory } from '@beautinique/frontend-types';
 import { describe, expect, it } from 'vitest';
 
@@ -134,7 +134,9 @@ describe('getGuideCopy', () => {
       'not-clear',
       'turned',
     ] as const satisfies TGuideStatus[]) {
-      expect(getGuideCopy('NAIL', status)).toBe(getGuideCopy('NAIL', status));
+      expect(getGuideCopy(TRY_ON_CATEGORY_MAP.NAIL, status)).toBe(
+        getGuideCopy(TRY_ON_CATEGORY_MAP.NAIL, status),
+      );
     }
   });
 

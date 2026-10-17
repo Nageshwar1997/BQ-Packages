@@ -1,5 +1,9 @@
 // @vitest-environment jsdom
-import { TRY_ON_MAP } from '@beautinique/frontend-constants';
+import {
+  TRY_ON_CATEGORY_MAP,
+  TRY_ON_MAP,
+  TRY_ON_SUB_CATEGORY_MAP,
+} from '@beautinique/frontend-constants';
 import type { TTryOnSelection } from '@beautinique/frontend-types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -32,7 +36,10 @@ vi.mock('@beautinique/frontend-components', () => ({
   },
 }));
 
-const LIP: TTryOnSelection = { category: 'LIP', subCategory: 'MATTE' };
+const LIP: TTryOnSelection = {
+  category: TRY_ON_CATEGORY_MAP.LIP,
+  subCategory: TRY_ON_SUB_CATEGORY_MAP.MATTE,
+};
 
 const setup = (selection?: TTryOnSelection) => {
   const onChange = vi.fn();
@@ -70,11 +77,11 @@ describe('TryOnSelection with a value that is not one of its options', () => {
   it('takes a category of the product, with the first subcategory of it', () => {
     const { onChange, category } = setup(LIP);
 
-    category('EYE');
+    category(TRY_ON_CATEGORY_MAP.EYE);
 
     expect(onChange).toHaveBeenCalledExactlyOnceWith({
-      category: 'EYE',
-      subCategory: TRY_ON_MAP.EYE[0],
+      category: TRY_ON_CATEGORY_MAP.EYE,
+      subCategory: TRY_ON_MAP[TRY_ON_CATEGORY_MAP.EYE][0],
     });
   });
 
@@ -89,24 +96,29 @@ describe('TryOnSelection with a value that is not one of its options', () => {
   it('ignores a subcategory of another category (the eyeliner is not a lip makeup)', () => {
     const { onChange, subCategory } = setup(LIP);
 
-    subCategory('EYELINER');
+    subCategory(TRY_ON_SUB_CATEGORY_MAP.EYELINER);
 
     expect(onChange).not.toHaveBeenCalled();
   });
 
   it('takes another subcategory of the category that is chosen', () => {
     const { onChange, subCategory } = setup(LIP);
-    const other = required(TRY_ON_MAP.LIP.find((name) => name !== 'MATTE'));
+    const other = required(
+      TRY_ON_MAP[TRY_ON_CATEGORY_MAP.LIP].find((name) => name !== TRY_ON_SUB_CATEGORY_MAP.MATTE),
+    );
 
     subCategory(other);
 
-    expect(onChange).toHaveBeenCalledExactlyOnceWith({ category: 'LIP', subCategory: other });
+    expect(onChange).toHaveBeenCalledExactlyOnceWith({
+      category: TRY_ON_CATEGORY_MAP.LIP,
+      subCategory: other,
+    });
   });
 
   it('gives nothing for a subcategory while no category is chosen', () => {
     const { onChange, subCategory } = setup();
 
-    subCategory('MATTE');
+    subCategory(TRY_ON_SUB_CATEGORY_MAP.MATTE);
 
     expect(onChange).not.toHaveBeenCalled();
   });

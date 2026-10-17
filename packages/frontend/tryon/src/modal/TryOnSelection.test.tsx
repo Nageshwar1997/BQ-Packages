@@ -1,5 +1,10 @@
 // @vitest-environment jsdom
-import { TRY_ON_CATEGORIES, TRY_ON_MAP } from '@beautinique/frontend-constants';
+import {
+  TRY_ON_CATEGORIES,
+  TRY_ON_CATEGORY_MAP,
+  TRY_ON_MAP,
+  TRY_ON_SUB_CATEGORY_MAP,
+} from '@beautinique/frontend-constants';
 import type { TTryOnSelection } from '@beautinique/frontend-types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -40,7 +45,7 @@ describe('TryOnSelection', () => {
 
   describe('what it shows', () => {
     it('is a group named for what it is for, with a field for the category and one for the subcategory', () => {
-      setup({ category: 'LIP', subCategory: 'MATTE' });
+      setup({ category: TRY_ON_CATEGORY_MAP.LIP, subCategory: TRY_ON_SUB_CATEGORY_MAP.MATTE });
 
       expect(document.querySelector('[role="group"]')?.getAttribute('aria-label')).toBe(
         'What to try on',
@@ -51,7 +56,7 @@ describe('TryOnSelection', () => {
     });
 
     it('names the fields', () => {
-      setup({ category: 'LIP', subCategory: 'MATTE' });
+      setup({ category: TRY_ON_CATEGORY_MAP.LIP, subCategory: TRY_ON_SUB_CATEGORY_MAP.MATTE });
 
       expect(document.body.textContent).toContain('Category');
       expect(document.body.textContent).toContain('Subcategory');
@@ -67,7 +72,7 @@ describe('TryOnSelection', () => {
     });
 
     it('offers every category the try-on has, by the name the shopper knows', () => {
-      setup({ category: 'LIP', subCategory: 'MATTE' });
+      setup({ category: TRY_ON_CATEGORY_MAP.LIP, subCategory: TRY_ON_SUB_CATEGORY_MAP.MATTE });
       open(0);
 
       expect(options().map((option) => option.textContent)).toEqual([
@@ -82,25 +87,30 @@ describe('TryOnSelection', () => {
     });
 
     it('offers the subcategories of the category that is chosen, in words', () => {
-      setup({ category: 'FACE', subCategory: 'FOUNDATION' });
+      setup({
+        category: TRY_ON_CATEGORY_MAP.FACE,
+        subCategory: TRY_ON_SUB_CATEGORY_MAP.FOUNDATION,
+      });
       open(1);
 
       expect(options().map((option) => option.textContent)).toEqual(
-        TRY_ON_MAP.FACE.map((name) => `${name.charAt(0)}${name.slice(1).toLowerCase()}`),
+        TRY_ON_MAP[TRY_ON_CATEGORY_MAP.FACE].map(
+          (name) => `${name.charAt(0)}${name.slice(1).toLowerCase()}`,
+        ),
       );
       expect(optionNamed('Compactpowder')).toBeTruthy();
     });
 
     it('writes a subcategory with an underscore as words', () => {
       // the tokens of the map have none today; this is for the day one does
-      setup({ category: 'LIP', subCategory: 'MATTE' });
+      setup({ category: TRY_ON_CATEGORY_MAP.LIP, subCategory: TRY_ON_SUB_CATEGORY_MAP.MATTE });
       open(1);
 
       expect(options().every((option) => !option.textContent.includes('_'))).toBe(true);
     });
 
     it('marks the chosen ones in the lists', () => {
-      setup({ category: 'EYE', subCategory: 'KAJAL' });
+      setup({ category: TRY_ON_CATEGORY_MAP.EYE, subCategory: TRY_ON_SUB_CATEGORY_MAP.KAJAL });
       open(0);
       expect(optionNamed('Eyes').getAttribute('aria-selected')).toBe('true');
     });
@@ -108,17 +118,24 @@ describe('TryOnSelection', () => {
 
   describe('choosing a category', () => {
     it('gives a complete selection: the category with its first subcategory', () => {
-      const { onChange } = setup({ category: 'LIP', subCategory: 'GLOSS' });
+      const { onChange } = setup({
+        category: TRY_ON_CATEGORY_MAP.LIP,
+        subCategory: TRY_ON_SUB_CATEGORY_MAP.GLOSS,
+      });
 
       open(0);
       click(optionNamed('Eyes'));
 
       expect(onChange).toHaveBeenCalledTimes(1);
-      expect(onChange).toHaveBeenCalledWith({ category: 'EYE', subCategory: TRY_ON_MAP.EYE[0] });
+      expect(onChange).toHaveBeenCalledWith({
+        category: TRY_ON_CATEGORY_MAP.EYE,
+        subCategory: TRY_ON_MAP[TRY_ON_CATEGORY_MAP.EYE][0],
+      });
     });
 
     it.each(TRY_ON_CATEGORIES)('does it for %s too, whichever it is', (category) => {
-      const other = TRY_ON_CATEGORIES.find((candidate) => candidate !== category) ?? 'LIP';
+      const other =
+        TRY_ON_CATEGORIES.find((candidate) => candidate !== category) ?? TRY_ON_CATEGORY_MAP.LIP;
       const { onChange } = setup({
         category: other,
         subCategory: TRY_ON_MAP[other][0],
@@ -134,7 +151,10 @@ describe('TryOnSelection', () => {
     });
 
     it('does not say anything when the category that is chosen is the one it already is', () => {
-      const { onChange } = setup({ category: 'LIP', subCategory: 'GLOSS' });
+      const { onChange } = setup({
+        category: TRY_ON_CATEGORY_MAP.LIP,
+        subCategory: TRY_ON_SUB_CATEGORY_MAP.GLOSS,
+      });
 
       open(0);
       click(optionNamed('Lips'));
@@ -148,23 +168,35 @@ describe('TryOnSelection', () => {
       open(0);
       click(optionNamed('Nails'));
 
-      expect(onChange).toHaveBeenCalledWith({ category: 'NAIL', subCategory: TRY_ON_MAP.NAIL[0] });
+      expect(onChange).toHaveBeenCalledWith({
+        category: TRY_ON_CATEGORY_MAP.NAIL,
+        subCategory: TRY_ON_MAP[TRY_ON_CATEGORY_MAP.NAIL][0],
+      });
     });
   });
 
   describe('choosing a subcategory', () => {
     it('keeps the category and changes the subcategory', () => {
-      const { onChange } = setup({ category: 'EYE', subCategory: 'EYEBROW' });
+      const { onChange } = setup({
+        category: TRY_ON_CATEGORY_MAP.EYE,
+        subCategory: TRY_ON_SUB_CATEGORY_MAP.EYEBROW,
+      });
 
       open(1);
       click(optionNamed('Eyeliner'));
 
       expect(onChange).toHaveBeenCalledTimes(1);
-      expect(onChange).toHaveBeenCalledWith({ category: 'EYE', subCategory: 'EYELINER' });
+      expect(onChange).toHaveBeenCalledWith({
+        category: TRY_ON_CATEGORY_MAP.EYE,
+        subCategory: TRY_ON_SUB_CATEGORY_MAP.EYELINER,
+      });
     });
 
     it('does not say anything when it is the one it already is', () => {
-      const { onChange } = setup({ category: 'EYE', subCategory: 'KAJAL' });
+      const { onChange } = setup({
+        category: TRY_ON_CATEGORY_MAP.EYE,
+        subCategory: TRY_ON_SUB_CATEGORY_MAP.KAJAL,
+      });
 
       open(1);
       // pressing the chosen option again would take the choice away: the field does not allow that
@@ -182,7 +214,7 @@ describe('TryOnSelection', () => {
     it.each([0, 1])(
       'the list of the field %i has a `z-` above a modal and below the toasts',
       (index) => {
-        setup({ category: 'LIP', subCategory: 'MATTE' });
+        setup({ category: TRY_ON_CATEGORY_MAP.LIP, subCategory: TRY_ON_SUB_CATEGORY_MAP.MATTE });
         open(index);
 
         const list = required(
@@ -197,7 +229,10 @@ describe('TryOnSelection', () => {
 
   describe('taking the choice away', () => {
     it('is not possible: pressing the chosen category again does not clear it', () => {
-      const { onChange } = setup({ category: 'LIP', subCategory: 'MATTE' });
+      const { onChange } = setup({
+        category: TRY_ON_CATEGORY_MAP.LIP,
+        subCategory: TRY_ON_SUB_CATEGORY_MAP.MATTE,
+      });
 
       open(0);
       click(optionNamed('Lips'));

@@ -1,5 +1,9 @@
 // @vitest-environment jsdom
-import { TRY_ON_MAP } from '@beautinique/frontend-constants';
+import {
+  TRY_ON_CATEGORY_MAP,
+  TRY_ON_MAP,
+  TRY_ON_SUB_CATEGORY_MAP,
+} from '@beautinique/frontend-constants';
 import type { TTryOnSelection } from '@beautinique/frontend-types';
 import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -18,22 +22,25 @@ import TryOnModal from './TryOnModal.js';
 // The five stages are replaced: each is a stand-in that tells its state when it is made (see
 // `fake-stage`). The modal around them, its steps and what it does when a selection is changed, is real.
 vi.mock('./lip/LipTryOnStage.js', async () => ({
-  default: (await import('../test-utils/fake-stage.js')).createFakeStage('LIP'),
+  default: (await import('../test-utils/fake-stage.js')).createFakeStage(TRY_ON_CATEGORY_MAP.LIP),
 }));
 vi.mock('./face/FaceTryOnStage.js', async () => ({
-  default: (await import('../test-utils/fake-stage.js')).createFakeStage('FACE'),
+  default: (await import('../test-utils/fake-stage.js')).createFakeStage(TRY_ON_CATEGORY_MAP.FACE),
 }));
 vi.mock('./eye/EyeTryOnStage.js', async () => ({
-  default: (await import('../test-utils/fake-stage.js')).createFakeStage('EYE'),
+  default: (await import('../test-utils/fake-stage.js')).createFakeStage(TRY_ON_CATEGORY_MAP.EYE),
 }));
 vi.mock('./hair/HairTryOnStage.js', async () => ({
-  default: (await import('../test-utils/fake-stage.js')).createFakeStage('HAIR'),
+  default: (await import('../test-utils/fake-stage.js')).createFakeStage(TRY_ON_CATEGORY_MAP.HAIR),
 }));
 vi.mock('./nail/NailTryOnStage.js', async () => ({
-  default: (await import('../test-utils/fake-stage.js')).createFakeStage('NAIL'),
+  default: (await import('../test-utils/fake-stage.js')).createFakeStage(TRY_ON_CATEGORY_MAP.NAIL),
 }));
 
-const LIP: TTryOnSelection = { category: 'LIP', subCategory: 'MATTE' };
+const LIP: TTryOnSelection = {
+  category: TRY_ON_CATEGORY_MAP.LIP,
+  subCategory: TRY_ON_SUB_CATEGORY_MAP.MATTE,
+};
 const ROSE = { name: 'Rose', hexColor: '#C2185B' };
 const CORAL = { name: 'Coral', hexColor: '#E8613C' };
 
@@ -175,11 +182,11 @@ describe('TryOnModal for a shopper', () => {
 
   describe('the stage', () => {
     it.each([
-      ['LIP', 'MATTE'],
-      ['FACE', 'FOUNDATION'],
-      ['EYE', 'EYELINER'],
-      ['HAIR', 'COLOR'],
-      ['NAIL', 'GEL'],
+      [TRY_ON_CATEGORY_MAP.LIP, TRY_ON_SUB_CATEGORY_MAP.MATTE],
+      [TRY_ON_CATEGORY_MAP.FACE, TRY_ON_SUB_CATEGORY_MAP.FOUNDATION],
+      [TRY_ON_CATEGORY_MAP.EYE, TRY_ON_SUB_CATEGORY_MAP.EYELINER],
+      [TRY_ON_CATEGORY_MAP.HAIR, TRY_ON_SUB_CATEGORY_MAP.COLOR],
+      [TRY_ON_CATEGORY_MAP.NAIL, TRY_ON_SUB_CATEGORY_MAP.GEL],
     ] as const)('is the one of %s, made from the subcategory %s', (category, subCategory) => {
       open({ tryOn: { category, subCategory } as TTryOnSelection });
       startLive();
@@ -194,21 +201,25 @@ describe('TryOnModal for a shopper', () => {
       startLive();
 
       expect(lastMount().initialState).toMatchObject({
-        type: 'MATTE',
+        type: TRY_ON_SUB_CATEGORY_MAP.MATTE,
         color: null,
         range: LIP_RANGE_BOUNDS.MATTE.default,
       });
     });
 
     it('starts from the intensity of the subcategory it is for, not one of another', () => {
-      open({ tryOn: { category: 'NAIL', subCategory: 'CHROME' } });
+      open({
+        tryOn: { category: TRY_ON_CATEGORY_MAP.NAIL, subCategory: TRY_ON_SUB_CATEGORY_MAP.CHROME },
+      });
       startLive();
 
       expect(lastMount().initialState.range).toBe(NAIL_RANGE_BOUNDS.CHROME.default);
     });
 
     it('starts an eye pattern from the default pattern of its subcategory', () => {
-      open({ tryOn: { category: 'EYE', subCategory: 'EYELINER' } });
+      open({
+        tryOn: { category: TRY_ON_CATEGORY_MAP.EYE, subCategory: TRY_ON_SUB_CATEGORY_MAP.EYELINER },
+      });
       startLive();
 
       expect(lastMount().initialState.pattern).toBe(EYE_DEFAULT_PATTERNS.EYELINER);
@@ -280,7 +291,7 @@ describe('TryOnModal for a shopper', () => {
       click(buttonStartingWith('Upload Photo'));
       chooseFile(new File([new Uint8Array(8)], 'me.png', { type: 'image/png' }));
 
-      expect(lastMount()).toMatchObject({ category: 'LIP', mode: 'UPLOAD' });
+      expect(lastMount()).toMatchObject({ category: TRY_ON_CATEGORY_MAP.LIP, mode: 'UPLOAD' });
       // the photo reaches the stage a moment after it is mounted, as a new prop
       expect(fakeStages.photo).toBe('blob:photo-1');
     });
@@ -404,7 +415,10 @@ describe('TryOnModal that can be set up (selectable)', () => {
       chooseCategory('Eyes');
       click(buttonNamed('Apply'));
 
-      expect(onApply).toHaveBeenCalledWith({ category: 'EYE', subCategory: TRY_ON_MAP.EYE[0] });
+      expect(onApply).toHaveBeenCalledWith({
+        category: TRY_ON_CATEGORY_MAP.EYE,
+        subCategory: TRY_ON_MAP[TRY_ON_CATEGORY_MAP.EYE][0],
+      });
       expect(order).toEqual(['apply', 'close']);
     });
 
@@ -418,12 +432,17 @@ describe('TryOnModal that can be set up (selectable)', () => {
     });
 
     it('Apply gives the subcategory that was chosen, with its category', () => {
-      const { given } = setup({ tryOn: { category: 'EYE', subCategory: 'EYEBROW' } });
+      const { given } = setup({
+        tryOn: { category: TRY_ON_CATEGORY_MAP.EYE, subCategory: TRY_ON_SUB_CATEGORY_MAP.EYEBROW },
+      });
 
       chooseSubcategory('Kajal');
       click(buttonNamed('Apply'));
 
-      expect(given.onApply).toHaveBeenCalledWith({ category: 'EYE', subCategory: 'KAJAL' });
+      expect(given.onApply).toHaveBeenCalledWith({
+        category: TRY_ON_CATEGORY_MAP.EYE,
+        subCategory: TRY_ON_SUB_CATEGORY_MAP.KAJAL,
+      });
     });
 
     it('does not need an `onApply`: Apply only closes', () => {
@@ -439,11 +458,11 @@ describe('TryOnModal that can be set up (selectable)', () => {
 
       startLive();
       chooseCategory('Eyes');
-      expect(stage()?.getAttribute('data-category')).toBe('EYE');
+      expect(stage()?.getAttribute('data-category')).toBe(TRY_ON_CATEGORY_MAP.EYE);
 
       update({ selectable: false });
 
-      expect(stage()?.getAttribute('data-category')).toBe('LIP');
+      expect(stage()?.getAttribute('data-category')).toBe(TRY_ON_CATEGORY_MAP.LIP);
       expect(document.querySelector('[role="group"][aria-label="What to try on"]')).toBeNull();
     });
 
@@ -469,21 +488,23 @@ describe('TryOnModal that can be set up (selectable)', () => {
 
       chooseCategory('Eyes');
 
-      expect(stage()?.getAttribute('data-category')).toBe('EYE');
+      expect(stage()?.getAttribute('data-category')).toBe(TRY_ON_CATEGORY_MAP.EYE);
       expect(fakeStages.mounts).toHaveLength(2);
       expect(fakeStages.unmounts).toBe(1);
-      expect(lastMount().initialState.type).toBe(TRY_ON_MAP.EYE[0]);
+      expect(lastMount().initialState.type).toBe(TRY_ON_MAP[TRY_ON_CATEGORY_MAP.EYE][0]);
     });
 
     it('makes a new stage for another subcategory of the same category (an engine reads it only when it is made)', () => {
-      setup({ tryOn: { category: 'EYE', subCategory: 'EYEBROW' } });
+      setup({
+        tryOn: { category: TRY_ON_CATEGORY_MAP.EYE, subCategory: TRY_ON_SUB_CATEGORY_MAP.EYEBROW },
+      });
       startLive();
 
       chooseSubcategory('Eyeliner');
 
       expect(fakeStages.mounts).toHaveLength(2);
-      expect(lastMount()).toMatchObject({ category: 'EYE' });
-      expect(lastMount().initialState.type).toBe('EYELINER');
+      expect(lastMount()).toMatchObject({ category: TRY_ON_CATEGORY_MAP.EYE });
+      expect(lastMount().initialState.type).toBe(TRY_ON_SUB_CATEGORY_MAP.EYELINER);
       expect(fakeStages.unmounts).toBe(1);
     });
 
@@ -519,7 +540,7 @@ describe('TryOnModal that can be set up (selectable)', () => {
       chooseCategory('Eyes');
 
       expect(lastMount()).toMatchObject({
-        category: 'EYE',
+        category: TRY_ON_CATEGORY_MAP.EYE,
         mode: 'UPLOAD',
         uploadedImageUrl: photo,
       });
@@ -527,11 +548,15 @@ describe('TryOnModal that can be set up (selectable)', () => {
 
     // every category has a stage of its own in the modal, and each one is given the shade by itself
     it.each([
-      ['LIP', 'Lips', { category: 'EYE', subCategory: 'EYEBROW' }],
-      ['EYE', 'Eyes', LIP],
-      ['HAIR', 'Hair', LIP],
-      ['FACE', 'Face', LIP],
-      ['NAIL', 'Nails', LIP],
+      [
+        TRY_ON_CATEGORY_MAP.LIP,
+        'Lips',
+        { category: TRY_ON_CATEGORY_MAP.EYE, subCategory: TRY_ON_SUB_CATEGORY_MAP.EYEBROW },
+      ],
+      [TRY_ON_CATEGORY_MAP.EYE, 'Eyes', LIP],
+      [TRY_ON_CATEGORY_MAP.HAIR, 'Hair', LIP],
+      [TRY_ON_CATEGORY_MAP.FACE, 'Face', LIP],
+      [TRY_ON_CATEGORY_MAP.NAIL, 'Nails', LIP],
     ] as const)(
       'carries the shade to the new stage: the same shade on another makeup (%s)',
       (category, title, from) => {
@@ -577,12 +602,16 @@ describe('TryOnModal that can be set up (selectable)', () => {
 
       chooseCategory('Eyes');
 
-      expect(lastMount().initialState.range).toBe(EYE_RANGE_BOUNDS[TRY_ON_MAP.EYE[0]].default);
+      expect(lastMount().initialState.range).toBe(
+        EYE_RANGE_BOUNDS[TRY_ON_MAP[TRY_ON_CATEGORY_MAP.EYE][0]].default,
+      );
       expect(lastMount().initialState.range).not.toBe(LIP_RANGE_BOUNDS.MATTE.max);
     });
 
     it('does not carry the pattern of another subcategory: eyeliner and kajal have patterns of their own', () => {
-      setup({ tryOn: { category: 'EYE', subCategory: 'EYELINER' } });
+      setup({
+        tryOn: { category: TRY_ON_CATEGORY_MAP.EYE, subCategory: TRY_ON_SUB_CATEGORY_MAP.EYELINER },
+      });
       startLive();
       expect(lastMount().initialState.pattern).toBe(EYE_DEFAULT_PATTERNS.EYELINER);
 
@@ -599,8 +628,8 @@ describe('TryOnModal that can be set up (selectable)', () => {
       // the new stage tells its state when it is made; between the two the modal waits
       chooseCategory('Face');
 
-      expect(stage()?.getAttribute('data-category')).toBe('FACE');
-      expect(lastMount().category).toBe('FACE');
+      expect(stage()?.getAttribute('data-category')).toBe(TRY_ON_CATEGORY_MAP.FACE);
+      expect(lastMount().category).toBe(TRY_ON_CATEGORY_MAP.FACE);
     });
   });
 
@@ -619,7 +648,7 @@ describe('TryOnModal that can be set up (selectable)', () => {
       setup({ shades: [] });
       startLive();
 
-      const [first] = getTryOnShades('LIP', 'MATTE');
+      const [first] = getTryOnShades(TRY_ON_CATEGORY_MAP.LIP, TRY_ON_SUB_CATEGORY_MAP.MATTE);
 
       expect(first).toBeDefined();
       expect(buttonNamed(`Apply ${first?.name ?? ''}`)).toBeTruthy();
@@ -631,7 +660,10 @@ describe('TryOnModal that can be set up (selectable)', () => {
 
       chooseCategory('Nails');
 
-      const [first] = getTryOnShades('NAIL', TRY_ON_MAP.NAIL[0]);
+      const [first] = getTryOnShades(
+        TRY_ON_CATEGORY_MAP.NAIL,
+        TRY_ON_MAP[TRY_ON_CATEGORY_MAP.NAIL][0],
+      );
 
       expect(buttonNamed(`Apply ${first?.name ?? ''}`)).toBeTruthy();
     });
@@ -679,7 +711,10 @@ describe('TryOnModal that can be set up (selectable)', () => {
       expect(document.body.textContent).toContain('How would you like to try it?');
 
       click(buttonNamed('Apply'));
-      expect(given.onApply).toHaveBeenCalledWith({ category: 'NAIL', subCategory: 'GEL' });
+      expect(given.onApply).toHaveBeenCalledWith({
+        category: TRY_ON_CATEGORY_MAP.NAIL,
+        subCategory: TRY_ON_SUB_CATEGORY_MAP.GEL,
+      });
     });
   });
 });

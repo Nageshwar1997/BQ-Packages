@@ -2,10 +2,11 @@
 import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { TRY_ON_CATEGORY_MAP, TRY_ON_SUB_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import { installResizeObserver, required } from './test-utils/dom.js';
 import { mount, unmountAll } from './test-utils/react.js';
-import { TryOnModal } from './TryOnModalLazy.js';
 import { TRYON_DIALOG_CLASS_NAME, TRYON_DIALOG_CONTAINER_PROPS } from './tryOnDialog.js';
+import { TryOnModal } from './TryOnModalLazy.js';
 
 // The modal of the `/modal` entry is replaced by a small one, and the moment it is loaded is held by the
 // test: what is looked at is what the root does around it (when it loads it, what it shows meanwhile,
@@ -51,7 +52,7 @@ const modal = (isOpen: boolean, extra: Record<string, unknown> = {}) => (
   <TryOnModal
     isOpen={isOpen}
     onClose={vi.fn()}
-    tryOn={{ category: 'LIP', subCategory: 'MATTE' }}
+    tryOn={{ category: TRY_ON_CATEGORY_MAP.LIP, subCategory: TRY_ON_SUB_CATEGORY_MAP.MATTE }}
     shades={[]}
     {...extra}
   />
@@ -126,7 +127,7 @@ describe('TryOnModal of the root', () => {
       onClose,
       assets,
       selectable: true,
-      tryOn: { category: 'LIP', subCategory: 'MATTE' },
+      tryOn: { category: TRY_ON_CATEGORY_MAP.LIP, subCategory: TRY_ON_SUB_CATEGORY_MAP.MATTE },
       shades: [],
     });
   });

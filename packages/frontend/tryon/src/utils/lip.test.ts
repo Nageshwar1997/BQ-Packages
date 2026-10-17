@@ -1,12 +1,13 @@
+import { TRY_ON_SUB_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import { describe, expect, it } from 'vitest';
 
 import { TEXTURED_FINISH_TUNING } from './lip.js';
 
-// The `Record<'GLOSS'|'CRAYON'|'SHIMMER'|'OIL'|'METALLIC'|'PLUMPER', ITexturedFinishTuning>`
-// type already forces every one of those 6 finishes to have a complete entry at compile time -
-// a missing key is a type error, not something a runtime test needs to catch. What the type
-// system *can't* catch is a value that's the wrong number for what it means - e.g. an opacity
-// typo'd as `3` instead of `0.3`. That's what these tests are for.
+// The table is `satisfies Partial<Record<TLipFinish, ITexturedFinishTuning>>`: every key is a finish of
+// LIP and every entry is complete at compile time - a key of another category or a missing number is a
+// type error, not something a runtime test needs to catch. What the type system *can't* catch is a
+// value that's the wrong number for what it means - e.g. an opacity typo'd as `3` instead of `0.3`.
+// That's what these tests are for.
 describe('TEXTURED_FINISH_TUNING', () => {
   const entries = Object.entries(TEXTURED_FINISH_TUNING) as [
     keyof typeof TEXTURED_FINISH_TUNING,
@@ -42,6 +43,6 @@ describe('TEXTURED_FINISH_TUNING', () => {
     const sentinelFinishes = entries
       .filter(([, tuning]) => tuning.baseAlphaUpper === -1 || tuning.baseAlphaLower === -1)
       .map(([finish]) => finish);
-    expect(sentinelFinishes).toEqual(['CRAYON']);
+    expect(sentinelFinishes).toEqual([TRY_ON_SUB_CATEGORY_MAP.CRAYON]);
   });
 });

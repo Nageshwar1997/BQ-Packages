@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { TRY_ON_MAP } from '@beautinique/frontend-constants';
+import { TRY_ON_CATEGORY_MAP, TRY_ON_MAP } from '@beautinique/frontend-constants';
 import type { TTryOnCategory, TTryOnSelection } from '@beautinique/frontend-types';
 import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -13,19 +13,19 @@ import TryOnModal from './TryOnModal.js';
 // The five stages are replaced (see `fake-stage`): what is looked at is what the modal says over the
 // picture, from the state its stage tells it.
 vi.mock('./lip/LipTryOnStage.js', async () => ({
-  default: (await import('../test-utils/fake-stage.js')).createFakeStage('LIP'),
+  default: (await import('../test-utils/fake-stage.js')).createFakeStage(TRY_ON_CATEGORY_MAP.LIP),
 }));
 vi.mock('./face/FaceTryOnStage.js', async () => ({
-  default: (await import('../test-utils/fake-stage.js')).createFakeStage('FACE'),
+  default: (await import('../test-utils/fake-stage.js')).createFakeStage(TRY_ON_CATEGORY_MAP.FACE),
 }));
 vi.mock('./eye/EyeTryOnStage.js', async () => ({
-  default: (await import('../test-utils/fake-stage.js')).createFakeStage('EYE'),
+  default: (await import('../test-utils/fake-stage.js')).createFakeStage(TRY_ON_CATEGORY_MAP.EYE),
 }));
 vi.mock('./hair/HairTryOnStage.js', async () => ({
-  default: (await import('../test-utils/fake-stage.js')).createFakeStage('HAIR'),
+  default: (await import('../test-utils/fake-stage.js')).createFakeStage(TRY_ON_CATEGORY_MAP.HAIR),
 }));
 vi.mock('./nail/NailTryOnStage.js', async () => ({
-  default: (await import('../test-utils/fake-stage.js')).createFakeStage('NAIL'),
+  default: (await import('../test-utils/fake-stage.js')).createFakeStage(TRY_ON_CATEGORY_MAP.NAIL),
 }));
 
 const buttons = () => [...document.querySelectorAll<HTMLButtonElement>('button')];
@@ -42,7 +42,7 @@ const buttonStartingWith = (text: string) =>
     `the button ${text}`,
   );
 
-const open = (category: TTryOnCategory = 'LIP') =>
+const open = (category: TTryOnCategory = TRY_ON_CATEGORY_MAP.LIP) =>
   mount(
     <TryOnModal
       isOpen
@@ -148,15 +148,50 @@ describe('the overlay while the try-on is not ready', () => {
 
 describe('the detection guide while the try-on is ready', () => {
   it.each<[TTryOnCategory, string, string, string]>([
-    ['LIP', 'not-in-frame', 'face not in frame', 'Move so your whole face is inside the frame.'],
-    ['FACE', 'not-in-frame', 'face not in frame', 'Move so your whole face is inside the frame.'],
-    ['EYE', 'not-in-frame', 'face not in frame', 'Move so your whole face is inside the frame.'],
-    ['HAIR', 'not-in-frame', 'hair not in frame', 'Move so your hair is inside the frame.'],
-    ['NAIL', 'not-in-frame', 'hand not in frame', 'Move so your whole hand is inside the frame.'],
-    ['FACE', 'not-clear', 'Face not clearly visible', "Move closer, and make sure there's good"],
-    ['FACE', 'turned', 'Face turned too much', 'Face the camera directly'],
-    ['EYE', 'turned', 'Face turned too much', 'Face the camera directly'],
-    ['NAIL', 'turned', 'Hand turned the wrong way', 'Show the back of your hand to the camera'],
+    [
+      TRY_ON_CATEGORY_MAP.LIP,
+      'not-in-frame',
+      'face not in frame',
+      'Move so your whole face is inside the frame.',
+    ],
+    [
+      TRY_ON_CATEGORY_MAP.FACE,
+      'not-in-frame',
+      'face not in frame',
+      'Move so your whole face is inside the frame.',
+    ],
+    [
+      TRY_ON_CATEGORY_MAP.EYE,
+      'not-in-frame',
+      'face not in frame',
+      'Move so your whole face is inside the frame.',
+    ],
+    [
+      TRY_ON_CATEGORY_MAP.HAIR,
+      'not-in-frame',
+      'hair not in frame',
+      'Move so your hair is inside the frame.',
+    ],
+    [
+      TRY_ON_CATEGORY_MAP.NAIL,
+      'not-in-frame',
+      'hand not in frame',
+      'Move so your whole hand is inside the frame.',
+    ],
+    [
+      TRY_ON_CATEGORY_MAP.FACE,
+      'not-clear',
+      'Face not clearly visible',
+      "Move closer, and make sure there's good",
+    ],
+    [TRY_ON_CATEGORY_MAP.FACE, 'turned', 'Face turned too much', 'Face the camera directly'],
+    [TRY_ON_CATEGORY_MAP.EYE, 'turned', 'Face turned too much', 'Face the camera directly'],
+    [
+      TRY_ON_CATEGORY_MAP.NAIL,
+      'turned',
+      'Hand turned the wrong way',
+      'Show the back of your hand to the camera',
+    ],
   ])('%s, %s: names what the category tracks (%s)', (category, status, title, description) => {
     open(category);
     startLive();
@@ -172,7 +207,7 @@ describe('the detection guide while the try-on is ready', () => {
   });
 
   it('says nothing while the subject is detected, and takes the guide away when it is detected again', () => {
-    open('NAIL');
+    open(TRY_ON_CATEGORY_MAP.NAIL);
     startLive();
     expect(overlay()).toBeNull();
 

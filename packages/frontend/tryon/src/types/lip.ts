@@ -1,8 +1,9 @@
+import type { TRY_ON_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import type { TTryOnSubCategory } from '@beautinique/frontend-types';
 
 import type { IMakeupState, IRenderEffectBaseParams } from './index.js';
 
-export type TLipFinish = TTryOnSubCategory<'LIP'>;
+export type TLipFinish = TTryOnSubCategory<typeof TRY_ON_CATEGORY_MAP.LIP>;
 export type ILipTryOnState = IMakeupState<TLipFinish>;
 
 // What every LIP render function (`apply<Finish>Lips` in utils/tryon-utils/lip.ts) takes at

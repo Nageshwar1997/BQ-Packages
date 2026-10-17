@@ -1,3 +1,5 @@
+import { TRY_ON_SUB_CATEGORY_MAP } from '@beautinique/frontend-constants';
+
 import { NAIL_DEFAULT_RANGE } from '../../../constants/nail.js';
 import type {
   IApplyNailEffectParams,
@@ -73,19 +75,19 @@ export abstract class NailEngineBase extends HandLandmarkerEngineBase<INailTryOn
     }
 
     switch (state.type) {
-      case 'LIQUID':
+      case TRY_ON_SUB_CATEGORY_MAP.LIQUID:
         applyLiquidNail(params);
         return;
-      case 'GEL':
+      case TRY_ON_SUB_CATEGORY_MAP.GEL:
         applyGelNail(params);
         return;
-      case 'DIPPOWDER':
+      case TRY_ON_SUB_CATEGORY_MAP.DIPPOWDER:
         applyDipPowderNail(params);
         return;
-      case 'GLITTER':
+      case TRY_ON_SUB_CATEGORY_MAP.GLITTER:
         applyGlitterNail(params);
         return;
-      case 'CHROME':
+      case TRY_ON_SUB_CATEGORY_MAP.CHROME:
         applyChromeNail(params);
         return;
     }

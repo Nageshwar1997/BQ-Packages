@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { TRY_ON_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import { DEFAULT_TRYON_ASSETS_BASE_URL } from '../constants/assets.js';
 import { EYE_PATTERNS } from '../constants/eye.js';
 import {
@@ -39,7 +40,7 @@ describe('TryOnModelList', () => {
   const list = (props: Partial<React.ComponentProps<typeof TryOnModelList>> = {}) => (
     <TryOnModelList
       direction="vertical"
-      category="LIP"
+      category={TRY_ON_CATEGORY_MAP.LIP}
       mode={TRYON_MODE_MAP.LIVE}
       previewImageUrl={null}
       onModelSelect={vi.fn()}
@@ -49,11 +50,11 @@ describe('TryOnModelList', () => {
 
   describe('which models', () => {
     it.each([
-      ['LIP', TRYON_MODEL_IMAGES_FACE],
-      ['FACE', TRYON_MODEL_IMAGES_FACE],
-      ['EYE', TRYON_MODEL_IMAGES_FACE],
-      ['HAIR', TRYON_MODEL_IMAGES_HAIR],
-      ['NAIL', TRYON_MODEL_IMAGES_HAND],
+      [TRY_ON_CATEGORY_MAP.LIP, TRYON_MODEL_IMAGES_FACE],
+      [TRY_ON_CATEGORY_MAP.FACE, TRYON_MODEL_IMAGES_FACE],
+      [TRY_ON_CATEGORY_MAP.EYE, TRYON_MODEL_IMAGES_FACE],
+      [TRY_ON_CATEGORY_MAP.HAIR, TRYON_MODEL_IMAGES_HAIR],
+      [TRY_ON_CATEGORY_MAP.NAIL, TRYON_MODEL_IMAGES_HAND],
     ] as const)('%s has the photos that the model of its category can read', (category, paths) => {
       mount(withAssets(list({ category })));
 
@@ -261,7 +262,7 @@ describe('TryOnInstructions', () => {
   const screen = (props: Partial<React.ComponentProps<typeof TryOnInstructions>> = {}) => (
     <TryOnInstructions
       mode={TRYON_MODE_MAP.UPLOAD}
-      category="LIP"
+      category={TRY_ON_CATEGORY_MAP.LIP}
       onBack={vi.fn()}
       onStartLive={vi.fn()}
       onFileSelected={vi.fn()}
@@ -278,9 +279,9 @@ describe('TryOnInstructions', () => {
   it.each([TRYON_MODE_MAP.LIVE, TRYON_MODE_MAP.UPLOAD])(
     'lists the tips of the category for %s',
     (mode) => {
-      mount(screen({ mode, category: 'HAIR' }));
+      mount(screen({ mode, category: TRY_ON_CATEGORY_MAP.HAIR }));
 
-      const tips = getTryOnInstructions('HAIR', mode);
+      const tips = getTryOnInstructions(TRY_ON_CATEGORY_MAP.HAIR, mode);
 
       expect(tips.length).toBeGreaterThan(0);
       for (const { text } of tips) {

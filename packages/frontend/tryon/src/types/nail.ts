@@ -1,9 +1,10 @@
+import type { TRY_ON_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import type { TTryOnSubCategory } from '@beautinique/frontend-types';
 import type { Category, Landmark, NormalizedLandmark } from '@mediapipe/tasks-vision';
 
 import type { IMakeupState, TDimension, TRGBTuple } from './index.js';
 
-export type TNailFinish = TTryOnSubCategory<'NAIL'>;
+export type TNailFinish = TTryOnSubCategory<typeof TRY_ON_CATEGORY_MAP.NAIL>;
 export type INailTryOnState = IMakeupState<TNailFinish>;
 
 // No assets needed yet - every finish built so far is pure per-nail color math, no texture/image

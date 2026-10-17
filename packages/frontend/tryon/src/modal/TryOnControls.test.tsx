@@ -2,6 +2,7 @@
 import { act, createRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { TRY_ON_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import { TRYON_MODE_MAP, TRYON_MODE_OPTIONS } from '../constants/index.js';
 import { click, installResizeObserver, keyDown, required } from '../test-utils/dom.js';
 import { mount, unmountAll } from '../test-utils/react.js';
@@ -723,7 +724,7 @@ describe('TryOnCompareSlider', () => {
 describe('TryOnSidebar', () => {
   const sidebar = (props: Partial<React.ComponentProps<typeof TryOnSidebar>> = {}) => (
     <TryOnSidebar
-      category="LIP"
+      category={TRY_ON_CATEGORY_MAP.LIP}
       mode={TRYON_MODE_MAP.LIVE}
       onModeToggle={vi.fn()}
       cameraVideoRef={createRef<HTMLVideoElement>()}

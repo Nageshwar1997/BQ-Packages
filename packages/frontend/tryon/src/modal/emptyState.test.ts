@@ -1,5 +1,9 @@
 // @vitest-environment node
-import { TRY_ON_CATEGORIES, TRY_ON_MAP } from '@beautinique/frontend-constants';
+import {
+  TRY_ON_CATEGORIES,
+  TRY_ON_MAP,
+  TRY_ON_SUB_CATEGORY_MAP,
+} from '@beautinique/frontend-constants';
 import type { TTryOnSelection } from '@beautinique/frontend-types';
 import { describe, expect, it } from 'vitest';
 
@@ -9,7 +13,7 @@ const selection = (category: string, subCategory: string) =>
   ({ category, subCategory }) as unknown as TTryOnSelection;
 
 describe('hasStage', () => {
-  it.each(['LIP', 'FACE', 'EYE', 'HAIR', 'NAIL'])('is true for a selection of %s', (category) => {
+  it.each(TRY_ON_CATEGORIES)('is true for a selection of %s', (category) => {
     expect(hasStage(selection(category, 'ANY'))).toBe(true);
   });
 
@@ -29,7 +33,7 @@ describe('hasStage', () => {
   it.each(['BODY', 'constructor', '__proto__', 'toString', ''])(
     'is false for a category that is not one of the five (%j)',
     (category) => {
-      expect(hasStage(selection(category, 'MATTE'))).toBe(false);
+      expect(hasStage(selection(category, TRY_ON_SUB_CATEGORY_MAP.MATTE))).toBe(false);
     },
   );
 });

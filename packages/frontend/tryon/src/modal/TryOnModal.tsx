@@ -3,22 +3,23 @@ import type { TTryOnSelection } from '@beautinique/frontend-types';
 import { Icon } from '@iconify/react';
 import { type Ref, useEffect, useRef, useState } from 'react';
 
+import { EYE_DEFAULT_PATTERNS, EYE_PATTERNS } from '../constants/eye.js';
+import { getTryOnShades, TRYON_CATEGORY_OPTIONS, TRYON_MODE_MAP } from '../constants/index.js';
+import { getRangeBounds } from '../constants/range-bounds.js';
 import type { IEyeTryOnState } from '../engine/categories/eye/index.js';
 import type { IFaceTryOnState } from '../engine/categories/face/index.js';
 import type { IHairTryOnState } from '../engine/categories/hair/index.js';
 import type { ILipTryOnState } from '../engine/categories/lip/index.js';
 import type { INailTryOnState } from '../engine/categories/nail/index.js';
-import { getTryOnShades, TRYON_CATEGORY_OPTIONS, TRYON_MODE_MAP } from '../constants/index.js';
-import { EYE_DEFAULT_PATTERNS, EYE_PATTERNS } from '../constants/eye.js';
-import { getRangeBounds } from '../constants/range-bounds.js';
+import { registerTryOnIcons } from '../icons/try-on-icons.js';
+import { TRYON_DIALOG_CLASS_NAME, TRYON_DIALOG_CONTAINER_PROPS } from '../tryOnDialog.js';
+import type { ITryOnAssets } from '../types/assets.js';
+import type { IShade, ITryOnError, ITryOnStageRef } from '../types/index.js';
 import useDebouncedDetectionStatus from './hooks/useDebouncedDetectionStatus.js';
 import useFullscreen from './hooks/useFullscreen.js';
 import useTryOnFlow from './hooks/useTryOnFlow.js';
-import { registerTryOnIcons } from '../icons/try-on-icons.js';
-import type { ITryOnAssets } from '../types/assets.js';
-import { TRYON_DIALOG_CLASS_NAME, TRYON_DIALOG_CONTAINER_PROPS } from '../tryOnDialog.js';
-import type { IShade, ITryOnError, ITryOnStageRef } from '../types/index.js';
 
+import { TRY_ON_CATEGORY_MAP } from '@beautinique/frontend-constants';
 import BottomButtons from './BottomButtons.js';
 import { hasStage } from './emptyState.js';
 import EyeTryOnStage from './eye/EyeTryOnStage.js';
@@ -26,6 +27,7 @@ import FaceTryOnStage from './face/FaceTryOnStage.js';
 import HairTryOnStage from './hair/HairTryOnStage.js';
 import LipTryOnStage from './lip/LipTryOnStage.js';
 import NailTryOnStage from './nail/NailTryOnStage.js';
+import { getGuideCopy, getNotReadyCopy } from './overlayCopy.js';
 import { TryOnAssetsProvider } from './TryOnAssetsContext.js';
 import TryOnBottomSheet from './TryOnBottomSheet.js';
 import TryOnCompareSlider from './TryOnCompareSlider.js';
@@ -33,7 +35,6 @@ import TryOnDock from './TryOnDock.js';
 import TryOnEmptyState from './TryOnEmptyState.js';
 import TryOnInstructions from './TryOnInstructions.js';
 import TryOnModelList from './TryOnModelList.js';
-import { getGuideCopy, getNotReadyCopy } from './overlayCopy.js';
 import TryOnModeSelect from './TryOnModeSelect.js';
 import TryOnOverlay from './TryOnOverlay.js';
 import TryOnPatternSwatches from './TryOnPatternSwatches.js';
@@ -214,7 +215,8 @@ const TryOnModal = ({
   // Only meaningful inside the EYE branch below, same "declared up top, next to rangeBounds"
   // reasoning - `undefined` for any EYE subcategory without a pattern picker yet (see
   // EYE_PATTERNS's own comment), which the render below already treats as "don't show the row".
-  const eyePatterns = tryOn?.category === 'EYE' ? EYE_PATTERNS[tryOn.subCategory] : undefined;
+  const eyePatterns =
+    tryOn?.category === TRY_ON_CATEGORY_MAP.EYE ? EYE_PATTERNS[tryOn.subCategory] : undefined;
 
   // Feeds the context chip over the canvas ("Lipstick - Live") - same category icon the `/tryons`
   // browse page uses for that category, and the raw `SUB_CATEGORY` token made readable
@@ -280,7 +282,7 @@ const TryOnModal = ({
                     />
                   ) : (
                     <>
-                      {tryOn.category === 'LIP' ? (
+                      {tryOn.category === TRY_ON_CATEGORY_MAP.LIP ? (
                         <LipTryOnStage
                           key={stageKey}
                           // `stageRef` is deliberately typed narrower than `ITryOnStageRef<TState>`
@@ -307,7 +309,7 @@ const TryOnModal = ({
                             setFlow((prev) => ({ ...prev, engineState }));
                           }}
                         />
-                      ) : tryOn.category === 'EYE' ? (
+                      ) : tryOn.category === TRY_ON_CATEGORY_MAP.EYE ? (
                         <EyeTryOnStage
                           key={stageKey}
                           // See the matching cast comment on <LipTryOnStage> above.
@@ -338,7 +340,7 @@ const TryOnModal = ({
                             setFlow((prev) => ({ ...prev, engineState }));
                           }}
                         />
-                      ) : tryOn.category === 'HAIR' ? (
+                      ) : tryOn.category === TRY_ON_CATEGORY_MAP.HAIR ? (
                         <HairTryOnStage
                           key={stageKey}
                           // See the matching cast comment on <LipTryOnStage> above.
@@ -354,7 +356,7 @@ const TryOnModal = ({
                             setFlow((prev) => ({ ...prev, engineState }));
                           }}
                         />
-                      ) : tryOn.category === 'NAIL' ? (
+                      ) : tryOn.category === TRY_ON_CATEGORY_MAP.NAIL ? (
                         <NailTryOnStage
                           key={stageKey}
                           // See the matching cast comment on <LipTryOnStage> above.
