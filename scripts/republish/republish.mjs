@@ -2,11 +2,15 @@ import { ensureLoggedIn } from '../common/auth.mjs';
 import { runBatchOperation } from '../common/batch-operation.mjs';
 import { sortPackagesByDependencies } from '../common/dependency-sort.mjs';
 import { republishToNpm } from '../common/npm.mjs';
-import { buildWorkspacePackage, installWorkspaceDependencies } from '../common/package-lifecycle.mjs';
+import {
+  buildWorkspacePackage,
+  installWorkspaceDependencies,
+} from '../common/package-lifecycle.mjs';
 import { getPackageJsonPath } from '../common/paths.mjs';
-import { reportSuccess, reportWarning } from '../common/reporter.mjs';
+import { reportInfo, reportSuccess, reportWarning } from '../common/reporter.mjs';
 import { parseData, readFileByPath, writeJson } from '../common/utils.mjs';
 import { VERSION_TYPES } from './constants.mjs';
+import { applyDependencyUpdates, planDependencyUpdatesFor } from './dependency-update.mjs';
 import { updateInternalDependencyVersions } from './dependency-version.mjs';
 import {
   confirmRepublish,
@@ -19,11 +23,17 @@ import {
   getReleasePlanEntries,
   getReleasePlanPackages,
 } from './release-plan.mjs';
-import { createSnapshot, restoreSnapshot } from './rollback.mjs';
+import {
+  createLockfileSnapshot,
+  createSnapshot,
+  restoreLockfileSnapshot,
+  restoreSnapshot,
+} from './rollback.mjs';
 import { detectJsonIndent } from './utils.mjs';
 import { validateRepublish } from './validators.mjs';
 /**
  * @import { PublishPackageMetadata } from '../common/types.mjs'
+ * @import { DependencyUpdatePlan } from './dependency-update.mjs'
  * @import { ReleasePlan, ReleasePlanEntry } from './release-plan.mjs'
  */
 
@@ -88,15 +98,56 @@ async function buildReleasePlan(packages) {
 }
 
 /**
+ * Looks up the latest version of every dependency of the packages of a release, and works out what
+ * the release does with each (see `planDependencyUpdates`). Nothing is written yet: the plan is shown
+ * with the confirmation, and applied only after it.
+ *
+ * A name that npm cannot be asked about (offline) is left as it is, with a warning: the republish goes
+ * on, it is not stopped by a lookup.
+ *
+ * @param {ReleasePlan} releasePlan
+ * @returns {Promise<Map<string, DependencyUpdatePlan>>}
+ */
+async function buildDependencyUpdatePlans(releasePlan) {
+  reportInfo('Checking the latest versions of the dependencies...');
+
+  /** @type {Map<string, import('../common/types.mjs').PackageJson>} */
+  const packageJsons = new Map();
+
+  for (const { metadata } of getReleasePlanEntries(releasePlan)) {
+    const content = await readFileByPath(getPackageJsonPath(metadata.directory));
+
+    packageJsons.set(metadata.npmPackageName, parseData(content));
+  }
+
+  const { plans, failures } = await planDependencyUpdatesFor(packageJsons, { releasePlan });
+
+  for (const [name, message] of failures) {
+    reportWarning(`Could not ask npm about "${name}" (${message}). It is left as it is.`);
+  }
+
+  return plans;
+}
+
+/**
  * Converts release plan entries into republish batch items.
  *
  * @param {ReleasePlanEntry[]} entries
- * @returns {{ metadata: PublishPackageMetadata; version: string }[]}
+ * @param {Map<string, DependencyUpdatePlan>} dependencyPlans
+ * @returns {{
+ *   metadata: PublishPackageMetadata;
+ *   version: string;
+ *   dependencyPlan: DependencyUpdatePlan;
+ * }[]}
  */
-function toRepublishItems(entries) {
+function toRepublishItems(entries, dependencyPlans) {
   return entries.map((entry) => ({
     metadata: entry.metadata,
     version: entry.nextVersion,
+    dependencyPlan: dependencyPlans.get(entry.metadata.npmPackageName) ?? {
+      updates: [],
+      skipped: [],
+    },
   }));
 }
 
@@ -119,19 +170,26 @@ function getSortedReleasePlanEntries(releasePlan) {
 }
 
 /**
- * Updates one package.json from the release plan and writes it once.
+ * Updates one package.json from the release plan and writes it once: its version, the packages of
+ * the same release that it depends on (they take the version they are released with), and every
+ * other dependency that has a newer version (see `planDependencyUpdates`).
  *
  * @param {ReleasePlanEntry} entry
  * @param {ReleasePlan} releasePlan
+ * @param {Map<string, DependencyUpdatePlan>} dependencyPlans
  * @returns {Promise<void>}
  */
-async function updatePackageJsonForRelease(entry, releasePlan) {
+export async function updatePackageJsonForRelease(entry, releasePlan, dependencyPlans) {
   const packageJsonPath = getPackageJsonPath(entry.metadata.directory);
   const content = await readFileByPath(packageJsonPath);
   const packageJson = parseData(content);
 
   packageJson.version = entry.nextVersion;
   updateInternalDependencyVersions(packageJson, releasePlan);
+  applyDependencyUpdates(
+    packageJson,
+    dependencyPlans.get(entry.metadata.npmPackageName)?.updates ?? [],
+  );
 
   await writeJson(packageJsonPath, packageJson, {
     indent: detectJsonIndent(content),
@@ -143,27 +201,31 @@ async function updatePackageJsonForRelease(entry, releasePlan) {
  * Updates every selected package.json using the release plan.
  *
  * @param {ReleasePlan} releasePlan
+ * @param {Map<string, DependencyUpdatePlan>} dependencyPlans
  * @returns {Promise<void>}
  */
-async function updatePackageJsonForReleasePlan(releasePlan) {
+async function updatePackageJsonForReleasePlan(releasePlan, dependencyPlans) {
   for (const entry of getReleasePlanEntries(releasePlan)) {
-    await updatePackageJsonForRelease(entry, releasePlan);
+    await updatePackageJsonForRelease(entry, releasePlan, dependencyPlans);
   }
 }
 
 /**
- * Restores a package snapshot and preserves the original publish error.
+ * Restores a package snapshot (and the lockfile, which `npm install` rewrote) and preserves the
+ * original publish error.
  *
  * @param {Awaited<ReturnType<typeof createSnapshot>>} snapshot
+ * @param {Awaited<ReturnType<typeof createLockfileSnapshot>>} lockfileSnapshot
  * @param {unknown} publishError
  * @returns {Promise<never>}
  */
-async function rollbackAndThrow(snapshot, publishError) {
+async function rollbackAndThrow(snapshot, lockfileSnapshot, publishError) {
   try {
     await restoreSnapshot(snapshot);
+    await restoreLockfileSnapshot(lockfileSnapshot);
   } catch (restoreError) {
     reportWarning(
-      `Failed to restore package.json snapshot: ${
+      `Failed to restore the package.json files and the lockfile: ${
         restoreError instanceof Error ? restoreError.message : String(restoreError)
       }`,
     );
@@ -188,21 +250,27 @@ export async function republishPackage(metadata) {
   const releasePlan = await buildReleasePlan([metadata]);
   const [releaseEntry] = getReleasePlanEntries(releasePlan);
   const nextVersion = releaseEntry.nextVersion;
+  const dependencyPlans = await buildDependencyUpdatePlans(releasePlan);
 
-  const isConfirmed = await confirmRepublish(metadata, nextVersion);
+  const isConfirmed = await confirmRepublish(
+    metadata,
+    nextVersion,
+    dependencyPlans.get(metadata.npmPackageName),
+  );
 
   if (!isConfirmed) {
     return;
   }
 
   const snapshot = await createSnapshot(getReleasePlanPackages(releasePlan));
+  const lockfileSnapshot = await createLockfileSnapshot();
 
   try {
-    await updatePackageJsonForReleasePlan(releasePlan);
+    await updatePackageJsonForReleasePlan(releasePlan, dependencyPlans);
     await installWorkspaceDependencies();
     await republishPackageInternal(metadata, nextVersion, username);
   } catch (error) {
-    await rollbackAndThrow(snapshot, error);
+    await rollbackAndThrow(snapshot, lockfileSnapshot, error);
   }
 }
 
@@ -220,8 +288,9 @@ export async function republishPackages(packages) {
   const username = await ensureLoggedIn();
 
   const releasePlan = await buildReleasePlan(packages);
+  const dependencyPlans = await buildDependencyUpdatePlans(releasePlan);
 
-  const items = toRepublishItems(getSortedReleasePlanEntries(releasePlan));
+  const items = toRepublishItems(getSortedReleasePlanEntries(releasePlan), dependencyPlans);
 
   const isConfirmed = await confirmRepublishMany(items);
 
@@ -230,9 +299,10 @@ export async function republishPackages(packages) {
   }
 
   const snapshot = await createSnapshot(getReleasePlanPackages(releasePlan));
+  const lockfileSnapshot = await createLockfileSnapshot();
 
   try {
-    await updatePackageJsonForReleasePlan(releasePlan);
+    await updatePackageJsonForReleasePlan(releasePlan, dependencyPlans);
     await installWorkspaceDependencies();
 
     await runBatchOperation({
@@ -243,7 +313,7 @@ export async function republishPackages(packages) {
       continueOnError: false,
     });
   } catch (error) {
-    await rollbackAndThrow(snapshot, error);
+    await rollbackAndThrow(snapshot, lockfileSnapshot, error);
   }
 }
 

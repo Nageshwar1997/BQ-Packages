@@ -52,6 +52,6 @@
     "node": ">=24"
   },
   "dependencies": {
-    "marked": "^18.0.14"
+    "marked": "^18.1.1"
   }
 }

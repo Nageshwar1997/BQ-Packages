@@ -19,7 +19,7 @@ import { DEPENDENCY_FIELDS, UNSUPPORTED_DEPENDENCY_VALUE_PREFIXES } from './cons
  * @param {string} packageName
  * @returns {boolean}
  */
-function isInternalDependency(packageName) {
+export function isInternalDependency(packageName) {
   return packageName.startsWith(`${PACKAGE_SCOPE}/`);
 }
 
@@ -29,7 +29,7 @@ function isInternalDependency(packageName) {
  * @param {string} value
  * @returns {{ prefix: SemverPrefix; version: string } | null}
  */
-function parseSupportedDependencyVersion(value) {
+export function parseSupportedDependencyVersion(value) {
   if (
     value === '*' ||
     value === 'latest' ||

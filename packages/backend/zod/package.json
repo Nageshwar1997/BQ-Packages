@@ -64,6 +64,6 @@
     "@beautinique/backend-constants": "^1.1.0",
     "@beautinique/shared-constants": "^1.1.0",
     "@beautinique/shared-zod": "^1.1.0",
-    "zod": "^4.6.5"
+    "zod": "^4.6.7"
   }
 }

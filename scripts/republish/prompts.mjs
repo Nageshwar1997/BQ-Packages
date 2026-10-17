@@ -8,6 +8,7 @@ import { REPUBLISH_CHOICES, VERSION_TYPES_CHOICES } from './constants.mjs';
 /**
  * @import { RepublishAction, VersionType } from './types.mjs'
  * @import { PublishPackageMetadata } from '../common/types.mjs'
+ * @import { DependencyUpdatePlan } from './dependency-update.mjs'
  */
 
 /* -------------------------------------------------------------------------- */
@@ -100,19 +101,75 @@ export async function enterCustomVersion(currentVersion) {
 /*                                  CONFIRM                                   */
 /* -------------------------------------------------------------------------- */
 
+const FIELD_LABELS = Object.freeze({
+  dependencies: 'dep',
+  devDependencies: 'dev',
+  peerDependencies: 'peer',
+  optionalDependencies: 'opt',
+});
+
+const CHANGE_COLORS = Object.freeze({
+  major: warning,
+  minor: info,
+  patch: description,
+  other: description,
+});
+
+/**
+ * Builds the lines that say what the republish does with the dependencies of a package: each one
+ * that moves to a newer version (a major step is in yellow, it is the one to look at), and the ones
+ * that are left on purpose (the compiler, an exact pin).
+ *
+ * @param {DependencyUpdatePlan} plan
+ * @param {string} [indent]
+ * @returns {string[]}
+ */
+export function buildDependencyLines(plan, indent = '') {
+  if (plan.updates.length === 0) {
+    return [`${indent}${description('Dependencies    :')} ${success('all at the latest')}`];
+  }
+
+  const width = Math.max(...plan.updates.map(({ name }) => name.length));
+
+  /** @type {string[]} */
+  const lines = [
+    `${indent}${description('Dependencies    :')} ${success(String(plan.updates.length))} to update`,
+    ...plan.updates.map(
+      ({ name, field, from, to, change }) =>
+        `${indent}  ${info(name.padEnd(width))} ${description((FIELD_LABELS[field] ?? field).padEnd(4))} ${warning(from)} ${description('→')} ${success(to)} ${CHANGE_COLORS[change](`(${change})`)}`,
+    ),
+  ];
+
+  const kept = [
+    ...new Set(
+      plan.skipped
+        .filter(({ reason }) => reason === 'excluded' || reason === 'pinned')
+        .map(({ name, reason }) => `${name} (${reason})`),
+    ),
+  ];
+
+  if (kept.length > 0) {
+    lines.push(`${indent}${description('Not updated     :')} ${kept.join(', ')}`);
+  }
+
+  return lines;
+}
+
 /**
  * Prompts the user to confirm republishing.
  *
  * @param {PublishPackageMetadata} metadata
  * @param {string} version
+ * @param {DependencyUpdatePlan} [dependencyPlan]
  * @returns {Promise<boolean>}
  */
-export function confirmRepublish(metadata, version) {
+export function confirmRepublish(metadata, version, dependencyPlan) {
   return confirm(
     buildConfirmationMessage(heading(`Republish "${success(metadata.npmPackageName)}"?`), [
       `${description('Workspace       :')} ${info(metadata.workspaceName)}`,
       `${description('Current Version :')} ${warning(metadata.localVersion)}`,
       `${description('Next Version    :')} ${success(version)}`,
+      ...(dependencyPlan ? buildDependencyLines(dependencyPlan) : []),
     ]),
   );
 }
@@ -123,6 +180,7 @@ export function confirmRepublish(metadata, version) {
  * @param {{
  *   metadata: PublishPackageMetadata;
  *   version: string;
+ *   dependencyPlan?: DependencyUpdatePlan;
  * }[]} packages
  * @returns {Promise<boolean>}
  */
@@ -132,10 +190,10 @@ export function confirmRepublishMany(packages) {
       heading(
         `Republish ${success(String(packages.length))} package${packages.length === 1 ? '' : 's'}?`,
       ),
-      packages.map(
-        ({ metadata, version }) =>
-          `${info(metadata.workspaceName.padEnd(20))} ${warning(metadata.localVersion)} ${description('→')} ${success(version)}`,
-      ),
+      packages.flatMap(({ metadata, version, dependencyPlan }) => [
+        `${info(metadata.workspaceName.padEnd(20))} ${warning(metadata.localVersion)} ${description('→')} ${success(version)}`,
+        ...(dependencyPlan ? buildDependencyLines(dependencyPlan, '  ') : []),
+      ]),
     ),
   );
 }

@@ -59,7 +59,7 @@
   "dependencies": {
     "@beautinique/backend-classes": "^1.1.0",
     "@beautinique/backend-utils": "^1.1.0",
-    "mongoose": "^9.10.4"
+    "mongoose": "^9.11.2"
   },
   "peerDependencies": {
     "@types/express": "^5.0.0",

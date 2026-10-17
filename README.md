@@ -68,9 +68,12 @@ BQ-Packages/
 │   │       ├── readme.mjs
 │   │       ├── tsconfig.mjs
 │   │       └── tsup.mjs
+│   ├── sync-allow-scripts/
+│   │   └── index.mjs
 │   └── clean.mjs
 │   └── package-publisher/
 │       ├── index.mjs
+│       ├── allow-scripts.mjs
 │       ├── auth.mjs
 │       ├── batch-operation.mjs
 │       ├── color.mjs
@@ -87,6 +90,7 @@ BQ-Packages/
 │       ├── publish.mjs
 │       ├── reporter.mjs
 │       ├── republish.mjs
+│       ├── dependency-update.mjs
 │       ├── table.mjs
 │       ├── types.mjs
 │       ├── utils.mjs
@@ -131,17 +135,64 @@ BQ-Packages/
 | `create`       | `node ./scripts/create-package/index.mjs`    | Launch interactive package generator        |
 | `publish`      | `node ./scripts/package-publisher/index.mjs` | Launch interactive package publisher        |
 | `clean`        | `node ./scripts/clean.mjs`                   | Launch interactive package publisher        |
+| `republish`    | `node ./scripts/republish/index.mjs`         | Republish packages (also updates their dependencies, see 6.3.15) |
+| `update-deps`  | `node ./scripts/update-dependencies/index.mjs` | Update the dependencies of **every package and the root** to the latest version (see below) |
+| `sync-allow-scripts` | `node ./scripts/sync-allow-scripts/index.mjs` | Move the `allowScripts` approval of a package to its new installed version (see "Install scripts" below) |
+| `test:scripts` | `node --test "scripts/**/*.test.mjs"`        | Tests of the scripts themselves (Node's own test runner) |
+
+#### `npm run update-deps`
+
+Moves the dependencies of every `package.json` of the repository (the root and each package) to the latest version on npm, by the same rules as a republish (see 6.3.15): `typescript` (`DEPENDENCY_UPDATE_EXCLUDED_PACKAGES`), exact versions and the peer ranges of other people's packages are left as they are; a dependency is never moved to an older version.
+
+It shows the plan first (a major step is in yellow), asks, writes the `package.json` files in the style they had, and runs `npm install`. If something fails after the first file was written, the `package.json` files and `package-lock.json` go back as they were. Then check the result with `npm run typecheck`, `npm run lint`, `npm run test` and `npm run build`.
+
+```bash
+npm run update-deps                   # plan, ask, write, npm install
+npm run update-deps -- --dry-run      # only the plan, nothing is written
+npm run update-deps -- --yes          # do not ask
+npm run update-deps -- --no-install   # write the files, do not run npm install
+```
+
+Code: `scripts/update-dependencies/` (the rules are the ones of `scripts/republish/dependency-update.mjs`).
+
+#### Install scripts (`allowScripts`)
+
+npm 12 does not run the install script of a dependency (`canvas`, `esbuild`, `msgpackr-extract`) unless the root `package.json` allows it in `allowScripts`, and the key is pinned to an exact version (`"esbuild@0.28.2": true`). So every new version of such a package used to be blocked until the key was changed by hand.
+
+Now every `npm install` of the scripts (`update-deps`, `republish`, `publish`) is followed by a check (`scripts/common/allow-scripts.mjs`, wired in `installWorkspaceDependencies`): it asks `npm install-scripts ls --json` what was blocked and
+
+- **a package that was approved before** (another version of it is `true` in `allowScripts`, none is `false`): the approval moves to the installed version (`npm install-scripts approve <name>`, which also drops the old key) and its script is run (`npm rebuild <name>`). It says so in one line, e.g. `the approval of "esbuild" moved from esbuild@0.27.7 to esbuild@0.28.2`;
+- **a package never approved**: nothing is approved. It is named, with the command to approve it (`npm install-scripts approve <name>`). A script that is new to the project is a decision for a person;
+- if the check itself cannot run, it warns and the install goes on.
+
+A plain `npm install` / `npm update` run by hand is not followed by this check. For that there is a command that does the same check on its own:
+
+```bash
+npm run sync-allow-scripts             # check what npm blocked, move the approvals, run the scripts
+npm run sync-allow-scripts -- --dry-run # only say what it would do, change nothing
+npm run sync-allow-scripts -- --help
+```
+
+When to use it: after you ran `npm install` or `npm update` yourself and npm printed `npm warn install-scripts ... had install scripts blocked`. Run `npm run sync-allow-scripts`; the output is one of
+
+| Output | Meaning |
+| --- | --- |
+| `No install script is waiting` | Nothing is blocked: `allowScripts` covers everything npm installed. |
+| `the approval of "esbuild" moved from esbuild@0.27.7 to esbuild@0.28.2` | The key in the root `package.json` is changed and the script was run. Commit the `package.json` change. |
+| `npm blocked the install script of sharp@1.0.0, which was never approved here` | It is new to the project, so it is not approved for you. Look at what it does, then `npm install-scripts approve sharp` (or `npm install-scripts deny sharp`). |
+
+It needs npm 12 (the `install-scripts` command; tried with npm 12.2.0 and Node 24.21.0). With an older npm it stops with npm's own error, and the checks that run after the scripts' `npm install` only warn. `--dry-run` is done by this command, not by `npm install-scripts approve --dry-run`, which in npm 12.2 still writes the `package.json`. Code: `scripts/sync-allow-scripts/` (the entry) and `scripts/common/allow-scripts.mjs` (the logic).
 
 ### Key DevDependencies
 
 | Dependency          | Version   | Purpose                      |
 | ------------------- | --------- | ---------------------------- |
 | `typescript`        | `^6.0.3`  | TypeScript compiler          |
-| `tsup`              | `^8.5.1`  | Build tool (esbuild wrapper) |
-| `eslint`            | `^10.5.0` | Linting                      |
-| `typescript-eslint` | `^8.62.0` | TypeScript ESLint rules      |
-| `prettier`          | `^3.8.5`  | Code formatting              |
-| `inquirer`          | `^14.0.2` | Interactive CLI prompts      |
+| `tsup`              | `^9.0.0`  | Build tool (esbuild wrapper) |
+| `eslint`            | `^10.13.0` | Linting                     |
+| `typescript-eslint` | `^8.71.2` | TypeScript ESLint rules      |
+| `prettier`          | `^3.9.10` | Code formatting              |
+| `inquirer`          | `^14.2.3` | Interactive CLI prompts      |
 | `semver`            | `^7.8.5`  | Semantic versioning          |
 | `picocolors`        | `^1.1.1`  | Terminal colors              |
 
@@ -347,9 +398,26 @@ Uses `inquirer` to build prompts for:
 - Sorts packages so dependencies are published before dependents
 
 #### 6.3.15 `republish.mjs`
-- `republishPackage` — selects version strategy, calculates next, confirms, republishes
+- `republishPackage` — selects version strategy, calculates next, **checks the latest version of every dependency**, confirms, republishes
 - `republishPackages` — batch republish with dependency ordering
-- **Rollback safety**: If republish fails, restores the original version in `package.json`
+- **Dependencies are updated by every republish** (see below)
+- **Rollback safety**: If republish fails, restores the original `package.json` files **and the lockfile** (`npm install` rewrites it)
+
+**What a republish does with the dependencies of the package** (`republish/dependency-update.mjs`). The confirmation shows every change before anything is written (a major step is in yellow, and what is left on purpose is listed); after "yes" the ranges are written, `npm install` runs, the package is built and published:
+
+| Dependency | What happens |
+| --- | --- |
+| A package of this repository that is in the **same** release | takes the version it is released with (as before) |
+| A package of this repository that is **not** in the release (its `dependencies`, `devDependencies` **and** `peerDependencies`) | goes to the latest version on npm, so a package never keeps a peer range that lacks a fix |
+| Any other package (`dependencies`, `devDependencies`, `optionalDependencies`) | goes to the latest version on npm, in the style of its range (`^1.2.3` → `^1.4.0`, `~` stays `~`) |
+| An **exact** version (`"1.0.1"`) | left: an exact version is a pin, put there on purpose (for example `@mediapipe/tasks-vision`, which has to be the same version as the constants that load its WebAssembly) |
+| `typescript` | left: a major version of the compiler is raised by hand. The list is `DEPENDENCY_UPDATE_EXCLUDED_PACKAGES` in `republish/constants.mjs` |
+| The `peerDependencies` of other people's packages (`react ^19.0.0`) | left: a peer range says what the package works with, and raising it would shut out everyone who has an older one |
+| A range that is not one version (`^7 \|\| ^8`, `>=18`, a tag, `workspace:`), a package npm does not know, or one npm cannot be asked about (offline) | left (offline gives a warning; it does not stop the republish) |
+
+A dependency is never moved to an older version.
+
+The logic is in pure functions (`planDependencyUpdates`, `applyDependencyUpdates`) tested with Node's own runner: `npm run test:scripts`.
 
 #### 6.3.16 `batch-operation.mjs`
 Generic batch runner with:

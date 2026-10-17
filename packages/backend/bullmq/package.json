@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@beautinique/backend-types": "^1.1.0",
-    "bullmq": "^6.3.11",
-    "ioredis": "^5.11.1"
+    "bullmq": "^6.3.16",
+    "ioredis": "^6.0.0"
   }
 }

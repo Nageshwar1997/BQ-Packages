@@ -44,3 +44,10 @@ export const DEPENDENCY_FIELDS = [
 ];
 
 export const UNSUPPORTED_DEPENDENCY_VALUE_PREFIXES = ['workspace:', 'file:', 'link:', 'github:'];
+
+/**
+ * Packages a republish never moves to a newer version by itself. A major version of the compiler can
+ * break every package at once, so it is raised by hand, and on purpose. Empty this list to have it
+ * updated with the rest.
+ */
+export const DEPENDENCY_UPDATE_EXCLUDED_PACKAGES = Object.freeze(['typescript']);

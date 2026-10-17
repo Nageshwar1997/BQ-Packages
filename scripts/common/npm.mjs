@@ -12,7 +12,7 @@ import { parseData, runCommand, runInteractiveCommand } from './utils.mjs';
  * @param {unknown} error
  * @returns {boolean}
  */
-function isPackageNotFound(error) {
+export function isPackageNotFound(error) {
   return (
     error instanceof Error && (/\bE404\b/.test(error.message) || /\b404\b/.test(error.message))
   );
